@@ -6,6 +6,9 @@ import '../screens/leads/fresh_leads_screen.dart';
 import '../screens/leads/follow_ups_screen.dart';
 import '../screens/leads/overdue_screen.dart';
 import '../screens/leads/completed_screen.dart';
+import '../screens/contacts/all_contacts_screen.dart';
+import '../screens/contacts/new_contact_screen.dart';
+import '../screens/contacts/bulk_upload_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -67,9 +70,15 @@ class AppDrawer extends StatelessWidget {
             ]),
             _DrawerItem(Icons.calendar_today_outlined, 'Appointments', 2, selectedIndex, () => onItemSelected(2), Colors.blue),
             _ExpandableDrawerItem(Icons.people_outline, 'Contacts', 3, selectedIndex, () => onItemSelected(3), [
-              _SubItem('All Contacts', () {}),
-              _SubItem('New Contact', () {}),
-              _SubItem('Bulk Upload', () {}),
+              _SubItem('All Contacts', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AllContactsScreen()));
+              }),
+              _SubItem('New Contact', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const NewContactScreen()));
+              }),
+              _SubItem('Bulk Upload', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const BulkUploadScreen()));
+              }),
             ]),
             _ExpandableDrawerItem(Icons.task_alt_outlined, 'Tasks', 4, selectedIndex, () => onItemSelected(4), [
               _SubItem('New Task', () {}),
