@@ -30,7 +30,8 @@ class _NewContactScreenState extends State<NewContactScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('New Contact', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: const Text('New Contact',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -60,15 +61,22 @@ class _NewContactScreenState extends State<NewContactScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('New contact', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                // const Text('New contact', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                const Text('Create a new contact profile.', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                const Text('Create a new contact profile.',
+                    style: TextStyle(color: Colors.grey, fontSize: 13)),
                 const SizedBox(height: 24),
                 RichText(
                   text: const TextSpan(
                     text: 'Name ',
-                    style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-                    children: [TextSpan(text: '*', style: TextStyle(color: Colors.red))],
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter'),
+                    children: [
+                      TextSpan(text: '*', style: TextStyle(color: Colors.red))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -79,13 +87,22 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     prefixIcon: const Icon(Icons.person_outline, size: 20),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Email', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                const Text('Email',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _emailController,
@@ -94,17 +111,28 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     prefixIcon: const Icon(Icons.email_outlined, size: 20),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
                 const SizedBox(height: 20),
                 RichText(
                   text: const TextSpan(
                     text: 'Contact Number ',
-                    style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-                    children: [TextSpan(text: '*', style: TextStyle(color: Colors.red))],
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter'),
+                    children: [
+                      TextSpan(text: '*', style: TextStyle(color: Colors.red))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -115,13 +143,22 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     prefixIcon: const Icon(Icons.phone_outlined, size: 20),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Contact Number 2', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                const Text('Contact Number 2',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _contactNumber2Controller,
@@ -130,17 +167,28 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     prefixIcon: const Icon(Icons.phone_outlined, size: 20),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
                 const SizedBox(height: 20),
                 RichText(
                   text: const TextSpan(
                     text: 'Address ',
-                    style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-                    children: [TextSpan(text: '*', style: TextStyle(color: Colors.red))],
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter'),
+                    children: [
+                      TextSpan(text: '*', style: TextStyle(color: Colors.red))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -155,28 +203,45 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     ),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
                     contentPadding: const EdgeInsets.all(16),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Country', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                const Text('Country',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     hintText: 'Select Country',
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                   items: const [],
                   onChanged: (value) {},
                 ),
                 const SizedBox(height: 20),
-                const Text('State', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                const Text('State',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _stateController,
@@ -185,28 +250,47 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     prefixIcon: const Icon(Icons.map_outlined, size: 20),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('City', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                const Text('City',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _cityController,
                   decoration: InputDecoration(
                     hintText: 'City',
-                    prefixIcon: const Icon(Icons.location_city_outlined, size: 20),
+                    prefixIcon:
+                        const Icon(Icons.location_city_outlined, size: 20),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Zip', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                const Text('Zip',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _zipController,
@@ -215,13 +299,22 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     prefixIcon: const Icon(Icons.pin_outlined, size: 20),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Lead Source', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                const Text('Lead Source',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _leadSourceController,
@@ -230,13 +323,22 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     prefixIcon: const Icon(Icons.source_outlined, size: 20),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Remark', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
+                const Text('Remark',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _remarkController,
@@ -248,8 +350,12 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     ),
                     filled: true,
                     fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
+                    enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey[300]!)),
                     contentPadding: const EdgeInsets.all(16),
                   ),
                 ),
@@ -261,9 +367,14 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Add contact', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                    child: const Text('Add contact',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white)),
                   ),
                 ),
               ],

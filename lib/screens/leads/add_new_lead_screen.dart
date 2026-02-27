@@ -25,8 +25,11 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title:
-            const Text('Add New Lead', style: TextStyle(color: Colors.black)),
+        title: const Text('New Lead',
+            style: TextStyle(
+                color: Colors.black,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -46,20 +49,25 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'New Lead',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+              // const Text(
+              //   'New Lead',
+              //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+              // ),
               const SizedBox(height: 4),
               const Text(
                 'Create a new lead and attach to an existing or new contact.',
-                style: TextStyle(color: Colors.grey, fontSize: 13),
+                style: TextStyle(
+                    color: Colors.grey, fontSize: 13, fontFamily: 'Inter'),
               ),
               const SizedBox(height: 24),
               RichText(
                 text: const TextSpan(
                   text: 'Contact ',
-                  style: TextStyle(color: Colors.black, fontSize: 14),
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter'),
                   children: [
                     TextSpan(
                       text: '*',
@@ -71,9 +79,12 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: _selectedContact,
+                style: const TextStyle(
+                    fontFamily: 'Inter', color: Colors.black, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Select Contact or Add New',
-                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                  hintStyle: const TextStyle(
+                      color: Colors.grey, fontSize: 14, fontFamily: 'Inter'),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -93,14 +104,21 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text(
                 'Service Interested in',
-                style: TextStyle(color: Colors.black, fontSize: 14),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter'),
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: _selectedService,
+                style: const TextStyle(
+                    fontFamily: 'Inter', color: Colors.black, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Select Service',
-                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                  hintStyle: const TextStyle(
+                      color: Colors.grey, fontSize: 14, fontFamily: 'Inter'),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -120,13 +138,19 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text(
                 'Tags',
-                style: TextStyle(color: Colors.black, fontSize: 14),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter'),
               ),
               const SizedBox(height: 8),
               TextField(
+                style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Add tags...',
-                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                  hintStyle: const TextStyle(
+                      color: Colors.grey, fontSize: 14, fontFamily: 'Inter'),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -144,15 +168,21 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text(
                 'Notes',
-                style: TextStyle(color: Colors.black, fontSize: 14),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter'),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _notesController,
                 maxLines: 4,
+                style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Description or Notes',
-                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                  hintStyle: const TextStyle(
+                      color: Colors.grey, fontSize: 14, fontFamily: 'Inter'),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -169,7 +199,11 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text(
                 'Follow-up Date',
-                style: TextStyle(color: Colors.blue, fontSize: 14),
+                style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter'),
               ),
               const SizedBox(height: 8),
               InkWell(
@@ -199,7 +233,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                         _followUpDate != null
                             ? '${_followUpDate!.day}/${_followUpDate!.month}/${_followUpDate!.year}'
                             : '',
-                        style: const TextStyle(fontSize: 14),
+                        style:
+                            const TextStyle(fontSize: 14, fontFamily: 'Inter'),
                       ),
                     ],
                   ),
@@ -208,7 +243,11 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text(
                 'Follow-up Time',
-                style: TextStyle(color: Colors.blue, fontSize: 14),
+                style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter'),
               ),
               const SizedBox(height: 8),
               InkWell(
@@ -236,7 +275,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                         _followUpTime != null
                             ? _followUpTime!.format(context)
                             : '--:--',
-                        style: const TextStyle(fontSize: 14),
+                        style:
+                            const TextStyle(fontSize: 14, fontFamily: 'Inter'),
                       ),
                       const Spacer(),
                       Icon(Icons.watch_later_outlined,
@@ -262,7 +302,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white),
+                        color: Colors.white,
+                        fontFamily: 'Inter'),
                   ),
                 ),
               ),

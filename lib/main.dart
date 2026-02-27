@@ -3,8 +3,8 @@ import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/leads/all_leads_screen.dart';
 import 'screens/appointments/appointments_screen.dart';
-import 'screens/services_screen.dart';
-import 'screens/tags_screen.dart';
+import 'services/services_screen.dart';
+import 'screens/tags/tags_screen.dart';
 import 'widgets/app_drawer.dart';
 
 void main() => runApp(const CloopApp());
@@ -48,7 +48,8 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   String _getGreeting() {
-    final hour = DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30)).hour;
+    final hour =
+        DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30)).hour;
     if (hour < 12) return 'Good Morning';
     if (hour < 17) return 'Good Afternoon';
     return 'Good Evening';
@@ -70,7 +71,11 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             Image.asset('assets/images/logo-md.webp', height: 32),
             const SizedBox(width: 8),
-            const Text('Cloop', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20)),
+            const Text('Cloop',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20)),
           ],
         ),
         actions: [
@@ -80,8 +85,13 @@ class _MainScreenState extends State<MainScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(_getGreeting(), style: const TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.w500)),
-                const Text('Welcome', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                Text(_getGreeting(),
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500)),
+                const Text('Welcome',
+                    style: TextStyle(color: Colors.grey, fontSize: 10)),
               ],
             ),
           ),
