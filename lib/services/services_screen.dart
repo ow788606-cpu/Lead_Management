@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_services.dart';
+import 'service_manager.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({super.key});
@@ -9,7 +10,7 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  final List<String> _services = ['scscs'];
+  final _serviceManager = ServiceManager();
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +55,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           MaterialPageRoute(builder: (context) => const AddServicesScreen()),
                         );
                         if (result != null && result.isNotEmpty) {
-                          setState(() => _services.add(result));
+                          setState(() => _serviceManager.addService(result));
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -69,7 +70,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 const SizedBox(height: 24),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: _services.length,
+                    itemCount: _serviceManager.services.length,
                     itemBuilder: (context, index) {
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -94,7 +95,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             ),
                             const SizedBox(width: 16),
                             Expanded(
-                              child: Text(_services[index], style: const TextStyle(fontSize: 14, fontFamily: 'Inter')),
+                              child: Text(_serviceManager.services[index], style: const TextStyle(fontSize: 14, fontFamily: 'Inter')),
                             ),
                             IconButton(
                               icon: const Icon(Icons.edit, size: 18, color: Colors.blue),
@@ -103,7 +104,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             IconButton(
                               icon: const Icon(Icons.delete, size: 18, color: Colors.red),
                               onPressed: () {
-                                setState(() => _services.removeAt(index));
+                                setState(() => _serviceManager.removeService(index));
                               },
                             ),
                           ],
