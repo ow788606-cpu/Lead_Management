@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/service_manager.dart';
+import '../../managers/lead_manager.dart';
+import '../../models/lead.dart';
 
 class AddNewLeadScreen extends StatefulWidget {
   const AddNewLeadScreen({super.key});
@@ -24,6 +26,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
   TimeOfDay? _followUpTime;
   bool _showContactForm = false;
   final _serviceManager = ServiceManager();
+  final _leadManager = LeadManager();
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +193,13 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
-                  items: const [],
+                  items: const [
+                    DropdownMenuItem(value: 'Australia', child: Text('Australia', style: TextStyle(fontFamily: 'Inter'))),
+                    DropdownMenuItem(value: 'Canada', child: Text('Canada', style: TextStyle(fontFamily: 'Inter'))),
+                    DropdownMenuItem(value: 'United Kingdom', child: Text('United Kingdom', style: TextStyle(fontFamily: 'Inter'))),
+                    DropdownMenuItem(value: 'United States', child: Text('United States', style: TextStyle(fontFamily: 'Inter'))),
+                    DropdownMenuItem(value: 'Other', child: Text('Other', style: TextStyle(fontFamily: 'Inter'))),
+                  ],
                   onChanged: (value) {},
                 ),
                 const SizedBox(height: 20),
@@ -347,7 +356,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _createLead,
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                   child: const Text('Create Lead', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white, fontFamily: 'Inter')),
                 ),
@@ -357,6 +366,33 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
         ),
       ),
     );
+  }
+
+  void _createLead() {
+    if (_selectedContact == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a contact')),
+      );
+      return;
+    }
+
+    final lead = Lead(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      contactName: _showContactForm ? _nameController.text : _selectedContact!,
+      email: _showContactForm ? _emailController.text : null,
+      phone: _showContactForm ? _contactNumber1Controller.text : null,
+      service: _selectedService,
+      notes: _notesController.text,
+      followUpDate: _followUpDate,
+      followUpTime: _followUpTime?.format(context),
+      createdAt: DateTime.now(),
+    );
+
+    _leadManager.addLead(lead);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Lead created successfully!')),
+    );
+    Navigator.pop(context);
   }
 
   @override
