@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/leads/all_leads_screen.dart';
+import 'screens/appointments/appointments_screen.dart';
 import 'widgets/app_drawer.dart';
 
 void main() => runApp(const CloopApp());
@@ -37,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const AllLeadsScreen(),
-    const Center(child: Text('Appointments')),
+    const AppointmentsScreen(),
     const Center(child: Text('Contacts')),
     const Center(child: Text('Tasks')),
     const Center(child: Text('Services')),
