@@ -25,13 +25,13 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Add New Lead', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title:
+            const Text('Add New Lead', style: TextStyle(color: Colors.black)),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Container(
-            padding: const EdgeInsets.all(24),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Container(
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -59,7 +59,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               RichText(
                 text: const TextSpan(
                   text: 'Contact ',
-                  style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+                  style: TextStyle(color: Colors.black, fontSize: 14),
                   children: [
                     TextSpan(
                       text: '*',
@@ -70,6 +70,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
+                initialValue: _selectedContact,
                 decoration: InputDecoration(
                   hintText: 'Select Contact or Add New',
                   hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
@@ -83,7 +84,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Colors.grey[300]!),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
                 items: const [],
                 onChanged: (value) => setState(() => _selectedContact = value),
@@ -91,10 +93,11 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text(
                 'Service Interested in',
-                style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.black, fontSize: 14),
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
+                initialValue: _selectedService,
                 decoration: InputDecoration(
                   hintText: 'Select Service',
                   hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
@@ -108,7 +111,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Colors.grey[300]!),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
                 items: const [],
                 onChanged: (value) => setState(() => _selectedService = value),
@@ -116,7 +120,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text(
                 'Tags',
-                style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.black, fontSize: 14),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -133,13 +137,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Colors.grey[300]!),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
               ),
               const SizedBox(height: 20),
               const Text(
                 'Notes',
-                style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.black, fontSize: 14),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -164,7 +169,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text(
                 'Follow-up Date',
-                style: TextStyle(color: Colors.blue, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.blue, fontSize: 14),
               ),
               const SizedBox(height: 8),
               InkWell(
@@ -178,7 +183,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                   if (date != null) setState(() => _followUpDate = date);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(color: Colors.grey[300]!),
@@ -186,7 +192,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 18, color: Colors.grey[600]),
+                      Icon(Icons.calendar_today,
+                          size: 18, color: Colors.grey[600]),
                       const SizedBox(width: 12),
                       Text(
                         _followUpDate != null
@@ -201,7 +208,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text(
                 'Follow-up Time',
-                style: TextStyle(color: Colors.blue, fontSize: 14, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.blue, fontSize: 14),
               ),
               const SizedBox(height: 8),
               InkWell(
@@ -213,7 +220,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                   if (time != null) setState(() => _followUpTime = time);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(color: Colors.grey[300]!),
@@ -221,14 +229,18 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.access_time, size: 18, color: Colors.grey[600]),
+                      Icon(Icons.access_time,
+                          size: 18, color: Colors.grey[600]),
                       const SizedBox(width: 12),
                       Text(
-                        _followUpTime != null ? _followUpTime!.format(context) : '--:--',
+                        _followUpTime != null
+                            ? _followUpTime!.format(context)
+                            : '--:--',
                         style: const TextStyle(fontSize: 14),
                       ),
                       const Spacer(),
-                      Icon(Icons.watch_later_outlined, size: 18, color: Colors.grey[600]),
+                      Icon(Icons.watch_later_outlined,
+                          size: 18, color: Colors.grey[600]),
                     ],
                   ),
                 ),
@@ -247,14 +259,16 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                   ),
                   child: const Text(
                     'Create Lead',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white),
                   ),
                 ),
               ),
             ],
           ),
         ),
-      ),
       ),
     );
   }
