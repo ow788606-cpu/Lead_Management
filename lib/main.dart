@@ -3,6 +3,8 @@ import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/leads/all_leads_screen.dart';
 import 'screens/appointments/appointments_screen.dart';
+import 'screens/services_screen.dart';
+import 'screens/tags_screen.dart';
 import 'widgets/app_drawer.dart';
 
 void main() => runApp(const CloopApp());
@@ -41,8 +43,8 @@ class _MainScreenState extends State<MainScreen> {
     const AppointmentsScreen(),
     const Center(child: Text('Contacts')),
     const Center(child: Text('Tasks')),
-    const Center(child: Text('Services')),
-    const Center(child: Text('Tags')),
+    const ServicesScreen(),
+    const TagsScreen(),
   ];
 
   String _getGreeting() {

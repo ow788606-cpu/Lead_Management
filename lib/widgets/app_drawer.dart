@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../screens/auth/login_screen.dart';
+import '../screens/auth/billing_screen.dart';
+import '../screens/auth/manage_profile_screen.dart';
+import '../screens/auth/change_password_screen.dart';
 import '../screens/leads/add_new_lead_screen.dart';
 import '../screens/leads/all_leads_screen.dart';
 import '../screens/leads/fresh_leads_screen.dart';
@@ -12,6 +15,7 @@ import '../screens/contacts/bulk_upload_screen.dart';
 import '../screens/tasks/new_task_screen.dart';
 import '../screens/tasks/pending_tasks_screen.dart';
 import '../screens/tasks/completed_tasks_screen.dart';
+import '../screens/reports/lead_reports_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -101,16 +105,24 @@ class AppDrawer extends StatelessWidget {
               child: Text('REPORTS', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
             ),
             _ExpandableDrawerItem(Icons.bar_chart_outlined, 'Reports', -1, selectedIndex, () {}, [
-              _SubItem('Lead Reports', () {}),
+              _SubItem('Lead Reports', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const LeadReportsScreen()));
+              }),
             ]),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Text('MY ACCOUNT', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
             ),
             _ExpandableDrawerItem(Icons.person_outline, 'Profile', -2, selectedIndex, () {}, [
-              _SubItem('Billing', () {}),
-              _SubItem('Manage Profile', () {}),
-              _SubItem('Change Password', () {}),
+              _SubItem('Billing', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const BillingScreen()));
+              }),
+              _SubItem('Manage Profile', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageProfileScreen()));
+              }),
+              _SubItem('Change Password', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordScreen()));
+              }),
             ]),
             ListTile(
               leading: const Icon(Icons.logout, size: 18, color: Colors.blue),
