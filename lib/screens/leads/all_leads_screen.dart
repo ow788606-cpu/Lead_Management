@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
+import '../../services/service_manager.dart';
+import '../tags/app_tags.dart';
 
 class AllLeadsScreen extends StatefulWidget {
   const AllLeadsScreen({super.key});
@@ -10,6 +12,7 @@ class AllLeadsScreen extends StatefulWidget {
 
 class _AllLeadsScreenState extends State<AllLeadsScreen> {
   final _leadManager = LeadManager();
+  final _serviceManager = ServiceManager();
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +27,11 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('All Leads', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+        title: const Text('All Leads',
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter')),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list, color: Colors.blue),
@@ -39,86 +46,228 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Search', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                        const Text('Search',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Inter')),
                         const SizedBox(height: 8),
                         TextField(
-                          style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
+                          style: const TextStyle(
+                              fontFamily: 'Inter', fontSize: 14),
                           decoration: InputDecoration(
                             hintText: 'Search by Name, Email, Phone ...',
-                            hintStyle: const TextStyle(color: Colors.grey, fontSize: 14, fontFamily: 'Inter'),
+                            hintStyle: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                                fontFamily: 'Inter'),
                             filled: true,
                             fillColor: Colors.white,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!)),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 12),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const Text('Status', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                        const Text('Status',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Inter')),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
                           isExpanded: true,
-                          style: const TextStyle(fontFamily: 'Inter', color: Colors.black, fontSize: 12),
+                          style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: Colors.black,
+                              fontSize: 12),
                           decoration: InputDecoration(
                             hintText: 'All Statuses',
-                            hintStyle: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'Inter'),
+                            hintStyle: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                                fontFamily: 'Inter'),
                             filled: true,
                             fillColor: Colors.white,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!)),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                           ),
                           items: const [
-                            DropdownMenuItem(value: 'All Statuses', child: Text('All Statuses', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'New Lead', child: Text('New Lead', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Appointment Scheduled', child: Text('Appointment Scheduled', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'SMS Sent', child: Text('SMS Sent', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Email Sent', child: Text('Email Sent', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Call Later', child: Text('Call Later', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Ringing No Response', child: Text('Ringing No Response', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Busy', child: Text('Busy', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Switched Off / Unavailable', child: Text('Switched Off / Unavailable', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Not Interested', child: Text('Not Interested', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Invalid Number', child: Text('Invalid Number', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Lost', child: Text('Lost', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
-                            DropdownMenuItem(value: 'Converted', child: Text('Converted', style: TextStyle(fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'All Statuses',
+                                child: Text('All Statuses',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'New Lead',
+                                child: Text('New Lead',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Appointment Scheduled',
+                                child: Text('Appointment Scheduled',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'SMS Sent',
+                                child: Text('SMS Sent',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Email Sent',
+                                child: Text('Email Sent',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Call Later',
+                                child: Text('Call Later',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Ringing No Response',
+                                child: Text('Ringing No Response',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Busy',
+                                child: Text('Busy',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Switched Off / Unavailable',
+                                child: Text('Switched Off / Unavailable',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Not Interested',
+                                child: Text('Not Interested',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Invalid Number',
+                                child: Text('Invalid Number',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Lost',
+                                child: Text('Lost',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            DropdownMenuItem(
+                                value: 'Converted',
+                                child: Text('Converted',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
                           ],
                           onChanged: (value) {},
                         ),
                         const SizedBox(height: 16),
-                        const Text('Service', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                        const Text('Service',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Inter')),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
                           isExpanded: true,
-                          style: const TextStyle(fontFamily: 'Inter', color: Colors.black, fontSize: 12),
+                          style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: Colors.black,
+                              fontSize: 12),
                           decoration: InputDecoration(
                             hintText: 'All Services',
-                            hintStyle: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'Inter'),
+                            hintStyle: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                                fontFamily: 'Inter'),
                             filled: true,
                             fillColor: Colors.white,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!)),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                           ),
-                          items: const [],
+                          items: [
+                            const DropdownMenuItem(
+                                value: 'All Services',
+                                child: Text('All Services',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            ..._serviceManager.services.map((service) =>
+                                DropdownMenuItem(
+                                    value: service,
+                                    child: Text(service,
+                                        style: const TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 12)))),
+                          ],
                           onChanged: (value) {},
                         ),
                         const SizedBox(height: 16),
-                        const Text('Tag', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                        const Text('Tag',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Inter')),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
                           isExpanded: true,
-                          style: const TextStyle(fontFamily: 'Inter', color: Colors.black, fontSize: 12),
+                          style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: Colors.black,
+                              fontSize: 12),
                           decoration: InputDecoration(
                             hintText: 'All Tags',
-                            hintStyle: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'Inter'),
+                            hintStyle: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                                fontFamily: 'Inter'),
                             filled: true,
                             fillColor: Colors.white,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide(color: Colors.grey[300]!)),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide:
+                                    BorderSide(color: Colors.grey[300]!)),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
                           ),
-                          items: const [],
+                          items: [
+                            const DropdownMenuItem(
+                                value: 'All Tags',
+                                child: Text('All Tags',
+                                    style: TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12))),
+                            ...AppTags.tags.map((tag) => DropdownMenuItem(
+                                value: tag,
+                                child: Text(tag,
+                                    style: const TextStyle(
+                                        fontFamily: 'Inter', fontSize: 12)))),
+                          ],
                           onChanged: (value) {},
                         ),
                         const SizedBox(height: 24),
@@ -129,20 +278,33 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                               onPressed: () => Navigator.pop(context),
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.grey[600],
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4)),
                               ),
-                              child: const Text('Reset', style: TextStyle(fontSize: 14, color: Colors.white, fontFamily: 'Inter')),
+                              child: const Text('Reset',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                      fontFamily: 'Inter')),
                             ),
                             const SizedBox(width: 12),
                             ElevatedButton(
                               onPressed: () => Navigator.pop(context),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF2563EB),
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4)),
                               ),
-                              child: const Text('Apply', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white, fontFamily: 'Inter')),
+                              child: const Text('Apply',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      fontFamily: 'Inter')),
                             ),
                           ],
                         ),
@@ -174,13 +336,24 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('All Leads', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                const Text('All Leads',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter')),
                 const SizedBox(height: 4),
-                const Text('View all your leads.', style: TextStyle(color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
+                const Text('View all your leads.',
+                    style: TextStyle(
+                        color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
                 const SizedBox(height: 24),
                 Expanded(
                   child: leads.isEmpty
-                      ? const Center(child: Text('No leads found.', style: TextStyle(color: Colors.grey, fontSize: 14, fontFamily: 'Inter')))
+                      ? const Center(
+                          child: Text('No leads found.',
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                  fontFamily: 'Inter')))
                       : ListView.builder(
                           itemCount: leads.length,
                           itemBuilder: (context, index) {
@@ -199,29 +372,68 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                                   Row(
                                     children: [
                                       Expanded(
-                                        child: Text(lead.contactName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                                        child: Text(lead.contactName,
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Inter')),
                                       ),
                                       if (lead.isCompleted)
                                         Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(color: Colors.green[50], borderRadius: BorderRadius.circular(4)),
-                                          child: const Text('Completed', style: TextStyle(fontSize: 12, color: Colors.green, fontFamily: 'Inter')),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                              color: Colors.green[50],
+                                              borderRadius:
+                                                  BorderRadius.circular(4)),
+                                          child: const Text('Completed',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.green,
+                                                  fontFamily: 'Inter')),
                                         ),
                                       if (lead.isOverdue)
                                         Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(4)),
-                                          child: const Text('Overdue', style: TextStyle(fontSize: 12, color: Colors.red, fontFamily: 'Inter')),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                              color: Colors.red[50],
+                                              borderRadius:
+                                                  BorderRadius.circular(4)),
+                                          child: const Text('Overdue',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.red,
+                                                  fontFamily: 'Inter')),
                                         ),
                                     ],
                                   ),
                                   const SizedBox(height: 8),
-                                  if (lead.phone != null) Text('Phone: ${lead.phone}', style: const TextStyle(fontSize: 14, fontFamily: 'Inter', color: Colors.grey)),
-                                  if (lead.email != null) Text('Email: ${lead.email}', style: const TextStyle(fontSize: 14, fontFamily: 'Inter', color: Colors.grey)),
-                                  if (lead.service != null) Text('Service: ${lead.service}', style: const TextStyle(fontSize: 14, fontFamily: 'Inter', color: Colors.grey)),
+                                  if (lead.phone != null)
+                                    Text('Phone: ${lead.phone}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Inter',
+                                            color: Colors.grey)),
+                                  if (lead.email != null)
+                                    Text('Email: ${lead.email}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Inter',
+                                            color: Colors.grey)),
+                                  if (lead.service != null)
+                                    Text('Service: ${lead.service}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Inter',
+                                            color: Colors.grey)),
                                   if (lead.followUpDate != null)
-                                    Text('Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
-                                        style: const TextStyle(fontSize: 14, fontFamily: 'Inter', color: Colors.blue)),
+                                    Text(
+                                        'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Inter',
+                                            color: Colors.blue)),
                                 ],
                               ),
                             );

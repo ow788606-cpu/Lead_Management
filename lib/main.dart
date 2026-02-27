@@ -6,6 +6,7 @@ import 'screens/appointments/appointments_screen.dart';
 import 'services/services_screen.dart';
 import 'screens/tags/tags_screen.dart';
 import 'widgets/app_drawer.dart';
+import 'managers/auth_manager.dart';
 
 void main() => runApp(const CloopApp());
 
@@ -22,7 +23,44 @@ class CloopApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFFF8F9FA),
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      home: const SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final authManager = AuthManager();
+    final isLoggedIn = await authManager.isLoggedIn();
+    
+    if (!mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => isLoggedIn ? const MainScreen() : const LoginScreen(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 }

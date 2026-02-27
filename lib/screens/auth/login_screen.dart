@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../auth/forgot_password_screen.dart';
 import '../../main.dart';
+import '../../managers/auth_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -155,7 +156,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      final authManager = AuthManager();
+                      await authManager.setLoggedIn(true);
+                      if (!context.mounted) return;
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => const MainScreen()),

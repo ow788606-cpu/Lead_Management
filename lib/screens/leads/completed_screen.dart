@@ -17,6 +17,19 @@ class _CompletedScreenState extends State<CompletedScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Completed Leads',
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter')),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -36,8 +49,6 @@ class _CompletedScreenState extends State<CompletedScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Completed Leads', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
-                const SizedBox(height: 4),
                 const Text('Leads that have been completed.', style: TextStyle(color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
                 const SizedBox(height: 24),
                 Expanded(

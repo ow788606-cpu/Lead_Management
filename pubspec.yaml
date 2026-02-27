@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   fl_chart: ^0.65.0
+  shared_preferences: ^2.2.2
+  flutter_colorpicker: ^1.1.0
 
 dev_dependencies:
   flutter_test:

@@ -133,6 +133,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _contactNumber1Controller,
+                  keyboardType: TextInputType.phone,
                   style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Primary Contact Number',
@@ -150,6 +151,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _contactNumber2Controller,
+                  keyboardType: TextInputType.phone,
                   style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Alternate Contact Number',
