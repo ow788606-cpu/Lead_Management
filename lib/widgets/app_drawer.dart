@@ -9,6 +9,9 @@ import '../screens/leads/completed_screen.dart';
 import '../screens/contacts/all_contacts_screen.dart';
 import '../screens/contacts/new_contact_screen.dart';
 import '../screens/contacts/bulk_upload_screen.dart';
+import '../screens/tasks/new_task_screen.dart';
+import '../screens/tasks/pending_tasks_screen.dart';
+import '../screens/tasks/completed_tasks_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -81,9 +84,15 @@ class AppDrawer extends StatelessWidget {
               }),
             ]),
             _ExpandableDrawerItem(Icons.task_alt_outlined, 'Tasks', 4, selectedIndex, () => onItemSelected(4), [
-              _SubItem('New Task', () {}),
-              _SubItem('Pending Tasks', () {}),
-              _SubItem('Completed Tasks', () {}),
+              _SubItem('New Task', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const NewTaskScreen()));
+              }),
+              _SubItem('Pending Tasks', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const PendingTasksScreen()));
+              }),
+              _SubItem('Completed Tasks', () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const CompletedTasksScreen()));
+              }),
             ]),
             _DrawerItem(Icons.business_center_outlined, 'Services', 5, selectedIndex, () => onItemSelected(5), Colors.blue),
             _DrawerItem(Icons.local_offer_outlined, 'Tags', 6, selectedIndex, () => onItemSelected(6), Colors.blue),
