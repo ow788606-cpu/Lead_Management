@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../services/service_manager.dart';
-import '../tags/app_tags.dart';
 import 'detail_lead_screen.dart';
 
 class AllLeadsScreen extends StatefulWidget {
@@ -43,10 +42,11 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                   child: Container(
                     width: 500,
                     padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                         const Text('Search',
                             style: TextStyle(
                                 fontSize: 14,
@@ -232,44 +232,54 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Inter')),
                         const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          isExpanded: true,
-                          style: const TextStyle(
-                              fontFamily: 'Inter',
-                              color: Colors.black,
-                              fontSize: 12),
-                          decoration: InputDecoration(
-                            hintText: 'All Tags',
-                            hintStyle: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 12,
-                                fontFamily: 'Inter'),
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4),
-                                borderSide:
-                                    BorderSide(color: Colors.grey[300]!)),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4),
-                                borderSide:
-                                    BorderSide(color: Colors.grey[300]!)),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                          ),
-                          items: [
-                            const DropdownMenuItem(
-                                value: 'All Tags',
-                                child: Text('All Tags',
-                                    style: TextStyle(
-                                        fontFamily: 'Inter', fontSize: 12))),
-                            ...AppTags.tags.map((tag) => DropdownMenuItem(
-                                value: tag,
-                                child: Text(tag,
-                                    style: const TextStyle(
-                                        fontFamily: 'Inter', fontSize: 12)))),
-                          ],
-                          onChanged: (value) {},
+                        Builder(
+                          builder: (context) {
+                            final uniqueTags = _leadManager.allLeads
+                                .where((lead) => lead.tags != null && lead.tags!.isNotEmpty)
+                                .map((lead) => lead.tags!)
+                                .toSet()
+                                .toList();
+                            
+                            return DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              style: const TextStyle(
+                                  fontFamily: 'Inter',
+                                  color: Colors.black,
+                                  fontSize: 12),
+                              decoration: InputDecoration(
+                                hintText: 'All Tags',
+                                hintStyle: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                    fontFamily: 'Inter'),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey[300]!)),
+                                enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey[300]!)),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                              ),
+                              items: [
+                                const DropdownMenuItem(
+                                    value: 'All Tags',
+                                    child: Text('All Tags',
+                                        style: TextStyle(
+                                            fontFamily: 'Inter', fontSize: 12))),
+                                ...uniqueTags.map((tag) => DropdownMenuItem(
+                                    value: tag,
+                                    child: Text(tag,
+                                        style: const TextStyle(
+                                            fontFamily: 'Inter', fontSize: 12)))),
+                              ],
+                              onChanged: (value) {},
+                            );
+                          },
                         ),
                         const SizedBox(height: 24),
                         Row(
@@ -311,6 +321,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                         ),
                       ],
                     ),
+                  ),
                   ),
                 ),
               );
@@ -427,36 +438,6 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                                               color: Colors.grey)),
                                     if (lead.email != null)
                                       Text('Email: ${lead.email}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.grey)),
-                                    if (lead.service != null)
-                                      Text('Service: ${lead.service}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.grey)),
-                                    if (lead.tags != null)
-                                      Text('Tags: ${lead.tags}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.grey)),
-                                    if (lead.address != null)
-                                      Text('Address: ${lead.address}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.grey)),
-                                    if (lead.city != null || lead.state != null || lead.zip != null)
-                                      Text('${lead.city ?? ''}${lead.city != null && lead.state != null ? ', ' : ''}${lead.state ?? ''}${(lead.city != null || lead.state != null) && lead.zip != null ? ' - ' : ''}${lead.zip ?? ''}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.grey)),
-                                    if (lead.country != null)
-                                      Text('Country: ${lead.country}',
                                           style: const TextStyle(
                                               fontSize: 14,
                                               fontFamily: 'Inter',
