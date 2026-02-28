@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../services/service_manager.dart';
 import 'detail_lead_screen.dart';
+import 'view_leads_screen.dart';
 
 class AllLeadsScreen extends StatefulWidget {
   const AllLeadsScreen({super.key});
@@ -398,6 +399,17 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
                                                   fontFamily: 'Inter')),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.visibility_outlined, color: Colors.blue, size: 20),
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => ViewLeadsScreen(lead: lead),
+                                              ),
+                                            );
+                                          },
                                         ),
                                         if (lead.isCompleted)
                                           Container(
