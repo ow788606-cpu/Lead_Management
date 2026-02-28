@@ -6,6 +6,11 @@ class Lead {
   final String? service;
   final String? tags;
   final String? notes;
+  final String? address;
+  final String? country;
+  final String? state;
+  final String? city;
+  final String? zip;
   final DateTime? followUpDate;
   final String? followUpTime;
   final DateTime createdAt;
@@ -19,6 +24,11 @@ class Lead {
     this.service,
     this.tags,
     this.notes,
+    this.address,
+    this.country,
+    this.state,
+    this.city,
+    this.zip,
     this.followUpDate,
     this.followUpTime,
     required this.createdAt,

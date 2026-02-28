@@ -20,8 +20,11 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
   final _stateController = TextEditingController();
   final _cityController = TextEditingController();
   final _zipController = TextEditingController();
+  final _serviceController = TextEditingController();
+  final _tagsController = TextEditingController();
   String? _selectedContact;
   String? _selectedService;
+  String? _selectedCountry;
   DateTime? _followUpDate;
   TimeOfDay? _followUpTime;
   bool _showContactForm = false;
@@ -202,7 +205,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                     DropdownMenuItem(value: 'United States', child: Text('United States', style: TextStyle(fontFamily: 'Inter'))),
                     DropdownMenuItem(value: 'Other', child: Text('Other', style: TextStyle(fontFamily: 'Inter'))),
                   ],
-                  onChanged: (value) {},
+                  onChanged: (value) => setState(() => _selectedCountry = value),
                 ),
                 const SizedBox(height: 20),
                 const Text('State', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
@@ -259,30 +262,37 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               const SizedBox(height: 20),
               const Text('Service Interested in', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
               const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                initialValue: _selectedService,
-                style: const TextStyle(fontFamily: 'Inter', color: Colors.black, fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Select Service',
-                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14, fontFamily: 'Inter'),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-                items: _serviceManager.services
-                    .map((service) => DropdownMenuItem(
-                          value: service,
-                          child: Text(service, style: const TextStyle(fontFamily: 'Inter')),
-                        ))
-                    .toList(),
-                onChanged: (value) => setState(() => _selectedService = value),
+              Autocomplete<String>(
+                optionsBuilder: (textEditingValue) {
+                  if (textEditingValue.text.isEmpty) return _serviceManager.services;
+                  return _serviceManager.services.where((service) => service.toLowerCase().contains(textEditingValue.text.toLowerCase()));
+                },
+                onSelected: (value) => setState(() => _selectedService = value),
+                fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                  _serviceController.text = controller.text;
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Type or select service',
+                      hintStyle: const TextStyle(color: Colors.grey, fontSize: 14, fontFamily: 'Inter'),
+                      suffixIcon: const Icon(Icons.arrow_drop_down),
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey[300]!)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    ),
+                    onChanged: (value) => setState(() => _selectedService = value),
+                  );
+                },
               ),
               const SizedBox(height: 20),
               const Text('Tags', style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
               const SizedBox(height: 8),
               TextField(
+                controller: _tagsController,
                 style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Add tags...',
@@ -378,13 +388,23 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
       return;
     }
 
+    if (_selectedService != null && _selectedService!.isNotEmpty && !_serviceManager.services.contains(_selectedService)) {
+      _serviceManager.addService(_selectedService!);
+    }
+
     final lead = Lead(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       contactName: _showContactForm ? _nameController.text : _selectedContact!,
       email: _showContactForm ? _emailController.text : null,
       phone: _showContactForm ? _contactNumber1Controller.text : null,
       service: _selectedService,
-      notes: _notesController.text,
+      tags: _tagsController.text.isEmpty ? null : _tagsController.text,
+      notes: _notesController.text.isEmpty ? null : _notesController.text,
+      address: _showContactForm && _addressController.text.isNotEmpty ? _addressController.text : null,
+      country: _showContactForm ? _selectedCountry : null,
+      state: _showContactForm && _stateController.text.isNotEmpty ? _stateController.text : null,
+      city: _showContactForm && _cityController.text.isNotEmpty ? _cityController.text : null,
+      zip: _showContactForm && _zipController.text.isNotEmpty ? _zipController.text : null,
       followUpDate: _followUpDate,
       followUpTime: _followUpTime?.format(context),
       createdAt: DateTime.now(),
@@ -408,6 +428,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
     _stateController.dispose();
     _cityController.dispose();
     _zipController.dispose();
+    _serviceController.dispose();
+    _tagsController.dispose();
     super.dispose();
   }
 }
