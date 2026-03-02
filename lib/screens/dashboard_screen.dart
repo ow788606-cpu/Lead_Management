@@ -1,62 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../managers/lead_manager.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  final _leadManager = LeadManager();
+
+  @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
-      padding: EdgeInsets.all(20),
+    final allLeads = _leadManager.allLeads;
+    final freshLeads = allLeads.where((lead) => lead.isFresh).length;
+    final scheduledAppointments = allLeads.where((lead) => lead.followUpDate != null && !lead.isOverdue && !lead.isCompleted).length;
+    final followUpLeads = allLeads.where((lead) => lead.followUpDate != null && !lead.isOverdue && !lead.isCompleted).length;
+    final overdueLeads = allLeads.where((lead) => lead.isOverdue).length;
+    final completedLeads = allLeads.where((lead) => lead.isCompleted).length;
+    final lostLeads = allLeads.where((lead) => lead.tags?.toLowerCase().contains('lost') ?? false).length;
+    final convertedLeads = allLeads.where((lead) => lead.tags?.toLowerCase().contains('converted') ?? false).length;
+    final todaysTasks = allLeads.where((lead) => lead.followUpDate != null && lead.followUpDate!.year == DateTime.now().year && lead.followUpDate!.month == DateTime.now().month && lead.followUpDate!.day == DateTime.now().day).length;
+    final overdueTasks = overdueLeads;
+    final activeTasks = allLeads.where((lead) => !lead.isCompleted && lead.followUpDate != null).length;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Dashboard',
+          const Text('Dashboard',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
-                  child: _StatCard('00', 'Fresh Leads',
-                      Icons.phone_in_talk_outlined, Color(0xFFE3F2FD))),
-              SizedBox(width: 16),
+                  child: _StatCard(freshLeads.toString(), 'Fresh Leads',
+                      Icons.phone_in_talk_outlined, const Color(0xFFE3F2FD))),
+              const SizedBox(width: 16),
               Expanded(
-                  child: _StatCard('00', 'Scheduled Appointments',
-                      Icons.calendar_today_outlined, Color(0xFFE3F2FD))),
+                  child: _StatCard(
+                      scheduledAppointments.toString(),
+                      'Scheduled Appointments',
+                      Icons.calendar_today_outlined,
+                      const Color(0xFFE3F2FD))),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                  child: _StatCard('00', 'Followup Leads',
-                      Icons.access_time_outlined, Color(0xFFE3F2FD))),
-              SizedBox(width: 16),
+                  child: _StatCard(followUpLeads.toString(), 'Followup Leads',
+                      Icons.access_time_outlined, const Color(0xFFE3F2FD))),
+              const SizedBox(width: 16),
               Expanded(
-                  child: _StatCard('00', 'Overdue Leads',
-                      Icons.warning_amber_outlined, Color(0xFFFFEBEE))),
+                  child: _StatCard(overdueLeads.toString(), 'Overdue Leads',
+                      Icons.warning_amber_outlined, const Color(0xFFFFEBEE))),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                  child: _StatCard('00', 'Lost Leads',
-                      Icons.person_off_outlined, Color(0xFFF5F5F5))),
-              SizedBox(width: 16),
+                  child: _StatCard(completedLeads.toString(), 'Completed Leads',
+                      Icons.check_circle_outline, const Color(0xFFE8F5E9))),
+              const SizedBox(width: 16),
               Expanded(
-                  child: _StatCard('00', 'Converted Leads',
-                      Icons.check_circle_outline, Color(0xFFE8F5E9))),
+                  child: _StatCard(lostLeads.toString(), 'Lost Leads',
+                      Icons.person_off_outlined, const Color(0xFFF5F5F5))),
             ],
           ),
-          SizedBox(height: 24),
-          _TaskManagementCard(),
-          SizedBox(height: 16),
-          _WeeklyReportCard(),
-          SizedBox(height: 16),
-          _MonthlyReportCard(),
-          SizedBox(height: 16),
-          _LeadsOverviewCard(),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                  child: _StatCard(convertedLeads.toString(), 'Converted Leads',
+                      Icons.star_outline, const Color(0xFFE8F5E9))),
+              const SizedBox(width: 16),
+              const Expanded(child: SizedBox()),
+            ],
+          ),
+          const SizedBox(height: 24),
+          _TaskManagementCard(
+              todaysTasks: todaysTasks,
+              overdueTasks: overdueTasks,
+              activeTasks: activeTasks),
+          const SizedBox(height: 16),
+          const _WeeklyReportCard(),
+          const SizedBox(height: 16),
+          _MonthlyReportCard(wonLeads: convertedLeads, lostLeads: lostLeads),
+          const SizedBox(height: 16),
+          _LeadsOverviewCard(leads: allLeads),
         ],
       ),
     );
@@ -116,7 +151,14 @@ class _StatCard extends StatelessWidget {
 }
 
 class _TaskManagementCard extends StatelessWidget {
-  const _TaskManagementCard();
+  final int todaysTasks;
+  final int overdueTasks;
+  final int activeTasks;
+
+  const _TaskManagementCard(
+      {required this.todaysTasks,
+      required this.overdueTasks,
+      required this.activeTasks});
 
   @override
   Widget build(BuildContext context) {
@@ -157,15 +199,20 @@ class _TaskManagementCard extends StatelessWidget {
           const SizedBox(height: 20),
           Row(
             children: [
-              Expanded(child: _buildTaskRow('0', 'Today\'s Tasks')),
+              Expanded(
+                  child:
+                      _buildTaskRow(todaysTasks.toString(), 'Today\'s Tasks')),
               const SizedBox(width: 16),
-              Expanded(child: _buildTaskRow('0', 'Overdue Tasks')),
+              Expanded(
+                  child:
+                      _buildTaskRow(overdueTasks.toString(), 'Overdue Tasks')),
             ],
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: _buildTaskRow('0', 'Active Tasks')),
+              Expanded(
+                  child: _buildTaskRow(activeTasks.toString(), 'Active Tasks')),
               const SizedBox(width: 16),
               const Expanded(child: SizedBox()),
             ],
@@ -294,7 +341,10 @@ class _WeeklyReportCard extends StatelessWidget {
 }
 
 class _MonthlyReportCard extends StatelessWidget {
-  const _MonthlyReportCard();
+  final int wonLeads;
+  final int lostLeads;
+
+  const _MonthlyReportCard({required this.wonLeads, required this.lostLeads});
 
   @override
   Widget build(BuildContext context) {
@@ -310,46 +360,47 @@ class _MonthlyReportCard extends StatelessWidget {
               offset: const Offset(0, 2))
         ],
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Monthly Report',
+          const Text('Monthly Report',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-          SizedBox(height: 2),
-          Text('Weekly Report',
+          const SizedBox(height: 2),
+          const Text('Weekly Report',
               style: TextStyle(color: Colors.grey, fontSize: 10)),
-          SizedBox(height: 30),
-          Center(
+          const SizedBox(height: 30),
+          const Center(
               child: Text('Total',
                   style: TextStyle(color: Colors.grey, fontSize: 10))),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Center(
-              child: Text('0',
-                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold))),
-          SizedBox(height: 30),
+              child: Text((wonLeads + lostLeads).toString(),
+                  style: const TextStyle(
+                      fontSize: 40, fontWeight: FontWeight.bold))),
+          const SizedBox(height: 30),
           Wrap(
             alignment: WrapAlignment.center,
             spacing: 20,
             children: [
               Row(mainAxisSize: MainAxisSize.min, children: [
-                SizedBox(
+                const SizedBox(
                     width: 12,
                     height: 12,
                     child: DecoratedBox(
                         decoration: BoxDecoration(
                             color: Colors.blue, shape: BoxShape.circle))),
-                SizedBox(width: 6),
-                Text('Won', style: TextStyle(fontSize: 11))
+                const SizedBox(width: 6),
+                Text('Won ($wonLeads)', style: const TextStyle(fontSize: 11))
               ]),
               Row(mainAxisSize: MainAxisSize.min, children: [
-                SizedBox(
+                const SizedBox(
                     width: 12,
                     height: 12,
                     child: DecoratedBox(
                         decoration: BoxDecoration(
                             color: Colors.pink, shape: BoxShape.circle))),
-                SizedBox(width: 6),
-                Text('Lost', style: TextStyle(fontSize: 11))
+                const SizedBox(width: 6),
+                Text('Lost ($lostLeads)', style: const TextStyle(fontSize: 11))
               ]),
             ],
           ),
@@ -360,7 +411,9 @@ class _MonthlyReportCard extends StatelessWidget {
 }
 
 class _LeadsOverviewCard extends StatelessWidget {
-  const _LeadsOverviewCard();
+  final List leads;
+
+  const _LeadsOverviewCard({required this.leads});
 
   @override
   Widget build(BuildContext context) {
@@ -392,44 +445,61 @@ class _LeadsOverviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowHeight: 40,
-              dataRowMinHeight: 48,
-              dataRowMaxHeight: 48,
-              headingRowColor: WidgetStateProperty.all(const Color(0xFFF8F9FA)),
-              border: TableBorder.all(color: Colors.grey[300]!, width: 1),
-              columns: const [
-                DataColumn(
-                    label: Text('#',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 11))),
-                DataColumn(
-                    label: Text('Name',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 11))),
-                DataColumn(
-                    label: Text('Contact Details',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 11))),
-                DataColumn(
-                    label: Text('Se',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 11))),
-                DataColumn(
-                    label: Text('Actions',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 11))),
-              ],
-              rows: const [],
-            ),
-          ),
-          const SizedBox(height: 40),
-          const Center(
+          if (leads.isEmpty)
+            const Center(
+                child: Padding(
+              padding: EdgeInsets.all(40),
               child: Text('No leads found.',
-                  style: TextStyle(color: Colors.grey, fontSize: 11))),
-          const SizedBox(height: 40),
+                  style: TextStyle(color: Colors.grey, fontSize: 11)),
+            ))
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: leads.length > 5 ? 5 : leads.length,
+              itemBuilder: (context, index) {
+                final lead = leads[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey[300]!),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(lead.contactName,
+                                style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 4),
+                            if (lead.phone != null)
+                              Text('Phone: ${lead.phone}',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey)),
+                            if (lead.email != null)
+                              Text('Email: ${lead.email}',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey)),
+                            if (lead.service != null)
+                              Text('Service: ${lead.service}',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey)),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.visibility_outlined,
+                          size: 20, color: Colors.blue),
+                    ],
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );
