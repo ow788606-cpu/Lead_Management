@@ -184,7 +184,6 @@ class _TaskManagementCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.tune, color: Colors.grey[400], size: 22),
             ],
           ),
           const SizedBox(height: 20),
