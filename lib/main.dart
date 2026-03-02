@@ -8,6 +8,8 @@ import 'services/services_screen.dart';
 import 'screens/tags/tags_screen.dart';
 import 'widgets/app_drawer.dart';
 import 'managers/auth_manager.dart';
+import 'managers/contact_manager.dart';
+import 'managers/lead_manager.dart';
 
 void main() => runApp(const CloopApp());
 
@@ -45,6 +47,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkLoginStatus() async {
     final authManager = AuthManager();
+    final contactManager = ContactManager();
+    final leadManager = LeadManager();
+    await Future.wait([
+      contactManager.loadContacts(),
+      leadManager.loadLeads(),
+    ]);
     final isLoggedIn = await authManager.isLoggedIn();
     
     if (!mounted) return;

@@ -22,7 +22,7 @@ class _NewContactScreenState extends State<NewContactScreen> {
   final _remarkController = TextEditingController();
   final _contactManager = ContactManager();
 
-  void _addContact() {
+  void _addContact() async {
     if (_nameController.text.isEmpty ||
         _contactNumber1Controller.text.isEmpty ||
         _addressController.text.isEmpty) {
@@ -50,10 +50,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
       createdAt: DateTime.now(),
     );
 
-    setState(() {
-      _contactManager.addContact(contact);
-    });
+    await _contactManager.addContact(contact);
     
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Contact added successfully')),
     );
@@ -284,7 +283,13 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                   ),
-                  items: const [],
+                  items: const [
+                    DropdownMenuItem(value: 'Australia', child: Text('Australia')),
+                    DropdownMenuItem(value: 'Canada', child: Text('Canada')),
+                    DropdownMenuItem(value: 'United Kingdom', child: Text('United Kingdom')),
+                    DropdownMenuItem(value: 'United States', child: Text('United States')),
+                    DropdownMenuItem(value: 'Other', child: Text('Other')),
+                  ],
                   onChanged: (value) {},
                 ),
                 const SizedBox(height: 20),

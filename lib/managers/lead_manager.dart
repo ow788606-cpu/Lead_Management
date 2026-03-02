@@ -5,9 +5,7 @@ import 'dart:convert';
 class LeadManager {
   static final LeadManager _instance = LeadManager._internal();
   factory LeadManager() => _instance;
-  LeadManager._internal() {
-    _loadLeads();
-  }
+  LeadManager._internal();
 
   final List<Lead> _leads = [];
 
@@ -16,7 +14,7 @@ class LeadManager {
   List<Lead> get overdueLeads => _leads.where((lead) => lead.isOverdue).toList();
   List<Lead> get completedLeads => _leads.where((lead) => lead.isCompleted).toList();
 
-  Future<void> _loadLeads() async {
+  Future<void> loadLeads() async {
     final prefs = await SharedPreferences.getInstance();
     final leadsJson = prefs.getStringList('leads') ?? [];
     _leads.clear();
