@@ -34,44 +34,16 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Inter')),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // const Text('Follow-ups',
-                //     style: TextStyle(
-                //         fontSize: 18,
-                //         fontWeight: FontWeight.bold,
-                //         fontFamily: 'Inter')),
-                const SizedBox(height: 4),
-                const Text('View all leads with scheduled follow-ups.',
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: followUpLeads.isEmpty
+            ? const Center(
+                child: Text('No follow-ups scheduled.',
                     style: TextStyle(
-                        color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: followUpLeads.isEmpty
-                      ? const Center(
-                          child: Text('No follow-ups scheduled.',
-                              style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                  fontFamily: 'Inter')))
-                      : ListView.builder(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontFamily: 'Inter')))
+            : ListView.builder(
                           itemCount: followUpLeads.length,
                           itemBuilder: (context, index) {
                             final lead = followUpLeads[index];
@@ -176,11 +148,6 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
                             );
                           },
                         ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

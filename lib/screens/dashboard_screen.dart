@@ -63,22 +63,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Expanded(
-                  child: _StatCard(completedLeads.toString(), 'Completed Leads',
-                      Icons.check_circle_outline, const Color(0xFFE8F5E9))),
-              const SizedBox(width: 16),
-              Expanded(
                   child: _StatCard(lostLeads.toString(), 'Lost Leads',
                       Icons.person_off_outlined, const Color(0xFFF5F5F5))),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
+              const SizedBox(width: 16),
               Expanded(
                   child: _StatCard(convertedLeads.toString(), 'Converted Leads',
                       Icons.star_outline, const Color(0xFFE8F5E9))),
-              const SizedBox(width: 16),
-              const Expanded(child: SizedBox()),
             ],
           ),
           const SizedBox(height: 24),
@@ -207,15 +197,9 @@ class _TaskManagementCard extends StatelessWidget {
               Expanded(
                   child:
                       _buildTaskRow(overdueTasks.toString(), 'Overdue Tasks')),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
+              const SizedBox(width: 16),
               Expanded(
                   child: _buildTaskRow(activeTasks.toString(), 'Active Tasks')),
-              const SizedBox(width: 16),
-              const Expanded(child: SizedBox()),
             ],
           ),
         ],
@@ -459,35 +443,38 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
           const Text('Leads Overview',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedTab = 'Fresh Leads';
-                  });
-                },
-                child: _TabButton('Fresh Leads', _selectedTab == 'Fresh Leads'),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedTab = 'Appointment Scheduled';
-                  });
-                },
-                child: _TabButton('Appointment Scheduled', _selectedTab == 'Appointment Scheduled'),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedTab = 'Follow-up';
-                  });
-                },
-                child: _TabButton('Follow-up', _selectedTab == 'Follow-up'),
-              ),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedTab = 'Fresh Leads';
+                    });
+                  },
+                  child: _TabButton('Fresh Leads', _selectedTab == 'Fresh Leads'),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedTab = 'Appointment Scheduled';
+                    });
+                  },
+                  child: _TabButton('Appointment Scheduled', _selectedTab == 'Appointment Scheduled'),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedTab = 'Follow-up';
+                    });
+                  },
+                  child: _TabButton('Follow-up', _selectedTab == 'Follow-up'),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
           if (filteredLeads.isEmpty)

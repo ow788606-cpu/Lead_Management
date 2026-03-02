@@ -48,44 +48,20 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Inter')),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // const Text('Completed Tasks', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
-                const SizedBox(height: 4),
-                const Text('Tasks that have been successfully completed.',
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: tasks.isEmpty
+            ? const Center(
+                child: Text('No completed tasks',
                     style: TextStyle(
-                        color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: tasks.isEmpty
-                      ? const Center(
-                          child: Text('No completed tasks',
-                              style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                  fontFamily: 'Inter')))
-                      : ListView.builder(
-                          itemCount: tasks.length,
-                          itemBuilder: (context, index) {
-                            final task = tasks[index];
-                            return Container(
+                        color: Colors.grey,
+                        fontSize: 14,
+                        fontFamily: 'Inter')))
+            : ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  return Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
@@ -152,11 +128,6 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                             );
                           },
                         ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

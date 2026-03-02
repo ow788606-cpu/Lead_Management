@@ -30,31 +30,11 @@ class _CompletedScreenState extends State<CompletedScreen> {
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Inter')),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Leads that have been completed.', style: TextStyle(color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: leads.isEmpty
-                      ? const Center(child: Text('No completed leads found.', style: TextStyle(color: Colors.grey, fontSize: 14, fontFamily: 'Inter')))
-                      : ListView.builder(
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: leads.isEmpty
+            ? const Center(child: Text('No completed leads found.', style: TextStyle(color: Colors.grey, fontSize: 14, fontFamily: 'Inter')))
+            : ListView.builder(
                           itemCount: leads.length,
                           itemBuilder: (context, index) {
                             final lead = leads[index];
@@ -93,11 +73,6 @@ class _CompletedScreenState extends State<CompletedScreen> {
                             );
                           },
                         ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
