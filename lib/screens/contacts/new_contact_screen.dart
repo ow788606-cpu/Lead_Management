@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../managers/contact_manager.dart';
+import '../../models/contact.dart';
 
 class NewContactScreen extends StatefulWidget {
   const NewContactScreen({super.key});
@@ -18,6 +20,55 @@ class _NewContactScreenState extends State<NewContactScreen> {
   final _zipController = TextEditingController();
   final _leadSourceController = TextEditingController();
   final _remarkController = TextEditingController();
+  final _contactManager = ContactManager();
+
+  void _addContact() {
+    if (_nameController.text.isEmpty ||
+        _contactNumber1Controller.text.isEmpty ||
+        _addressController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill required fields')),
+      );
+      return;
+    }
+
+    final contact = Contact(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: _nameController.text,
+      email: _emailController.text.isEmpty ? null : _emailController.text,
+      phone: _contactNumber1Controller.text,
+      phone2: _contactNumber2Controller.text.isEmpty
+          ? null
+          : _contactNumber2Controller.text,
+      address: _addressController.text,
+      state: _stateController.text.isEmpty ? null : _stateController.text,
+      city: _cityController.text.isEmpty ? null : _cityController.text,
+      zip: _zipController.text.isEmpty ? null : _zipController.text,
+      leadSource:
+          _leadSourceController.text.isEmpty ? null : _leadSourceController.text,
+      remark: _remarkController.text.isEmpty ? null : _remarkController.text,
+      createdAt: DateTime.now(),
+    );
+
+    setState(() {
+      _contactManager.addContact(contact);
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Contact added successfully')),
+    );
+
+    _nameController.clear();
+    _emailController.clear();
+    _contactNumber1Controller.clear();
+    _contactNumber2Controller.clear();
+    _addressController.clear();
+    _stateController.clear();
+    _cityController.clear();
+    _zipController.clear();
+    _leadSourceController.clear();
+    _remarkController.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +415,7 @@ class _NewContactScreenState extends State<NewContactScreen> {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _addContact,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       shape: RoundedRectangleBorder(

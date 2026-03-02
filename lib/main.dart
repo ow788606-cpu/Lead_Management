@@ -3,6 +3,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/leads/all_leads_screen.dart';
 import 'screens/appointments/appointments_screen.dart';
+import 'screens/contacts/contacts_screen.dart';
 import 'services/services_screen.dart';
 import 'screens/tags/tags_screen.dart';
 import 'widgets/app_drawer.dart';
@@ -79,7 +80,7 @@ class _MainScreenState extends State<MainScreen> {
     const DashboardScreen(),
     const AllLeadsScreen(),
     const AppointmentsScreen(),
-    const Center(child: Text('Contacts')),
+    const ContactsScreen(),
     const Center(child: Text('Tasks')),
     const ServicesScreen(),
     const TagsScreen(),

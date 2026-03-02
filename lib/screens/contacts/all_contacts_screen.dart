@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
+import '../../managers/contact_manager.dart';
+import 'view_contact_screen.dart';
 
-class AllContactsScreen extends StatelessWidget {
+class AllContactsScreen extends StatefulWidget {
   const AllContactsScreen({super.key});
 
   @override
+  State<AllContactsScreen> createState() => _AllContactsScreenState();
+}
+
+class _AllContactsScreenState extends State<AllContactsScreen> {
+  final _contactManager = ContactManager();
+
+  @override
   Widget build(BuildContext context) {
+    final contacts = _contactManager.allContacts;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -14,14 +25,11 @@ class AllContactsScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('All Contacts', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
-            SizedBox(height: 2),
-            Text('Manage all your contacts', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.normal)),
-          ],
-        ),
+        title: const Text('All Contacts',
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter')),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list, color: Colors.blue),
@@ -31,80 +39,111 @@ class AllContactsScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           child: Container(
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8F9FA),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 50, child: Text('#', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 2, child: Text('Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 2, child: Text('Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 2, child: Text('Phone', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 1, child: Text('Tags', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 1, child: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                    ],
-                  ),
-                ),
-                const Expanded(
-                  child: Center(
-                    child: Text('No contacts found.', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: Colors.grey[200]!)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.chevron_left, size: 20),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(4),
+                // const Text('All Contacts',
+                //     style: TextStyle(
+                //         fontSize: 18,
+                //         fontWeight: FontWeight.bold,
+                //         fontFamily: 'Inter')),
+                const SizedBox(height: 4),
+                const Text('View all your contacts.',
+                    style: TextStyle(
+                        color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
+                const SizedBox(height: 24),
+                Expanded(
+                  child: contacts.isEmpty
+                      ? const Center(
+                          child: Text('No contacts found.',
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                  fontFamily: 'Inter')))
+                      : ListView.builder(
+                          itemCount: contacts.length,
+                          itemBuilder: (context, index) {
+                            final contact = contacts[index];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(contact.name,
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Inter')),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.visibility_outlined,
+                                            color: Colors.blue, size: 20),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ViewContactScreen(contact: contact),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text('Phone: ${contact.phone}',
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: 'Inter',
+                                          color: Colors.grey)),
+                                  if (contact.phone2 != null)
+                                    Text('Phone 2: ${contact.phone2}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Inter',
+                                            color: Colors.grey)),
+                                  if (contact.email != null)
+                                    Text('Email: ${contact.email}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Inter',
+                                            color: Colors.grey)),
+                                  if (contact.city != null ||
+                                      contact.state != null)
+                                    Text(
+                                        'Location: ${contact.city ?? ''}${contact.city != null && contact.state != null ? ', ' : ''}${contact.state ?? ''}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Inter',
+                                            color: Colors.grey)),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        child: const Text('1', style: TextStyle(color: Colors.white, fontSize: 13)),
-                      ),
-                      const SizedBox(width: 8),
-                      const IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.chevron_right, size: 20),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(),
-                      ),
-                      const SizedBox(width: 16),
-                      const Text('Page 1 of 1 - 0 total', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    ],
-                  ),
                 ),
               ],
             ),
