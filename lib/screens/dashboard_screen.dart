@@ -180,7 +180,7 @@ class _TaskManagementCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -188,7 +188,8 @@ class _TaskManagementCard extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold)),
                     SizedBox(height: 2),
-                    Text('From 16 Feb - 15 May 2024',
+                    Text(
+                        'From ${DateTime.now().subtract(Duration(days: 90)).day} ${_getMonthName(DateTime.now().subtract(Duration(days: 90)).month)} - ${DateTime.now().day} ${_getMonthName(DateTime.now().month)} ${DateTime.now().year}',
                         style: TextStyle(color: Colors.grey, fontSize: 10)),
                   ],
                 ),
@@ -233,10 +234,20 @@ class _TaskManagementCard extends StatelessWidget {
       ],
     );
   }
+
+  String _getMonthName(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
+  }
 }
 
 class _WeeklyReportCard extends StatelessWidget {
   const _WeeklyReportCard();
+
+  String _getMonthName(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -289,12 +300,13 @@ class _WeeklyReportCard extends StatelessWidget {
                       showTitles: true,
                       interval: 1,
                       getTitlesWidget: (value, meta) {
-                        const dates = ['21 Feb', '23 Feb', '25 Feb', '27 Feb'];
-                        if (value.toInt() >= 0 &&
-                            value.toInt() < dates.length) {
+                        final now = DateTime.now();
+                        final dates = List.generate(4, (i) => now.subtract(Duration(days: (3 - i) * 2)));
+                        if (value.toInt() >= 0 && value.toInt() < dates.length) {
+                          final date = dates[value.toInt()];
                           return Padding(
                             padding: const EdgeInsets.only(top: 6),
-                            child: Text(dates[value.toInt()],
+                            child: Text('${date.day} ${_getMonthName(date.month)}',
                                 style: const TextStyle(
                                     fontSize: 9, color: Colors.red)),
                           );
@@ -410,13 +422,25 @@ class _MonthlyReportCard extends StatelessWidget {
   }
 }
 
-class _LeadsOverviewCard extends StatelessWidget {
+class _LeadsOverviewCard extends StatefulWidget {
   final List leads;
 
   const _LeadsOverviewCard({required this.leads});
 
   @override
+  State<_LeadsOverviewCard> createState() => _LeadsOverviewCardState();
+}
+
+class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
+  String _selectedTab = 'Fresh Leads';
+
+  @override
   Widget build(BuildContext context) {
+    final filteredLeads = _selectedTab == 'Fresh Leads'
+        ? widget.leads.where((lead) => lead.isFresh).toList()
+        : _selectedTab == 'Appointment Scheduled'
+            ? widget.leads.where((lead) => lead.followUpDate != null && !lead.isOverdue && !lead.isCompleted).toList()
+            : widget.leads.where((lead) => lead.followUpDate != null && !lead.isOverdue && !lead.isCompleted).toList();
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -435,17 +459,38 @@ class _LeadsOverviewCard extends StatelessWidget {
           const Text('Leads Overview',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          const Wrap(
+          Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              _TabButton('Fresh Leads', true),
-              _TabButton('Appointment Scheduled', false),
-              _TabButton('Follow-up', false),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedTab = 'Fresh Leads';
+                  });
+                },
+                child: _TabButton('Fresh Leads', _selectedTab == 'Fresh Leads'),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedTab = 'Appointment Scheduled';
+                  });
+                },
+                child: _TabButton('Appointment Scheduled', _selectedTab == 'Appointment Scheduled'),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedTab = 'Follow-up';
+                  });
+                },
+                child: _TabButton('Follow-up', _selectedTab == 'Follow-up'),
+              ),
             ],
           ),
           const SizedBox(height: 20),
-          if (leads.isEmpty)
+          if (filteredLeads.isEmpty)
             const Center(
                 child: Padding(
               padding: EdgeInsets.all(40),
@@ -456,9 +501,9 @@ class _LeadsOverviewCard extends StatelessWidget {
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: leads.length > 5 ? 5 : leads.length,
+              itemCount: filteredLeads.length > 5 ? 5 : filteredLeads.length,
               itemBuilder: (context, index) {
-                final lead = leads[index];
+                final lead = filteredLeads[index];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
