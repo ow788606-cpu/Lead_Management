@@ -51,7 +51,7 @@ class BillingScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Inter')),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () => Navigator.pop(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey[700],
                           foregroundColor: Colors.white,
