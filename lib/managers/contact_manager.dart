@@ -13,6 +13,13 @@ class ContactManager {
     _contacts.add(contact);
   }
 
+  void updateContact(String id, Contact updatedContact) {
+    final index = _contacts.indexWhere((contact) => contact.id == id);
+    if (index != -1) {
+      _contacts[index] = updatedContact;
+    }
+  }
+
   void deleteContact(String id) {
     _contacts.removeWhere((contact) => contact.id == id);
   }

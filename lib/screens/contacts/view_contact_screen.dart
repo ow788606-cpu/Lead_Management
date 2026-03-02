@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/contact.dart';
 import '../../managers/lead_manager.dart';
+import 'edit_contact_screen.dart';
 
 class ViewContactScreen extends StatelessWidget {
   final Contact contact;
@@ -11,12 +12,10 @@ class ViewContactScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final leadManager = LeadManager();
     final activeLeads = leadManager.allLeads
-        .where((lead) =>
-            lead.contactName == contact.name && !lead.isCompleted)
+        .where((lead) => lead.contactName == contact.name && !lead.isCompleted)
         .toList();
     final closedLeads = leadManager.allLeads
-        .where((lead) =>
-            lead.contactName == contact.name && lead.isCompleted)
+        .where((lead) => lead.contactName == contact.name && lead.isCompleted)
         .toList();
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -55,11 +54,11 @@ class ViewContactScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Client Profile',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Inter')),
+                    // const Text('Client Profile',
+                    //     style: TextStyle(
+                    //         fontSize: 20,
+                    //         fontWeight: FontWeight.bold,
+                    //         fontFamily: 'Inter')),
                     const SizedBox(height: 8),
                     const Text(
                         'Everything you need to know about this client, all in one place.',
@@ -130,7 +129,18 @@ class ViewContactScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EditContactScreen(contact: contact),
+                            ),
+                          );
+                          if (result == true && context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           padding: const EdgeInsets.symmetric(vertical: 12),
@@ -152,7 +162,8 @@ class ViewContactScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Inter')),
                     const SizedBox(height: 16),
-                    _buildDetailRow(Icons.location_on_outlined, contact.address),
+                    _buildDetailRow(
+                        Icons.location_on_outlined, contact.address),
                     const SizedBox(height: 12),
                     if (contact.email != null)
                       _buildDetailRow(Icons.email_outlined, contact.email!),

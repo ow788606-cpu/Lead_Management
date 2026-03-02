@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import '../../managers/contact_manager.dart';
 import '../../models/contact.dart';
 
-class NewContactScreen extends StatefulWidget {
-  const NewContactScreen({super.key});
+class EditContactScreen extends StatefulWidget {
+  final Contact contact;
+
+  const EditContactScreen({super.key, required this.contact});
 
   @override
-  State<NewContactScreen> createState() => _NewContactScreenState();
+  State<EditContactScreen> createState() => _EditContactScreenState();
 }
 
-class _NewContactScreenState extends State<NewContactScreen> {
+class _EditContactScreenState extends State<EditContactScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _contactNumber1Controller = TextEditingController();
@@ -22,7 +24,22 @@ class _NewContactScreenState extends State<NewContactScreen> {
   final _remarkController = TextEditingController();
   final _contactManager = ContactManager();
 
-  void _addContact() {
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.contact.name;
+    _emailController.text = widget.contact.email ?? '';
+    _contactNumber1Controller.text = widget.contact.phone;
+    _contactNumber2Controller.text = widget.contact.phone2 ?? '';
+    _addressController.text = widget.contact.address;
+    _stateController.text = widget.contact.state ?? '';
+    _cityController.text = widget.contact.city ?? '';
+    _zipController.text = widget.contact.zip ?? '';
+    _leadSourceController.text = widget.contact.leadSource ?? '';
+    _remarkController.text = widget.contact.remark ?? '';
+  }
+
+  void _updateContact() {
     if (_nameController.text.isEmpty ||
         _contactNumber1Controller.text.isEmpty ||
         _addressController.text.isEmpty) {
@@ -32,8 +49,8 @@ class _NewContactScreenState extends State<NewContactScreen> {
       return;
     }
 
-    final contact = Contact(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+    final updatedContact = Contact(
+      id: widget.contact.id,
       name: _nameController.text,
       email: _emailController.text.isEmpty ? null : _emailController.text,
       phone: _contactNumber1Controller.text,
@@ -47,27 +64,14 @@ class _NewContactScreenState extends State<NewContactScreen> {
       leadSource:
           _leadSourceController.text.isEmpty ? null : _leadSourceController.text,
       remark: _remarkController.text.isEmpty ? null : _remarkController.text,
-      createdAt: DateTime.now(),
+      createdAt: widget.contact.createdAt,
     );
 
-    setState(() {
-      _contactManager.addContact(contact);
-    });
-    
+    _contactManager.updateContact(widget.contact.id, updatedContact);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Contact added successfully')),
+      const SnackBar(content: Text('Contact updated successfully')),
     );
-
-    _nameController.clear();
-    _emailController.clear();
-    _contactNumber1Controller.clear();
-    _contactNumber2Controller.clear();
-    _addressController.clear();
-    _stateController.clear();
-    _cityController.clear();
-    _zipController.clear();
-    _leadSourceController.clear();
-    _remarkController.clear();
+    Navigator.pop(context, true);
   }
 
   @override
@@ -81,17 +85,11 @@ class _NewContactScreenState extends State<NewContactScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('New Contact',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: TextButton(
-              onPressed: () {},
-              child: const Text('All contacts', style: TextStyle(fontSize: 14)),
-            ),
-          ),
-        ],
+        title: const Text('Edit Contact',
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter')),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -112,9 +110,7 @@ class _NewContactScreenState extends State<NewContactScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // const Text('New contact', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                const Text('Create a new contact profile.',
+                const Text('Edit contact profile.',
                     style: TextStyle(color: Colors.grey, fontSize: 13)),
                 const SizedBox(height: 24),
                 RichText(
@@ -264,30 +260,6 @@ class _NewContactScreenState extends State<NewContactScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text('Country',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    hintText: 'Select Country',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                  ),
-                  items: const [],
-                  onChanged: (value) {},
-                ),
-                const SizedBox(height: 20),
                 const Text('State',
                     style: TextStyle(
                         color: Colors.black,
@@ -393,12 +365,10 @@ class _NewContactScreenState extends State<NewContactScreen> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _remarkController,
-                  maxLines: 3,
                   decoration: InputDecoration(
                     hintText: 'Remark',
-                    alignLabelWithHint: true,
                     prefixIcon: const Padding(
-                      padding: EdgeInsets.only(bottom: 50),
+                      padding: EdgeInsets.only(bottom: 40),
                       child: Icon(Icons.note_outlined, size: 20),
                     ),
                     filled: true,
@@ -417,13 +387,13 @@ class _NewContactScreenState extends State<NewContactScreen> {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: _addContact,
+                    onPressed: _updateContact,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Add contact',
+                    child: const Text('Update contact',
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
