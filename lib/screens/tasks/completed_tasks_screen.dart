@@ -1,12 +1,40 @@
 import 'package:flutter/material.dart';
+import '../../managers/task_manager.dart';
+import 'view_tasks_screen.dart';
 
-class CompletedTasksScreen extends StatelessWidget {
+class CompletedTasksScreen extends StatefulWidget {
   const CompletedTasksScreen({super.key});
 
   @override
+  State<CompletedTasksScreen> createState() => _CompletedTasksScreenState();
+}
+
+class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
+  late final TaskManager taskManager;
+
+  @override
+  void initState() {
+    super.initState();
+    taskManager = TaskManager();
+    taskManager.addListener(_onTasksChanged);
+  }
+
+  @override
+  void dispose() {
+    taskManager.removeListener(_onTasksChanged);
+    super.dispose();
+  }
+
+  void _onTasksChanged() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final tasks = taskManager.completedTasks;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -14,97 +42,116 @@ class CompletedTasksScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Completed Tasks', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
-            SizedBox(height: 2),
-            Text('Tasks that have been completed', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.normal)),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.blue),
-            onPressed: () {},
-          ),
-        ],
+        title: const Text('Completed Tasks',
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Inter')),
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           child: Container(
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8F9FA),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: const Row(
-                    children: [
-                      SizedBox(width: 50, child: Text('#', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 2, child: Text('Task', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 2, child: Text('Assigned To', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 2, child: Text('Completed Date', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 1, child: Text('Priority', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                      Expanded(flex: 1, child: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13))),
-                    ],
-                  ),
-                ),
-                const Expanded(
-                  child: Center(
-                    child: Text('No completed tasks found.', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: Colors.grey[200]!)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.chevron_left, size: 20),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(4),
+                // const Text('Completed Tasks', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter')),
+                const SizedBox(height: 4),
+                const Text('Tasks that have been successfully completed.',
+                    style: TextStyle(
+                        color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
+                const SizedBox(height: 24),
+                Expanded(
+                  child: tasks.isEmpty
+                      ? const Center(
+                          child: Text('No completed tasks',
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                  fontFamily: 'Inter')))
+                      : ListView.builder(
+                          itemCount: tasks.length,
+                          itemBuilder: (context, index) {
+                            final task = tasks[index];
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(task.title,
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: 'Inter')),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.visibility_outlined, color: Colors.blue, size: 20),
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ViewTasksScreen(task: task),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green[50],
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        child: const Text('Completed',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.green,
+                                                fontFamily: 'Inter')),
+                                      ),
+                                    ],
+                                  ),
+                                  if (task.description.isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    Text(task.description,
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: 'Inter',
+                                            color: Colors.grey)),
+                                  ],
+                                  const SizedBox(height: 8),
+                                  Text(
+                                      'Completed: ${task.completedDate!.day}/${task.completedDate!.month}/${task.completedDate!.year}',
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontFamily: 'Inter',
+                                          color: Colors.blue)),
+                                ],
+                              ),
+                            );
+                          },
                         ),
-                        child: const Text('1', style: TextStyle(color: Colors.white, fontSize: 13)),
-                      ),
-                      const SizedBox(width: 8),
-                      const IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.chevron_right, size: 20),
-                        padding: EdgeInsets.zero,
-                        constraints: BoxConstraints(),
-                      ),
-                      const SizedBox(width: 16),
-                      const Text('Page 1 of 1 - 0 total', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                    ],
-                  ),
                 ),
               ],
             ),

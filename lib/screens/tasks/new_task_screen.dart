@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../models/task.dart';
+import '../../managers/task_manager.dart';
 
 class NewTaskScreen extends StatefulWidget {
   const NewTaskScreen({super.key});
@@ -199,7 +201,27 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (_titleController.text.isEmpty || _selectedPriority == null || _selectedDate == null || _selectedTime == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please fill all required fields')),
+                      );
+                      return;
+                    }
+                    final task = Task(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      title: _titleController.text,
+                      description: _descriptionController.text,
+                      priority: _selectedPriority!,
+                      dueDate: _selectedDate!,
+                      dueTime: _selectedTime!.format(context),
+                    );
+                    TaskManager().addTask(task);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Task created successfully')),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2563EB),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
