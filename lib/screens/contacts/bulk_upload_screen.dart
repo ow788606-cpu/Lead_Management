@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../widgets/app_drawer.dart';
 
 class BulkUploadScreen extends StatefulWidget {
   const BulkUploadScreen({super.key});
@@ -46,10 +47,18 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: AppDrawer(
+        selectedIndex: 3,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        title: const Text('Bulk Import Contact Profiles'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        title: const Text('Cloop'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -57,6 +66,15 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text(
+                'Bulk Import Contact Profiles',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Inter',
+                ),
+              ),
+              const SizedBox(height: 16),
               // Header Section
               Container(
                 padding: const EdgeInsets.all(20),

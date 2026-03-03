@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../managers/task_manager.dart';
+import '../../widgets/app_drawer.dart';
 import 'view_tasks_screen.dart';
 
 class PendingTasksScreen extends StatefulWidget {
@@ -35,27 +36,39 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      drawer: AppDrawer(
+        selectedIndex: 4,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Text('Pending Tasks',
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter')),
+        title: const Text('Cloop'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: tasks.isEmpty
-            ? const Center(
-                child: Text('No pending tasks',
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                        fontFamily: 'Inter')))
-            : ListView.builder(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Pending Tasks',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
+            const SizedBox(height: 16),
+            Expanded(
+              child: tasks.isEmpty
+                  ? const Center(
+                      child: Text('No pending tasks',
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                              fontFamily: 'Inter')))
+                  : ListView.builder(
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
                   final task = tasks[index];
@@ -129,6 +142,9 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                             );
                           },
                         ),
+            ),
+          ],
+        ),
       ),
     );
   }

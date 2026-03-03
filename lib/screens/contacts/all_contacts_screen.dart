@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../managers/contact_manager.dart';
+import '../../widgets/app_drawer.dart';
 import 'view_contact_screen.dart';
 
 class AllContactsScreen extends StatefulWidget {
@@ -18,16 +19,18 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      drawer: AppDrawer(
+        selectedIndex: 3,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Text('All Contacts',
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter')),
+        title: const Text('Cloop'),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list, color: Colors.blue),
@@ -37,14 +40,24 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: contacts.isEmpty
-            ? const Center(
-                child: Text('No contacts found.',
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                        fontFamily: 'Inter')))
-            : ListView.builder(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('All Contacts',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
+            const SizedBox(height: 16),
+            Expanded(
+              child: contacts.isEmpty
+                  ? const Center(
+                      child: Text('No contacts found.',
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                              fontFamily: 'Inter')))
+                  : ListView.builder(
                 itemCount: contacts.length,
                 itemBuilder: (context, index) {
                   final contact = contacts[index];
@@ -114,6 +127,9 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                             );
                           },
                         ),
+            ),
+          ],
+        ),
       ),
     );
   }

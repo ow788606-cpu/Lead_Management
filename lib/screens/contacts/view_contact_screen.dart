@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/contact.dart';
 import '../../managers/lead_manager.dart';
+import '../../widgets/app_drawer.dart';
 import 'edit_contact_screen.dart';
 
 class ViewContactScreen extends StatelessWidget {
@@ -19,16 +20,18 @@ class ViewContactScreen extends StatelessWidget {
         .toList();
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      drawer: AppDrawer(
+        selectedIndex: 3,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Text('Client Profile',
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter')),
+        title: const Text('Cloop'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -36,6 +39,12 @@ class ViewContactScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text('Client Profile',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter')),
+              const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
