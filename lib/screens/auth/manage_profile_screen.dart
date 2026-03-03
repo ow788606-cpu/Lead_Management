@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_drawer.dart';
 
 class ManageProfileScreen extends StatefulWidget {
   const ManageProfileScreen({super.key});
@@ -35,16 +36,18 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      drawer: AppDrawer(
+        selectedIndex: -2,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Text('Manage Profile',
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter')),
+        title: const Text('Cloop'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -52,6 +55,15 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
           key: _formKey,
           child: Column(
             children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Manage Profile',
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter')),
+              ),
+              const SizedBox(height: 16),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
@@ -69,19 +81,6 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Client Profile',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Inter')),
-                    const SizedBox(height: 8),
-                    const Text(
-                        'Everything you need to know about this client, all in one place.',
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 13,
-                            fontFamily: 'Inter')),
-                    const SizedBox(height: 24),
                     Center(
                       child: Stack(
                         children: [

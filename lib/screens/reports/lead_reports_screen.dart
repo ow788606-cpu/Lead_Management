@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
+import '../../widgets/app_drawer.dart';
 import '../leads/detail_lead_screen.dart';
 import '../leads/view_leads_screen.dart';
 
@@ -18,58 +19,40 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
     final leads = _leadManager.allLeads;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      drawer: AppDrawer(
+        selectedIndex: -1,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Lead Reports', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
-            SizedBox(height: 2),
-            Text('View and analyze lead reports', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.normal)),
-          ],
-        ),
+        title: const Text('Cloop'),
       ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('All Leads',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Inter')),
-                const SizedBox(height: 4),
-                const Text('View all your leads.',
-                    style: TextStyle(
-                        color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: leads.isEmpty
-                      ? const Center(
-                          child: Text('No leads found.',
-                              style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                  fontFamily: 'Inter')))
-                      : ListView.builder(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Lead Reports',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter')),
+              const SizedBox(height: 16),
+              Expanded(
+                child: leads.isEmpty
+                    ? const Center(
+                        child: Text('No leads found.',
+                            style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                                fontFamily: 'Inter')))
+                    : ListView.builder(
                           itemCount: leads.length,
                           itemBuilder: (context, index) {
                             final lead = leads[index];
@@ -169,9 +152,8 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
                             );
                           },
                         ),
-                ),
-              ],
-            ),
+          ),
+            ],
           ),
         ),
       ),

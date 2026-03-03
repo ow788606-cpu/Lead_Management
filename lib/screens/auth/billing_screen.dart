@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_drawer.dart';
 
 class BillingScreen extends StatelessWidget {
   const BillingScreen({super.key});
@@ -7,16 +8,18 @@ class BillingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      drawer: AppDrawer(
+        selectedIndex: -2,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Text('Billing',
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter')),
+        title: const Text('Cloop'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
