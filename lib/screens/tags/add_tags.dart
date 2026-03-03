@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import '../../widgets/app_drawer.dart';
 
 class AddTagsScreen extends StatefulWidget {
   const AddTagsScreen({super.key});
@@ -56,17 +57,18 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: AppDrawer(
+        selectedIndex: 6,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        title: const Text('Add Tag',
-            style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-                fontFamily: 'Inter')),
-        leading: IconButton(
-          icon: const Icon(Icons.close, size: 20, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
+        title: const Text('Cloop'),
       ),
       body: SafeArea(
         child: Column(
@@ -77,6 +79,12 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Text('Add Tag',
+                        style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Inter')),
+                    const SizedBox(height: 16),
                     const Text('Tag Name',
                         style: TextStyle(
                             fontSize: 13,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../widgets/app_drawer.dart';
 import 'add_tags.dart';
 
 class TagsScreen extends StatefulWidget {
@@ -17,6 +18,19 @@ class _TagsScreenState extends State<TagsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      drawer: AppDrawer(
+        selectedIndex: 6,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
+      appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        title: const Text('Cloop'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
