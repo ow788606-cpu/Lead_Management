@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/billing_screen.dart';
 import '../screens/auth/manage_profile_screen.dart';
@@ -29,6 +30,13 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void openMainTab(int index) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => MainScreen(initialIndex: index)),
+        (route) => false,
+      );
+    }
+
     return Drawer(
       child: SafeArea(
         child: ListView(
@@ -50,7 +58,7 @@ class AppDrawer extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text('MAIN', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
             ),
-            _DrawerItem(Icons.dashboard_outlined, 'Dashboard', 0, selectedIndex, () => onItemSelected(0), Colors.blue),
+            _DrawerItem(Icons.dashboard_outlined, 'Dashboard', 0, selectedIndex, () => openMainTab(0), Colors.blue),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Text('LET\'S CLOOP', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
@@ -75,7 +83,7 @@ class AppDrawer extends StatelessWidget {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const CompletedScreen()));
               }),
             ]),
-            _DrawerItem(Icons.calendar_today_outlined, 'Appointments', 2, selectedIndex, () => onItemSelected(2), Colors.blue),
+            _DrawerItem(Icons.calendar_today_outlined, 'Appointments', 2, selectedIndex, () => openMainTab(2), Colors.blue),
             _ExpandableDrawerItem(Icons.people_outline, 'Contacts', 3, selectedIndex, () => onItemSelected(3), [
               _SubItem('All Contacts', () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const AllContactsScreen()));
@@ -98,8 +106,8 @@ class AppDrawer extends StatelessWidget {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const CompletedTasksScreen()));
               }),
             ]),
-            _DrawerItem(Icons.business_center_outlined, 'Services', 5, selectedIndex, () => onItemSelected(5), Colors.blue),
-            _DrawerItem(Icons.local_offer_outlined, 'Tags', 6, selectedIndex, () => onItemSelected(6), Colors.blue),
+            _DrawerItem(Icons.business_center_outlined, 'Services', 5, selectedIndex, () => openMainTab(5), Colors.blue),
+            _DrawerItem(Icons.local_offer_outlined, 'Tags', 6, selectedIndex, () => openMainTab(6), Colors.blue),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Text('REPORTS', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),

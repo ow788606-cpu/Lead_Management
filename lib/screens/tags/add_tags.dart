@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import '../../widgets/app_drawer.dart';
 
 class AddTagsScreen extends StatefulWidget {
   const AddTagsScreen({super.key});
@@ -57,19 +56,6 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: AppDrawer(
-        selectedIndex: 6,
-        onItemSelected: (_) => Navigator.pop(context),
-      ),
-      appBar: AppBar(
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: const Text('Cloop'),
-      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -79,12 +65,6 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Add Tag',
-                        style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Inter')),
-                    const SizedBox(height: 16),
                     const Text('Tag Name',
                         style: TextStyle(
                             fontSize: 13,
@@ -172,12 +152,12 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                        'Pick a color that will be shown as a swatch in the list.',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Inter',
-                            color: Colors.grey[600])),
+                    // Text(
+                    //     'Pick a color that will be shown as a swatch in the list.',
+                    //     style: TextStyle(
+                    //         fontSize: 12,
+                    //         fontFamily: 'Inter',
+                    //         color: Colors.grey[600])),
                   ],
                 ),
               ),
@@ -230,4 +210,3 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
     );
   }
 }
-
