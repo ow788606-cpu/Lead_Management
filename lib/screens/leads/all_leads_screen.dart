@@ -2,7 +2,6 @@
 import '../../managers/lead_manager.dart';
 import '../../services/service_manager.dart';
 import '../../widgets/app_drawer.dart';
-import 'detail_lead_screen.dart';
 import 'view_leads_screen.dart';
 
 class AllLeadsScreen extends StatefulWidget {
@@ -15,10 +14,20 @@ class AllLeadsScreen extends StatefulWidget {
 class _AllLeadsScreenState extends State<AllLeadsScreen> {
   final _leadManager = LeadManager();
   final _serviceManager = ServiceManager();
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
     final leads = _leadManager.allLeads;
+    final filteredLeads = leads.where((lead) {
+      final query = _searchQuery.trim().toLowerCase();
+      if (query.isEmpty) return true;
+      return lead.contactName.toLowerCase().contains(query) ||
+          (lead.email?.toLowerCase().contains(query) ?? false) ||
+          (lead.phone?.toLowerCase().contains(query) ?? false) ||
+          (lead.service?.toLowerCase().contains(query) ?? false) ||
+          (lead.tags?.toLowerCase().contains(query) ?? false);
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -346,8 +355,28 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Inter')),
             const SizedBox(height: 16),
+            TextField(
+              onChanged: (value) => setState(() => _searchQuery = value),
+              decoration: InputDecoration(
+                hintText: 'Search leads by name, email, phone, service...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
+            const SizedBox(height: 16),
             Expanded(
-              child: leads.isEmpty
+              child: filteredLeads.isEmpty
                   ? const Center(
                       child: Text('No leads found.',
                           style: TextStyle(
@@ -355,16 +384,16 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                               fontSize: 14,
                               fontFamily: 'Inter')))
                   : ListView.builder(
-                      itemCount: leads.length,
+                      itemCount: filteredLeads.length,
                       itemBuilder: (context, index) {
-                        final lead = leads[index];
+                        final lead = filteredLeads[index];
                         return GestureDetector(
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        DetailLeadScreen(lead: lead),
+                                        ViewLeadsScreen(lead: lead),
                                   ),
                                 ).then((_) => setState(() {}));
                               },
@@ -387,21 +416,6 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
                                                   fontFamily: 'Inter')),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                              Icons.visibility_outlined,
-                                              color: Colors.blue,
-                                              size: 20),
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ViewLeadsScreen(lead: lead),
-                                              ),
-                                            );
-                                          },
                                         ),
                                         if (lead.isCompleted)
                                           Container(

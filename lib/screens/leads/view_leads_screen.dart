@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import '../../models/lead.dart';
+import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
+import 'detail_lead_screen.dart';
 
 class ViewLeadsScreen extends StatefulWidget {
   final Lead lead;
@@ -14,6 +16,7 @@ class ViewLeadsScreen extends StatefulWidget {
 }
 
 class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
+  final _leadManager = LeadManager();
   int _selectedTab = 0;
   bool _isEditingService = false;
   bool _isEditingTags = false;
@@ -1107,11 +1110,62 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
         ),
         title: const Text('Cloop'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Back to List',
-                style: TextStyle(
-                    color: Colors.blue, fontFamily: 'Inter', fontSize: 14)),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) async {
+              if (value == 'edit') {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailLeadScreen(
+                      lead: widget.lead,
+                      startInEditMode: true,
+                    ),
+                  ),
+                );
+                if (!context.mounted) return;
+                Navigator.pop(context);
+              } else if (value == 'delete') {
+                final shouldDelete = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: const Text('Delete Lead'),
+                    content: const Text(
+                        'Are you sure you want to delete this lead?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pop(dialogContext, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext, true),
+                        child: const Text('Delete',
+                            style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+                if (!context.mounted) return;
+                if (shouldDelete == true) {
+                  _leadManager.deleteLead(widget.lead.id);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Lead deleted successfully')),
+                  );
+                }
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem<String>(
+                value: 'edit',
+                child: Text('Edit'),
+              ),
+              PopupMenuItem<String>(
+                value: 'delete',
+                child: Text('Delete'),
+              ),
+            ],
           ),
         ],
       ),
