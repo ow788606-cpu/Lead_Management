@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'add_services.dart';
 import 'service_manager.dart';
 
 class ServicesScreen extends StatefulWidget {
@@ -21,50 +20,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('All Services',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter')),
-                      SizedBox(height: 4),
-                      // Text('Easily access and manage your service offerings.', style: TextStyle(color: Colors.grey, fontSize: 13, fontFamily: 'Inter')),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final result = await Navigator.push<String>(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddServicesScreen()),
-                    );
-                    if (result != null && result.isNotEmpty) {
-                      setState(() => _serviceManager.addService(result));
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4)),
-                  ),
-                  child: const Text('Add Service',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                          fontFamily: 'Inter')),
-                ),
-              ],
-            ),
+            const Text('All Services',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
             const SizedBox(height: 24),
             Expanded(
               child: ListView.builder(

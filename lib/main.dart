@@ -5,7 +5,10 @@ import 'screens/leads/all_leads_screen.dart';
 import 'screens/appointments/appointments_screen.dart';
 import 'screens/contacts/contacts_screen.dart';
 import 'services/services_screen.dart';
+import 'services/add_services.dart';
+import 'services/service_manager.dart';
 import 'screens/tags/tags_screen.dart';
+import 'screens/tags/add_tags.dart';
 import 'widgets/app_drawer.dart';
 import 'managers/auth_manager.dart';
 import 'managers/contact_manager.dart';
@@ -104,16 +107,67 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late int _selectedIndex;
+  final _serviceManager = ServiceManager();
 
-  final List<Widget> _screens = [
-    const DashboardScreen(),
-    const AllLeadsScreen(),
-    const AppointmentsScreen(),
-    const ContactsScreen(),
-    const Center(child: Text('Tasks')),
-    const ServicesScreen(),
-    const TagsScreen(),
-  ];
+  Widget _buildSelectedScreen() {
+    switch (_selectedIndex) {
+      case 0:
+        return const DashboardScreen();
+      case 1:
+        return const AllLeadsScreen();
+      case 2:
+        return const AppointmentsScreen();
+      case 3:
+        return const ContactsScreen();
+      case 4:
+        return const Center(child: Text('Tasks'));
+      case 5:
+        return const ServicesScreen();
+      case 6:
+        return const TagsScreen();
+      default:
+        return const DashboardScreen();
+    }
+  }
+
+  List<Widget> _buildAppBarActions() {
+    if (_selectedIndex == 5) {
+      return [
+        TextButton(
+          onPressed: () async {
+            final result = await Navigator.push<String>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddServicesScreen(),
+              ),
+            );
+            if (result != null && result.trim().isNotEmpty) {
+              _serviceManager.addService(result.trim());
+              if (mounted) setState(() {});
+            }
+          },
+          child: const Text('Add Service'),
+        ),
+      ];
+    }
+    if (_selectedIndex == 6) {
+      return [
+        TextButton(
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddTagsScreen(),
+              ),
+            );
+            if (mounted) setState(() {});
+          },
+          child: const Text('Add Tag'),
+        ),
+      ];
+    }
+    return const [];
+  }
 
   @override
   void initState() {
@@ -137,13 +191,13 @@ class _MainScreenState extends State<MainScreen> {
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 20)),
-        actions: const [],
+        actions: _buildAppBarActions(),
       ),
       drawer: AppDrawer(
         selectedIndex: _selectedIndex,
         onItemSelected: _select,
       ),
-      body: _screens[_selectedIndex],
+      body: _buildSelectedScreen(),
     );
   }
 

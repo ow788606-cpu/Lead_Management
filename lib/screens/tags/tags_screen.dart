@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'add_tags.dart';
 
 class TagsScreen extends StatefulWidget {
   const TagsScreen({super.key});
@@ -22,52 +21,11 @@ class _TagsScreenState extends State<TagsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('All Tags',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter')),
-                      SizedBox(height: 4),
-                      // Text(
-                      //     'Organize leads with tags for easier tracking and better reports.',
-                      //     style: TextStyle(
-                      //         color: Colors.grey,
-                      //         fontSize: 13,
-                      //         fontFamily: 'Inter')),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddTagsScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4)),
-                  ),
-                  child: const Text('Add Tag',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                          fontFamily: 'Inter')),
-                ),
-              ],
-            ),
+            const Text('All Tags',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
             const SizedBox(height: 24),
             Expanded(
               child: ListView.builder(

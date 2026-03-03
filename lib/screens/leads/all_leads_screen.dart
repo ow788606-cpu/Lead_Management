@@ -449,24 +449,51 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                                     ),
                                     const SizedBox(height: 8),
                                     if (lead.phone != null)
-                                      Text('Phone: ${lead.phone}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.grey)),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.phone_outlined,
+                                              size: 16, color: Colors.grey),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text('Phone: ${lead.phone}',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontFamily: 'Inter',
+                                                    color: Colors.grey)),
+                                          ),
+                                        ],
+                                      ),
                                     if (lead.email != null)
-                                      Text('Email: ${lead.email}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.grey)),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.email_outlined,
+                                              size: 16, color: Colors.grey),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text('Email: ${lead.email}',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontFamily: 'Inter',
+                                                    color: Colors.grey)),
+                                          ),
+                                        ],
+                                      ),
                                     if (lead.followUpDate != null)
-                                      Text(
-                                          'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.blue)),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.access_time_outlined,
+                                              size: 16, color: Colors.blue),
+                                          const SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                                'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontFamily: 'Inter',
+                                                    color: Colors.blue)),
+                                          ),
+                                        ],
+                                      ),
                                   ],
                                 ),
                               ),
