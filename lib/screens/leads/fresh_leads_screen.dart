@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
+import '../../widgets/app_drawer.dart';
 
 class FreshLeadsScreen extends StatefulWidget {
   const FreshLeadsScreen({super.key});
@@ -17,30 +18,39 @@ class _FreshLeadsScreenState extends State<FreshLeadsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      drawer: AppDrawer(
+        selectedIndex: 1,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Text('Fresh Leads',
-            style: TextStyle(
-                color: Colors.black,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.bold,
-                fontSize: 18)),
+        title: const Text('Cloop'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: leads.isEmpty
-            ? const Center(
-                child: Text('No fresh leads found.',
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                        fontFamily: 'Inter')))
-            : ListView.builder(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Fresh Leads',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
+            const SizedBox(height: 16),
+            Expanded(
+              child: leads.isEmpty
+                  ? const Center(
+                      child: Text('No fresh leads found.',
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                              fontFamily: 'Inter')))
+                  : ListView.builder(
                           itemCount: leads.length,
                           itemBuilder: (context, index) {
                             final lead = leads[index];
@@ -110,7 +120,11 @@ class _FreshLeadsScreenState extends State<FreshLeadsScreen> {
                             );
                           },
                         ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+

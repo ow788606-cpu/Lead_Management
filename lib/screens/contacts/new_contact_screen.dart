@@ -74,10 +74,8 @@ class _NewContactScreenState extends State<NewContactScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('New Contact',
@@ -458,3 +456,4 @@ class _NewContactScreenState extends State<NewContactScreen> {
     super.dispose();
   }
 }
+

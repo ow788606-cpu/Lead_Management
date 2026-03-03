@@ -36,10 +36,8 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Manage Profile',
@@ -216,3 +214,4 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
     );
   }
 }
+

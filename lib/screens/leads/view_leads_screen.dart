@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../../models/lead.dart';
+import '../../widgets/app_drawer.dart';
 
 class ViewLeadsScreen extends StatefulWidget {
   final Lead lead;
@@ -1093,19 +1094,18 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      drawer: AppDrawer(
+        selectedIndex: 1,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Text('Lead Details',
-            style: TextStyle(
-                color: Colors.black,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.bold,
-                fontSize: 18)),
+        title: const Text('Cloop'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -1118,7 +1118,14 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Text('Lead Details',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
+            const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -1579,7 +1586,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                     false) ...[
                                                   const SizedBox(height: 4),
                                                   Text(
-                                                    'Amount: ₹${activity['dealAmount']}',
+                                                    'Amount: â‚¹${activity['dealAmount']}',
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: Colors.green,
@@ -1856,3 +1863,4 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     return months[month - 1];
   }
 }
+

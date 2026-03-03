@@ -57,8 +57,6 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         title: const Text('Add Tag',
             style: TextStyle(
                 fontSize: 18,
@@ -224,3 +222,4 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
     );
   }
 }
+

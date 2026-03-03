@@ -79,10 +79,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text('Edit Contact',
@@ -423,3 +421,4 @@ class _EditContactScreenState extends State<EditContactScreen> {
     super.dispose();
   }
 }
+

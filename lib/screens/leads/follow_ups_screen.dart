@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
+import '../../widgets/app_drawer.dart';
 import 'detail_lead_screen.dart';
 import 'view_leads_screen.dart';
 
@@ -21,29 +22,39 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      drawer: AppDrawer(
+        selectedIndex: 1,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Text('Follow-ups',
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter')),
+        title: const Text('Cloop'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: followUpLeads.isEmpty
-            ? const Center(
-                child: Text('No follow-ups scheduled.',
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                        fontFamily: 'Inter')))
-            : ListView.builder(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Follow-ups',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
+            const SizedBox(height: 16),
+            Expanded(
+              child: followUpLeads.isEmpty
+                  ? const Center(
+                      child: Text('No follow-ups scheduled.',
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                              fontFamily: 'Inter')))
+                  : ListView.builder(
                           itemCount: followUpLeads.length,
                           itemBuilder: (context, index) {
                             final lead = followUpLeads[index];
@@ -148,7 +159,11 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
                             );
                           },
                         ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+

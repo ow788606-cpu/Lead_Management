@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../services/service_manager.dart';
+import '../../widgets/app_drawer.dart';
 import 'detail_lead_screen.dart';
 import 'view_leads_screen.dart';
 
@@ -21,18 +22,18 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      drawer: AppDrawer(
+        selectedIndex: 1,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
-        title: const Text('All Leads',
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Inter')),
+        title: const Text('Cloop'),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list, color: Colors.blue),
@@ -336,18 +337,28 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: leads.isEmpty
-            ? const Center(
-                child: Text('No leads found.',
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                        fontFamily: 'Inter')))
-            : ListView.builder(
-                itemCount: leads.length,
-                itemBuilder: (context, index) {
-                  final lead = leads[index];
-                  return GestureDetector(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('All Leads',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
+            const SizedBox(height: 16),
+            Expanded(
+              child: leads.isEmpty
+                  ? const Center(
+                      child: Text('No leads found.',
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                              fontFamily: 'Inter')))
+                  : ListView.builder(
+                      itemCount: leads.length,
+                      itemBuilder: (context, index) {
+                        final lead = leads[index];
+                        return GestureDetector(
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -446,8 +457,11 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                                 ),
                               ),
                             );
-                          },
-                        ),
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -21,8 +21,6 @@ class _AddServicesScreenState extends State<AddServicesScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black),
           onPressed: () => Navigator.pop(context),
@@ -82,3 +80,4 @@ class _AddServicesScreenState extends State<AddServicesScreen> {
     );
   }
 }
+
