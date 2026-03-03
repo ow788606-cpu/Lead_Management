@@ -54,12 +54,13 @@ class _SplashScreenState extends State<SplashScreen> {
       leadManager.loadLeads(),
     ]);
     final isLoggedIn = await authManager.isLoggedIn();
-    
+
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => isLoggedIn ? const MainScreen() : const LoginScreen(),
+        builder: (context) =>
+            isLoggedIn ? const MainScreen() : const LoginScreen(),
       ),
     );
   }
@@ -94,12 +95,9 @@ class _MainScreenState extends State<MainScreen> {
     const TagsScreen(),
   ];
 
-  String _getGreeting() {
-    final hour =
-        DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30)).hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -108,41 +106,19 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: Colors.black),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: Row(
-          children: [
-            Image.asset('assets/images/logo-md.webp', height: 32),
-            const SizedBox(width: 8),
-            const Text('Cloop',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20)),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(_getGreeting(),
-                    style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500)),
-                const Text('Welcome',
-                    style: TextStyle(color: Colors.grey, fontSize: 10)),
-              ],
-            ),
-          ),
-        ],
+        title: const Text('Cloop',
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 20)),
+        actions: const [],
       ),
       drawer: AppDrawer(
         selectedIndex: _selectedIndex,
