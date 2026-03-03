@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'tag_api.dart';
 
 class AddTagsScreen extends StatefulWidget {
   const AddTagsScreen({super.key});
@@ -12,6 +13,10 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   Color _selectedColor = Colors.blue;
+  bool _isSaving = false;
+
+  String get _selectedHexColor =>
+      '#${_selectedColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
 
   void _pickColor() {
     showDialog(
@@ -142,8 +147,7 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Text(
-                              '#${_selectedColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+                          Text(_selectedHexColor,
                               style: TextStyle(
                                   fontSize: 14,
                                   fontFamily: 'Inter',
@@ -186,7 +190,43 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _isSaving
+                        ? null
+                        : () async {
+                            final messenger = ScaffoldMessenger.of(context);
+                            final navigator = Navigator.of(context);
+                            final name = _nameController.text.trim();
+                            final description =
+                                _descriptionController.text.trim();
+                            if (name.isEmpty) {
+                              messenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text('Tag name is required'),
+                                ),
+                              );
+                              return;
+                            }
+
+                            setState(() => _isSaving = true);
+                            try {
+                              await TagApi.addTag(
+                                name: name,
+                                description: description,
+                                colorHex: _selectedHexColor,
+                              );
+                              if (!mounted) return;
+                              navigator.pop(true);
+                            } catch (_) {
+                              if (!mounted) return;
+                              messenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text('Failed to save tag'),
+                                ),
+                              );
+                            } finally {
+                              if (mounted) setState(() => _isSaving = false);
+                            }
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2563EB),
                       padding: const EdgeInsets.symmetric(
@@ -194,12 +234,21 @@ class _AddTagsScreenState extends State<AddTagsScreen> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4)),
                     ),
-                    child: const Text('Add Tag',
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                            fontFamily: 'Inter')),
+                    child: _isSaving
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Add Tag',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                                fontFamily: 'Inter')),
                   ),
                 ],
               ),

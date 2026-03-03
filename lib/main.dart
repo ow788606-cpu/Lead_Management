@@ -108,6 +108,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   late int _selectedIndex;
   final _serviceManager = ServiceManager();
+  int _tagsScreenVersion = 0;
 
   Widget _buildSelectedScreen() {
     switch (_selectedIndex) {
@@ -124,7 +125,7 @@ class _MainScreenState extends State<MainScreen> {
       case 5:
         return const ServicesScreen();
       case 6:
-        return const TagsScreen();
+        return TagsScreen(key: ValueKey(_tagsScreenVersion));
       default:
         return const DashboardScreen();
     }
@@ -163,7 +164,11 @@ class _MainScreenState extends State<MainScreen> {
                 builder: (context) => const AddTagsScreen(),
               ),
             );
-            if (mounted) setState(() {});
+            if (mounted) {
+              setState(() {
+                _tagsScreenVersion++;
+              });
+            }
           },
           child: const Text(
             'Add Tag',
@@ -212,4 +217,3 @@ class _MainScreenState extends State<MainScreen> {
     Navigator.pop(context);
   }
 }
-
