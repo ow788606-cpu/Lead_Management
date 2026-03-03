@@ -146,7 +146,10 @@ class _MainScreenState extends State<MainScreen> {
               if (mounted) setState(() {});
             }
           },
-          child: const Text('Add Service'),
+          child: const Text(
+            'Add Service',
+            style: TextStyle(color: Color(0xFF0B5CFF)),
+          ),
         ),
       ];
     }
@@ -162,7 +165,10 @@ class _MainScreenState extends State<MainScreen> {
             );
             if (mounted) setState(() {});
           },
-          child: const Text('Add Tag'),
+          child: const Text(
+            'Add Tag',
+            style: TextStyle(color: Color(0xFF0B5CFF)),
+          ),
         ),
       ];
     }

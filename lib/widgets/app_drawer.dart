@@ -28,6 +28,8 @@ class AppDrawer extends StatelessWidget {
     required this.onItemSelected,
   });
 
+  static const Color _activeBgColor = Color(0xFF0B5CFF);
+
   @override
   Widget build(BuildContext context) {
     void openMainTab(int index) {
@@ -58,12 +60,12 @@ class AppDrawer extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: Text('MAIN', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
             ),
-            _DrawerItem(Icons.dashboard_outlined, 'Dashboard', 0, selectedIndex, () => openMainTab(0), Colors.blue),
+            _DrawerItem(Icons.dashboard_outlined, 'Dashboard', 0, selectedIndex, () => openMainTab(0), Colors.blue, _activeBgColor),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Text('LET\'S CLOOP', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(Icons.phone_in_talk_outlined, 'Leads', 1, selectedIndex, () => onItemSelected(1), [
+            _ExpandableDrawerItem(Icons.phone_in_talk_outlined, 'Leads', 1, selectedIndex, () => onItemSelected(1), _activeBgColor, [
               _SubItem('Add New Lead', () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNewLeadScreen()));
               }),
@@ -83,8 +85,8 @@ class AppDrawer extends StatelessWidget {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const CompletedScreen()));
               }),
             ]),
-            _DrawerItem(Icons.calendar_today_outlined, 'Appointments', 2, selectedIndex, () => openMainTab(2), Colors.blue),
-            _ExpandableDrawerItem(Icons.people_outline, 'Contacts', 3, selectedIndex, () => onItemSelected(3), [
+            _DrawerItem(Icons.calendar_today_outlined, 'Appointments', 2, selectedIndex, () => openMainTab(2), Colors.blue, _activeBgColor),
+            _ExpandableDrawerItem(Icons.people_outline, 'Contacts', 3, selectedIndex, () => onItemSelected(3), _activeBgColor, [
               _SubItem('All Contacts', () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const AllContactsScreen()));
               }),
@@ -95,7 +97,7 @@ class AppDrawer extends StatelessWidget {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const BulkUploadScreen()));
               }),
             ]),
-            _ExpandableDrawerItem(Icons.task_alt_outlined, 'Tasks', 4, selectedIndex, () => onItemSelected(4), [
+            _ExpandableDrawerItem(Icons.task_alt_outlined, 'Tasks', 4, selectedIndex, () => onItemSelected(4), _activeBgColor, [
               _SubItem('New Task', () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const NewTaskScreen()));
               }),
@@ -106,13 +108,13 @@ class AppDrawer extends StatelessWidget {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const CompletedTasksScreen()));
               }),
             ]),
-            _DrawerItem(Icons.business_center_outlined, 'Services', 5, selectedIndex, () => openMainTab(5), Colors.blue),
-            _DrawerItem(Icons.local_offer_outlined, 'Tags', 6, selectedIndex, () => openMainTab(6), Colors.blue),
+            _DrawerItem(Icons.business_center_outlined, 'Services', 5, selectedIndex, () => openMainTab(5), Colors.blue, _activeBgColor),
+            _DrawerItem(Icons.local_offer_outlined, 'Tags', 6, selectedIndex, () => openMainTab(6), Colors.blue, _activeBgColor),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Text('REPORTS', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(Icons.bar_chart_outlined, 'Reports', -1, selectedIndex, () {}, [
+            _ExpandableDrawerItem(Icons.bar_chart_outlined, 'Reports', -1, selectedIndex, () {}, _activeBgColor, [
               _SubItem('Lead Reports', () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const LeadReportsScreen()));
               }),
@@ -121,7 +123,7 @@ class AppDrawer extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Text('MY ACCOUNT', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(Icons.person_outline, 'Profile', -2, selectedIndex, () {}, [
+            _ExpandableDrawerItem(Icons.person_outline, 'Profile', -2, selectedIndex, () {}, _activeBgColor, [
               _SubItem('Billing', () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const BillingScreen()));
               }),
@@ -157,8 +159,9 @@ class _DrawerItem extends StatelessWidget {
   final int selectedIndex;
   final VoidCallback onTap;
   final Color iconColor;
+  final Color activeBgColor;
 
-  const _DrawerItem(this.icon, this.title, this.index, this.selectedIndex, this.onTap, this.iconColor);
+  const _DrawerItem(this.icon, this.title, this.index, this.selectedIndex, this.onTap, this.iconColor, this.activeBgColor);
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +169,7 @@ class _DrawerItem extends StatelessWidget {
     return ListTile(
       leading: Icon(icon, color: isSelected ? Colors.white : iconColor, size: 18),
       title: Text(title, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontSize: 13)),
-      tileColor: isSelected ? Colors.blue : Colors.transparent,
+      tileColor: isSelected ? activeBgColor : Colors.transparent,
       onTap: onTap,
       dense: true,
     );
@@ -179,9 +182,10 @@ class _ExpandableDrawerItem extends StatefulWidget {
   final int index;
   final int selectedIndex;
   final VoidCallback onTap;
+  final Color activeBgColor;
   final List<Widget> children;
 
-  const _ExpandableDrawerItem(this.icon, this.title, this.index, this.selectedIndex, this.onTap, this.children);
+  const _ExpandableDrawerItem(this.icon, this.title, this.index, this.selectedIndex, this.onTap, this.activeBgColor, this.children);
 
   @override
   State<_ExpandableDrawerItem> createState() => _ExpandableDrawerItemState();
@@ -199,7 +203,7 @@ class _ExpandableDrawerItemState extends State<_ExpandableDrawerItem> {
           leading: Icon(widget.icon, color: isSelected ? Colors.white : Colors.blue, size: 18),
           title: Text(widget.title, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontSize: 13)),
           trailing: Icon(_isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: isSelected ? Colors.white : Colors.grey),
-          tileColor: isSelected ? Colors.blue : Colors.transparent,
+          tileColor: isSelected ? widget.activeBgColor : Colors.transparent,
           onTap: () {
             setState(() => _isExpanded = !_isExpanded);
           },

@@ -10,9 +10,15 @@ class ServicesScreen extends StatefulWidget {
 
 class _ServicesScreenState extends State<ServicesScreen> {
   final _serviceManager = ServiceManager();
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
+    final filteredServices = _serviceManager.services.where((service) {
+      if (_searchQuery.trim().isEmpty) return true;
+      return service.toLowerCase().contains(_searchQuery.trim().toLowerCase());
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: Padding(
@@ -25,10 +31,30 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Inter')),
+            const SizedBox(height: 12),
+            TextField(
+              onChanged: (value) => setState(() => _searchQuery = value),
+              decoration: InputDecoration(
+                hintText: 'Search services...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
             const SizedBox(height: 24),
             Expanded(
               child: ListView.builder(
-                itemCount: _serviceManager.services.length,
+                itemCount: filteredServices.length,
                 itemBuilder: (context, index) {
                   return Container(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -58,7 +84,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: Text(_serviceManager.services[index],
+                          child: Text(filteredServices[index],
                               style: const TextStyle(
                                   fontSize: 14, fontFamily: 'Inter')),
                         ),
@@ -71,8 +97,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           icon: const Icon(Icons.delete,
                               size: 18, color: Colors.red),
                           onPressed: () {
-                            setState(
-                                () => _serviceManager.removeService(index));
+                            final originalIndex = _serviceManager.services
+                                .indexOf(filteredServices[index]);
+                            if (originalIndex != -1) {
+                              setState(() =>
+                                  _serviceManager.removeService(originalIndex));
+                            }
                           },
                         ),
                       ],

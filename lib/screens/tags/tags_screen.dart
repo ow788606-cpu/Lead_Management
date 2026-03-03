@@ -11,9 +11,18 @@ class _TagsScreenState extends State<TagsScreen> {
   final List<Map<String, dynamic>> _tags = [
     {'name': 'nm,mk', 'description': 'gh', 'color': Colors.yellow},
   ];
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
+    final filteredTags = _tags.where((tag) {
+      if (_searchQuery.trim().isEmpty) return true;
+      final query = _searchQuery.trim().toLowerCase();
+      final name = (tag['name'] ?? '').toString().toLowerCase();
+      final description = (tag['description'] ?? '').toString().toLowerCase();
+      return name.contains(query) || description.contains(query);
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: Padding(
@@ -26,12 +35,32 @@ class _TagsScreenState extends State<TagsScreen> {
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Inter')),
+            const SizedBox(height: 12),
+            TextField(
+              onChanged: (value) => setState(() => _searchQuery = value),
+              decoration: InputDecoration(
+                hintText: 'Search tags...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
             const SizedBox(height: 24),
             Expanded(
               child: ListView.builder(
-                itemCount: _tags.length,
+                itemCount: filteredTags.length,
                 itemBuilder: (context, index) {
-                  final tag = _tags[index];
+                  final tag = filteredTags[index];
                   return Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(16),
