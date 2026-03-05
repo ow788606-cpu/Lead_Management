@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../managers/lead_manager.dart';
 import '../managers/auth_manager.dart';
+import 'appointments/appointments_screen.dart';
+import 'leads/follow_ups_screen.dart';
+import 'leads/fresh_leads_screen.dart';
+import 'leads/overdue_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -102,14 +106,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                   child: _StatCard(freshLeads.toString(), 'Fresh Leads',
-                      Icons.phone_in_talk_outlined, const Color(0xFF0B5CFF))),
+                      Icons.phone_in_talk_outlined, const Color(0xFF0B5CFF),
+                      onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FreshLeadsScreen()),
+                );
+              })),
               const SizedBox(width: 16),
               Expanded(
                   child: _StatCard(
                       scheduledAppointments.toString(),
                       'Scheduled Appointments',
                       Icons.calendar_today_outlined,
-                      const Color(0xFF0B5CFF))),
+                      const Color(0xFF0B5CFF), onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const AppointmentsScreen()),
+                );
+              })),
             ],
           ),
           const SizedBox(height: 16),
@@ -117,11 +133,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                   child: _StatCard(followUpLeads.toString(), 'Followup Leads',
-                      Icons.access_time_outlined, const Color(0xFF0B5CFF))),
+                      Icons.access_time_outlined, const Color(0xFF0B5CFF),
+                      onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FollowUpsScreen()),
+                );
+              })),
               const SizedBox(width: 16),
               Expanded(
                   child: _StatCard(overdueLeads.toString(), 'Overdue Leads',
-                      Icons.warning_amber_outlined, const Color(0xFF0B5CFF))),
+                      Icons.warning_amber_outlined, const Color(0xFF0B5CFF),
+                      onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OverdueScreen()),
+                );
+              })),
             ],
           ),
           const SizedBox(height: 16),
@@ -158,51 +186,60 @@ class _StatCard extends StatelessWidget {
   final String label;
   final IconData icon;
   final Color bgColor;
+  final VoidCallback? onTap;
 
-  const _StatCard(this.value, this.label, this.icon, this.bgColor);
+  const _StatCard(this.value, this.label, this.icon, this.bgColor,
+      {this.onTap});
 
   @override
   Widget build(BuildContext context) {
     const brandBlue = Color(0xFF0B5CFF);
     final iconColor =
         bgColor.toARGB32() == brandBlue.toARGB32() ? Colors.white : brandBlue;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(value,
-                    style: const TextStyle(
-                        fontSize: 28, fontWeight: FontWeight.bold)),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                    color: bgColor, borderRadius: BorderRadius.circular(8)),
-                child: Icon(icon, color: iconColor, size: 20),
-              ),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2))
             ],
           ),
-          const SizedBox(height: 6),
-          Text(label,
-              style: const TextStyle(color: Colors.grey, fontSize: 11),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis),
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(value,
+                        style: const TextStyle(
+                            fontSize: 28, fontWeight: FontWeight.bold)),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: bgColor, borderRadius: BorderRadius.circular(8)),
+                    child: Icon(icon, color: iconColor, size: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(label,
+                  style: const TextStyle(color: Colors.grey, fontSize: 11),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis),
+            ],
+          ),
+        ),
       ),
     );
   }
