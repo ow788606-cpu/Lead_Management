@@ -34,10 +34,19 @@ class TagApi {
   static Future<List<TagItem>> fetchTags() async {
     final response = await http.get(_tagsUri());
     if (response.statusCode != 200) {
-      throw Exception('Failed to load tags');
+      throw Exception(
+        'Failed to load tags (HTTP ${response.statusCode}): ${response.body}',
+      );
     }
 
-    final jsonBody = jsonDecode(response.body) as Map<String, dynamic>;
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic>) {
+      throw Exception('Invalid tags response format');
+    }
+    final jsonBody = decoded;
+    if (jsonBody['success'] == false) {
+      throw Exception((jsonBody['message'] ?? 'Tags API returned error').toString());
+    }
     final data = (jsonBody['data'] as List<dynamic>? ?? [])
         .map((item) => TagItem.fromJson(item as Map<String, dynamic>))
         .toList();

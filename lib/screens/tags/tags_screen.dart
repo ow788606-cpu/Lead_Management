@@ -29,9 +29,9 @@ class _TagsScreenState extends State<TagsScreen> {
       final tags = await TagApi.fetchTags();
       if (!mounted) return;
       setState(() => _tags = tags);
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      setState(() => _errorMessage = 'Unable to load tags from database.');
+      setState(() => _errorMessage = 'Unable to load tags: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

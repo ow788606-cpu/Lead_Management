@@ -3,8 +3,8 @@ import 'dart:io';
 class ApiConfig {
   static String get baseUrl {
     if (Platform.isAndroid) {
-      // Android emulator should access localhost via 10.0.2.2
-      return 'http://10.0.2.2/lead/api';
+      // Physical Android device should use this PC's LAN IP.
+      return 'http://192.168.29.159/lead/api';
     }
     return 'http://localhost/lead/api';
   }
