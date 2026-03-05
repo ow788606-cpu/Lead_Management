@@ -121,7 +121,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(width: 16),
               Expanded(
                   child: _StatCard(overdueLeads.toString(), 'Overdue Leads',
-                      Icons.warning_amber_outlined, const Color(0xFFFFEBEE))),
+                      Icons.warning_amber_outlined, const Color(0xFF0B5CFF))),
             ],
           ),
           const SizedBox(height: 16),
@@ -129,11 +129,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                   child: _StatCard(lostLeads.toString(), 'Lost Leads',
-                      Icons.person_off_outlined, const Color(0xFFF5F5F5))),
+                      Icons.person_off_outlined, const Color(0xFF0B5CFF))),
               const SizedBox(width: 16),
               Expanded(
                   child: _StatCard(convertedLeads.toString(), 'Converted Leads',
-                      Icons.star_outline, const Color(0xFFE8F5E9))),
+                      Icons.star_outline, const Color(0xFF0B5CFF))),
             ],
           ),
           const SizedBox(height: 24),
@@ -163,6 +163,9 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const brandBlue = Color(0xFF0B5CFF);
+    final iconColor =
+        bgColor.toARGB32() == brandBlue.toARGB32() ? Colors.white : brandBlue;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -190,7 +193,7 @@ class _StatCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                     color: bgColor, borderRadius: BorderRadius.circular(8)),
-                child: Icon(icon, color: const Color(0xFF0B5CFF), size: 20),
+                child: Icon(icon, color: iconColor, size: 20),
               ),
             ],
           ),
@@ -664,16 +667,17 @@ class _TabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const brandBlue = Color(0xFF0B5CFF);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF0B5CFF) : Colors.transparent,
-        border: Border.all(color: isActive ? const Color(0xFF0B5CFF) : Colors.grey[300]!),
+        color: isActive ? brandBlue : Colors.transparent,
+        border: Border.all(color: isActive ? brandBlue : Colors.grey[300]!),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(label,
           style: TextStyle(
-              color: isActive ? const Color(0xFF0B5CFF) : Colors.grey[600], fontSize: 11)),
+              color: isActive ? Colors.white : Colors.grey[600], fontSize: 11)),
     );
   }
 }
