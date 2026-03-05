@@ -22,12 +22,20 @@ class CloopApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const brandBlue = Color(0xFF0B5CFF);
     return MaterialApp(
       title: 'Cloop',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Inter',
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: brandBlue,
+          primary: brandBlue,
+        ),
+        primaryColor: brandBlue,
         scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+        splashColor: brandBlue.withValues(alpha: 0.14),
+        highlightColor: brandBlue.withValues(alpha: 0.08),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.white,
@@ -42,6 +50,72 @@ class CloopApp extends StatelessWidget {
             fontWeight: FontWeight.bold,
             fontFamily: 'Inter',
           ),
+        ),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: brandBlue,
+          selectionColor: brandBlue.withValues(alpha: 0.24),
+          selectionHandleColor: brandBlue,
+        ),
+        iconTheme: const IconThemeData(color: brandBlue),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: brandBlue,
+          foregroundColor: Colors.white,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: brandBlue,
+            foregroundColor: Colors.white,
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: brandBlue,
+            side: const BorderSide(color: brandBlue),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: brandBlue,
+          ),
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: brandBlue, width: 1.4),
+          ),
+        ),
+        listTileTheme: ListTileThemeData(
+          selectedColor: brandBlue,
+          iconColor: Colors.black87,
+          selectedTileColor: brandBlue.withValues(alpha: 0.12),
+        ),
+        tabBarTheme: const TabBarThemeData(
+          labelColor: brandBlue,
+          unselectedLabelColor: Colors.grey,
+          indicatorColor: brandBlue,
+        ),
+        checkboxTheme: CheckboxThemeData(
+          fillColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) return brandBlue;
+            return Colors.white;
+          }),
+        ),
+        radioTheme: RadioThemeData(
+          fillColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) return brandBlue;
+            return Colors.grey;
+          }),
+        ),
+        switchTheme: SwitchThemeData(
+          thumbColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) return brandBlue;
+            return Colors.grey[400];
+          }),
+          trackColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return brandBlue.withValues(alpha: 0.45);
+            }
+            return Colors.grey[300];
+          }),
         ),
         useMaterial3: true,
       ),

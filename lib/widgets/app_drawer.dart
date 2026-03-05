@@ -46,6 +46,7 @@ class AppDrawer extends StatelessWidget {
       child: SafeArea(
         child: ListView(
           padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             Container(
               height: 80,
