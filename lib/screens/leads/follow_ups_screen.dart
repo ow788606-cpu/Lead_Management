@@ -13,12 +13,35 @@ class FollowUpsScreen extends StatefulWidget {
 
 class _FollowUpsScreenState extends State<FollowUpsScreen> {
   final _leadManager = LeadManager();
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLeads();
+  }
+
+  Future<void> _loadLeads() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      await _leadManager.loadLeads(forceRefresh: true);
+    } catch (e) {
+      _error = e.toString();
+    }
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
     final followUpLeads = _leadManager.allLeads
         .where((lead) => lead.followUpDate != null)
-        .toList();
+        .toList()
+      ..sort((a, b) => a.followUpDate!.compareTo(b.followUpDate!));
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -47,118 +70,140 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
                     fontFamily: 'Inter')),
             const SizedBox(height: 16),
             Expanded(
-              child: followUpLeads.isEmpty
-                  ? const Center(
-                      child: Text('No follow-ups scheduled.',
-                          style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                              fontFamily: 'Inter')))
-                  : ListView.builder(
-                          itemCount: followUpLeads.length,
-                          itemBuilder: (context, index) {
-                            final lead = followUpLeads[index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        DetailLeadScreen(lead: lead),
-                                  ),
-                                ).then((_) => setState(() {}));
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: Colors.grey[300]!),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? Center(
+                          child: Text(
+                            _error!,
+                            style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 13,
+                                fontFamily: 'Inter'),
+                          ),
+                        )
+                      : followUpLeads.isEmpty
+                          ? const Center(
+                              child: Text('No follow-ups scheduled.',
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                      fontFamily: 'Inter')))
+                          : ListView.builder(
+                              itemCount: followUpLeads.length,
+                              itemBuilder: (context, index) {
+                                final lead = followUpLeads[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DetailLeadScreen(lead: lead),
+                                      ),
+                                    ).then((_) => _loadLeads());
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border:
+                                          Border.all(color: Colors.grey[300]!),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: Text(lead.contactName,
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'Inter')),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                              Icons.visibility_outlined,
-                                              color: Colors.blue,
-                                              size: 20),
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ViewLeadsScreen(lead: lead),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(lead.contactName,
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: 'Inter')),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(
+                                                  Icons.visibility_outlined,
+                                                  color: Colors.blue,
+                                                  size: 20),
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ViewLeadsScreen(
+                                                            lead: lead),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                            if (lead.isCompleted)
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.green[50],
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4)),
+                                                child: const Text('Completed',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.green,
+                                                        fontFamily: 'Inter')),
                                               ),
-                                            );
-                                          },
+                                            if (lead.isOverdue)
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.red[50],
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4)),
+                                                child: const Text('Overdue',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.red,
+                                                        fontFamily: 'Inter')),
+                                              ),
+                                          ],
                                         ),
-                                        if (lead.isCompleted)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                                color: Colors.green[50],
-                                                borderRadius:
-                                                    BorderRadius.circular(4)),
-                                            child: const Text('Completed',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.green,
-                                                    fontFamily: 'Inter')),
-                                          ),
-                                        if (lead.isOverdue)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                                color: Colors.red[50],
-                                                borderRadius:
-                                                    BorderRadius.circular(4)),
-                                            child: const Text('Overdue',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.red,
-                                                    fontFamily: 'Inter')),
-                                          ),
+                                        const SizedBox(height: 8),
+                                        if (lead.phone != null)
+                                          Text('Phone: ${lead.phone}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.grey)),
+                                        if (lead.email != null)
+                                          Text('Email: ${lead.email}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.grey)),
+                                        if (lead.followUpDate != null)
+                                          Text(
+                                              'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.blue)),
                                       ],
                                     ),
-                                    const SizedBox(height: 8),
-                                    if (lead.phone != null)
-                                      Text('Phone: ${lead.phone}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.grey)),
-                                    if (lead.email != null)
-                                      Text('Email: ${lead.email}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.grey)),
-                                    if (lead.followUpDate != null)
-                                      Text(
-                                          'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Colors.blue)),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                                  ),
+                                );
+                              },
+                            ),
             ),
           ],
         ),
@@ -166,4 +211,3 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
     );
   }
 }
-
