@@ -12,6 +12,7 @@ class PendingTasksScreen extends StatefulWidget {
 
 class _PendingTasksScreenState extends State<PendingTasksScreen> {
   late final TaskManager taskManager;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -34,6 +35,13 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
   @override
   Widget build(BuildContext context) {
     final tasks = taskManager.pendingTasks;
+    final filteredTasks = tasks.where((task) {
+      final q = _searchQuery.trim().toLowerCase();
+      if (q.isEmpty) return true;
+      return task.title.toLowerCase().contains(q) ||
+          task.description.toLowerCase().contains(q) ||
+          task.priority.toLowerCase().contains(q);
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -61,8 +69,28 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Inter')),
             const SizedBox(height: 16),
+            TextField(
+              onChanged: (value) => setState(() => _searchQuery = value),
+              decoration: InputDecoration(
+                hintText: 'Search pending tasks...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
+            const SizedBox(height: 16),
             Expanded(
-              child: tasks.isEmpty
+              child: filteredTasks.isEmpty
                   ? const Center(
                       child: Text('No pending tasks',
                           style: TextStyle(
@@ -70,9 +98,9 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                               fontSize: 14,
                               fontFamily: 'Inter')))
                   : ListView.builder(
-                      itemCount: tasks.length,
+                      itemCount: filteredTasks.length,
                       itemBuilder: (context, index) {
-                        final task = tasks[index];
+                        final task = filteredTasks[index];
                         return InkWell(
                           onTap: () {
                             Navigator.push(
