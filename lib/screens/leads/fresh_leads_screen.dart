@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_const
+
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
@@ -228,7 +230,8 @@ class _FreshLeadsScreenState extends State<FreshLeadsScreen> {
                                               const Icon(
                                                   Icons.access_time_outlined,
                                                   size: 16,
-                                                  color: Colors.blue),
+                                                  color:
+                                                      const Color(0xFF0B5CFF)),
                                               const SizedBox(width: 6),
                                               Expanded(
                                                 child: Text(
@@ -236,7 +239,8 @@ class _FreshLeadsScreenState extends State<FreshLeadsScreen> {
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         fontFamily: 'Inter',
-                                                        color: Colors.blue)),
+                                                        color: const Color(
+                                                            0xFF0B5CFF))),
                                               ),
                                             ],
                                           ),

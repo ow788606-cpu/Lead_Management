@@ -7,7 +7,7 @@ class AppColors {
   static const textPrimary = Colors.black;
   static const textSecondary = Colors.grey;
   static const white = Colors.white;
-  static const blue = Colors.blue;
+  static const blue = Color(0xFF0B5CFF);
   static const red = Colors.red;
 }
 

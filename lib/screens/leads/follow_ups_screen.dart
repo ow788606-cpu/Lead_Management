@@ -210,7 +210,7 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
                                               style: const TextStyle(
                                                   fontSize: 14,
                                                   fontFamily: 'Inter',
-                                                  color: Colors.blue)),
+                                                  color: Color(0xFF0B5CFF))),
                                       ],
                                     ),
                                   ),

@@ -163,7 +163,7 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                     style: const TextStyle(
                                         fontSize: 14,
                                         fontFamily: 'Inter',
-                                        color: Colors.blue)),
+                                        color: Color(0xFF0B5CFF))),
                               ],
                             ),
                           ),
@@ -184,7 +184,7 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
       case 'High':
         return Colors.orange;
       case 'Medium':
-        return Colors.blue;
+        return const Color(0xFF0B5CFF);
       case 'Low':
         return Colors.green;
       default:

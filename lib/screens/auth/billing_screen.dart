@@ -86,7 +86,7 @@ class BillingScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.blue,
+                          color: const Color(0xFF0B5CFF),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text('TRIAL',
@@ -108,7 +108,7 @@ class BillingScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.blue,
+                          color: const Color(0xFF0B5CFF),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text('TRIAL',

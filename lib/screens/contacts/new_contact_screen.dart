@@ -437,7 +437,7 @@ class _NewContactScreenState extends State<NewContactScreen> {
                   child: ElevatedButton(
                     onPressed: _addContact,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: const Color(0xFF0B5CFF),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),

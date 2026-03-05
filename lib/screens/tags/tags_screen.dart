@@ -39,7 +39,7 @@ class _TagsScreenState extends State<TagsScreen> {
 
   Color _parseColor(String hex) {
     final normalized = hex.replaceFirst('#', '').toUpperCase();
-    if (normalized.length != 6) return Colors.blue;
+    if (normalized.length != 6) return const Color(0xFF0B5CFF);
     return Color(int.parse('FF$normalized', radix: 16));
   }
 
@@ -182,7 +182,7 @@ class _TagsScreenState extends State<TagsScreen> {
                                         Icons.edit_outlined,
                                         size: 18,
                                       ),
-                                      color: Colors.blue,
+                                      color: const Color(0xFF0B5CFF),
                                       padding: const EdgeInsets.all(4),
                                       constraints: const BoxConstraints(),
                                       onPressed: () {},

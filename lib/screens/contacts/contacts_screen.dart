@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'all_contacts_screen.dart';
 import 'new_contact_screen.dart';
 import 'bulk_upload_screen.dart';
@@ -17,9 +17,9 @@ class ContactsScreen extends StatelessWidget {
             Container(
               color: Colors.white,
               child: const TabBar(
-                labelColor: Colors.blue,
+                labelColor: Color(0xFF0B5CFF),
                 unselectedLabelColor: Colors.grey,
-                indicatorColor: Colors.blue,
+                indicatorColor: Color(0xFF0B5CFF),
                 tabs: [
                   Tab(text: 'All Contacts'),
                   Tab(text: 'New Contact'),

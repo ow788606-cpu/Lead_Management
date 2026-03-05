@@ -240,7 +240,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: const Color(0xFF0B5CFF),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),

@@ -399,7 +399,7 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   child: ElevatedButton(
                     onPressed: _updateContact,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: const Color(0xFF0B5CFF),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),

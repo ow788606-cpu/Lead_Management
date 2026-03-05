@@ -135,7 +135,7 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
                     ElevatedButton(
                       onPressed: _downloadDemoData,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: const Color(0xFF0B5CFF),
                         foregroundColor: Colors.white,
                       ),
                       child: const Text('Download Demo Data'),
@@ -198,7 +198,7 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
                 child: ElevatedButton(
                   onPressed: _isImporting ? null : _importData,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: const Color(0xFF0B5CFF),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),

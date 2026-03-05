@@ -102,14 +102,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                   child: _StatCard(freshLeads.toString(), 'Fresh Leads',
-                      Icons.phone_in_talk_outlined, const Color(0xFFE3F2FD))),
+                      Icons.phone_in_talk_outlined, const Color(0xFF0B5CFF))),
               const SizedBox(width: 16),
               Expanded(
                   child: _StatCard(
                       scheduledAppointments.toString(),
                       'Scheduled Appointments',
                       Icons.calendar_today_outlined,
-                      const Color(0xFFE3F2FD))),
+                      const Color(0xFF0B5CFF))),
             ],
           ),
           const SizedBox(height: 16),
@@ -117,7 +117,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                   child: _StatCard(followUpLeads.toString(), 'Followup Leads',
-                      Icons.access_time_outlined, const Color(0xFFE3F2FD))),
+                      Icons.access_time_outlined, const Color(0xFF0B5CFF))),
               const SizedBox(width: 16),
               Expanded(
                   child: _StatCard(overdueLeads.toString(), 'Overdue Leads',
@@ -190,7 +190,7 @@ class _StatCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                     color: bgColor, borderRadius: BorderRadius.circular(8)),
-                child: Icon(icon, color: Colors.blue[700], size: 20),
+                child: Icon(icon, color: const Color(0xFF0B5CFF), size: 20),
               ),
             ],
           ),
@@ -405,14 +405,14 @@ class _WeeklyReportCard extends StatelessWidget {
                       FlSpot(3, 1.6),
                     ],
                     isCurved: false,
-                    color: Colors.blue,
+                    color: const Color(0xFF0B5CFF),
                     barWidth: 2,
                     dotData: FlDotData(
                       show: true,
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 3,
-                          color: Colors.blue,
+                          color: const Color(0xFF0B5CFF),
                           strokeWidth: 2,
                           strokeColor: Colors.white,
                         );
@@ -477,7 +477,7 @@ class _MonthlyReportCard extends StatelessWidget {
                     height: 12,
                     child: DecoratedBox(
                         decoration: BoxDecoration(
-                            color: Colors.blue, shape: BoxShape.circle))),
+                            color: const Color(0xFF0B5CFF), shape: BoxShape.circle))),
                 const SizedBox(width: 6),
                 Text('Won ($wonLeads)', style: const TextStyle(fontSize: 11))
               ]),
@@ -667,13 +667,13 @@ class _TabButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isActive ? Colors.blue[50] : Colors.transparent,
-        border: Border.all(color: isActive ? Colors.blue : Colors.grey[300]!),
+        color: isActive ? const Color(0xFF0B5CFF) : Colors.transparent,
+        border: Border.all(color: isActive ? const Color(0xFF0B5CFF) : Colors.grey[300]!),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(label,
           style: TextStyle(
-              color: isActive ? Colors.blue : Colors.grey[600], fontSize: 11)),
+              color: isActive ? const Color(0xFF0B5CFF) : Colors.grey[600], fontSize: 11)),
     );
   }
 }

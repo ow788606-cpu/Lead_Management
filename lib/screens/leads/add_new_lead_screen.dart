@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_const
+
 import 'package:flutter/material.dart';
 import '../../services/service_manager.dart';
 import '../../managers/lead_manager.dart';
@@ -555,7 +557,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                   const SizedBox(height: 20),
                   const Text('Follow-up Date',
                       style: TextStyle(
-                          color: Colors.blue,
+                          color: const Color(0xFF0B5CFF),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Inter')),
@@ -594,7 +596,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                   const SizedBox(height: 20),
                   const Text('Follow-up Time',
                       style: TextStyle(
-                          color: Colors.blue,
+                          color: const Color(0xFF0B5CFF),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Inter')),
@@ -637,7 +639,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                     child: ElevatedButton(
                       onPressed: _createLead,
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: const Color(0xFF0B5CFF),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8))),
                       child: const Text('Create Lead',

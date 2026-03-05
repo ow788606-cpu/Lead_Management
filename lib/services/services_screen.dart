@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_const
+
 import 'package:flutter/material.dart';
 import 'service_manager.dart';
 
@@ -105,7 +107,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                      color: Colors.blue[50],
+                                      color: const Color(0xFF0B5CFF),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Center(
@@ -114,7 +116,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                               fontFamily: 'Inter',
-                                              color: Colors.blue)),
+                                              color: const Color(0xFF0B5CFF))),
                                     ),
                                   ),
                                   const SizedBox(width: 16),
@@ -125,7 +127,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.edit,
-                                        size: 18, color: Colors.blue),
+                                        size: 18,
+                                        color: const Color(0xFF0B5CFF)),
                                     onPressed: () {},
                                   ),
                                   IconButton(

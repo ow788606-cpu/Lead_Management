@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_const
+
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../services/service_manager.dart';
@@ -72,7 +74,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
         title: const Text('Cloop'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.blue),
+            icon: const Icon(Icons.filter_list, color: const Color(0xFF0B5CFF)),
             onPressed: () {
               showDialog(
                 context: context,
@@ -535,7 +537,8 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                                               const Icon(
                                                   Icons.access_time_outlined,
                                                   size: 16,
-                                                  color: Colors.blue),
+                                                  color:
+                                                      const Color(0xFF0B5CFF)),
                                               const SizedBox(width: 6),
                                               Expanded(
                                                 child: Text(
@@ -543,7 +546,8 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         fontFamily: 'Inter',
-                                                        color: Colors.blue)),
+                                                        color: const Color(
+                                                            0xFF0B5CFF))),
                                               ),
                                             ],
                                           ),

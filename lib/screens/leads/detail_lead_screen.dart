@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_const
+
 import 'package:flutter/material.dart';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
@@ -392,7 +394,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen> {
                   const SizedBox(height: 20),
                   const Text('Follow-up Date',
                       style: TextStyle(
-                          color: Colors.blue,
+                          color: const Color(0xFF0B5CFF),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Inter')),
@@ -436,7 +438,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen> {
                   const SizedBox(height: 20),
                   const Text('Follow-up Time',
                       style: TextStyle(
-                          color: Colors.blue,
+                          color: const Color(0xFF0B5CFF),
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Inter')),

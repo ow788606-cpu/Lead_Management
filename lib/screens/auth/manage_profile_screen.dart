@@ -176,116 +176,117 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Manage Profile',
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Inter')),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('Manage Profile',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Inter')),
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Stack(
-                        children: [
-                          const CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Colors.blue,
-                            child: Icon(Icons.person,
-                                size: 50, color: Colors.white),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
                           ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                shape: BoxShape.circle,
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Stack(
+                              children: [
+                                const CircleAvatar(
+                                  radius: 50,
+                                  backgroundColor: Color(0xFF0B5CFF),
+                                  child: Icon(Icons.person,
+                                      size: 50, color: Colors.white),
+                                ),
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF0B5CFF),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.camera_alt,
+                                        size: 16, color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          const Text('Personal Details',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Inter')),
+                          const SizedBox(height: 16),
+                          _buildTextField(
+                              'Name', _nameController, Icons.person_outline),
+                          const SizedBox(height: 16),
+                          _buildTextField('Location', _locationController,
+                              Icons.location_on_outlined),
+                          const SizedBox(height: 16),
+                          _buildTextField(
+                              'Email', _emailController, Icons.email_outlined),
+                          const SizedBox(height: 16),
+                          _buildTextField(
+                              'Phone', _phoneController, Icons.phone_outlined),
+                          const SizedBox(height: 16),
+                          _buildTextField('Address', _addressController,
+                              Icons.home_outlined),
+                          const SizedBox(height: 16),
+                          _buildTextField('City', _cityController,
+                              Icons.location_city_outlined),
+                          const SizedBox(height: 16),
+                          _buildTextField('Zip Code', _zipController,
+                              Icons.markunread_mailbox_outlined),
+                          const SizedBox(height: 16),
+                          _buildTextField('Country', _countryController,
+                              Icons.flag_outlined),
+                          const SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _isSaving ? null : _saveProfile,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0B5CFF),
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
                               ),
-                              child: const Icon(Icons.camera_alt,
-                                  size: 16, color: Colors.white),
+                              child: _isSaving
+                                  ? const SizedBox(
+                                      height: 18,
+                                      width: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('Update Profile',
+                                      style: TextStyle(
+                                          fontSize: 14, fontFamily: 'Inter')),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 32),
-                    const Text('Personal Details',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Inter')),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                        'Name', _nameController, Icons.person_outline),
-                    const SizedBox(height: 16),
-                    _buildTextField('Location', _locationController,
-                        Icons.location_on_outlined),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                        'Email', _emailController, Icons.email_outlined),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                        'Phone', _phoneController, Icons.phone_outlined),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                        'Address', _addressController, Icons.home_outlined),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                        'City', _cityController, Icons.location_city_outlined),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                        'Zip Code', _zipController, Icons.markunread_mailbox_outlined),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                        'Country', _countryController, Icons.flag_outlined),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isSaving ? null : _saveProfile,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6)),
-                        ),
-                        child: _isSaving
-                            ? const SizedBox(
-                                height: 18,
-                                width: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text('Update Profile',
-                                style: TextStyle(
-                                    fontSize: 14, fontFamily: 'Inter')),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
                   ],
                 ),
               ),
@@ -318,7 +319,7 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: Colors.blue),
+              borderSide: const BorderSide(color: Color(0xFF0B5CFF)),
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
@@ -334,4 +335,3 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
     );
   }
 }
-

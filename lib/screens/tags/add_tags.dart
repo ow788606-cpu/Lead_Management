@@ -12,7 +12,7 @@ class AddTagsScreen extends StatefulWidget {
 class _AddTagsScreenState extends State<AddTagsScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  Color _selectedColor = Colors.blue;
+  Color _selectedColor = const Color(0xFF0B5CFF);
   bool _isSaving = false;
 
   String get _selectedHexColor =>

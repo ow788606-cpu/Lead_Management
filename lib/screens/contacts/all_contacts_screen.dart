@@ -66,7 +66,7 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
         title: const Text('Cloop'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.blue),
+            icon: const Icon(Icons.filter_list, color: Color(0xFF0B5CFF)),
             onPressed: () {},
           ),
         ],

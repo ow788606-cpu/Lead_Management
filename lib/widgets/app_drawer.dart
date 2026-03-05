@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_const
+
 import 'package:flutter/material.dart';
 import '../main.dart';
 import '../screens/auth/login_screen.dart';
@@ -34,7 +36,8 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     void openMainTab(int index) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => MainScreen(initialIndex: index)),
+        MaterialPageRoute(
+            builder: (context) => MainScreen(initialIndex: index)),
         (route) => false,
       );
     }
@@ -52,90 +55,178 @@ class AppDrawer extends StatelessWidget {
                 children: [
                   Image.asset('assets/images/logo-md.webp', height: 32),
                   const SizedBox(width: 12),
-                  const Text('Cloop', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const Text('Cloop',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text('MAIN', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
+              child: Text('MAIN',
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600)),
             ),
-            _DrawerItem(Icons.dashboard_outlined, 'Dashboard', 0, selectedIndex, () => openMainTab(0), Colors.blue, _activeBgColor),
+            _DrawerItem(Icons.dashboard_outlined, 'Dashboard', 0, selectedIndex,
+                () => openMainTab(0), const Color(0xFF0B5CFF), _activeBgColor),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Text('LET\'S CLOOP', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
+              child: Text('LET\'S CLOOP',
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(Icons.phone_in_talk_outlined, 'Leads', 1, selectedIndex, () => onItemSelected(1), _activeBgColor, [
+            _ExpandableDrawerItem(Icons.phone_in_talk_outlined, 'Leads', 1,
+                selectedIndex, () => onItemSelected(1), _activeBgColor, [
               _SubItem('Add New Lead', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AddNewLeadScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AddNewLeadScreen()));
               }),
               _SubItem('All Leads', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AllLeadsScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AllLeadsScreen()));
               }),
               _SubItem('Fresh Leads', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const FreshLeadsScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FreshLeadsScreen()));
               }),
               _SubItem('Follow-Ups', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const FollowUpsScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FollowUpsScreen()));
               }),
               _SubItem('Overdue', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const OverdueScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const OverdueScreen()));
               }),
               _SubItem('Completed', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const CompletedScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CompletedScreen()));
               }),
             ]),
-            _DrawerItem(Icons.calendar_today_outlined, 'Appointments', 2, selectedIndex, () => openMainTab(2), Colors.blue, _activeBgColor),
-            _ExpandableDrawerItem(Icons.people_outline, 'Contacts', 3, selectedIndex, () => onItemSelected(3), _activeBgColor, [
+            _DrawerItem(
+                Icons.calendar_today_outlined,
+                'Appointments',
+                2,
+                selectedIndex,
+                () => openMainTab(2),
+                const Color(0xFF0B5CFF),
+                _activeBgColor),
+            _ExpandableDrawerItem(Icons.people_outline, 'Contacts', 3,
+                selectedIndex, () => onItemSelected(3), _activeBgColor, [
               _SubItem('All Contacts', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const AllContactsScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AllContactsScreen()));
               }),
               _SubItem('New Contact', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const NewContactScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NewContactScreen()));
               }),
               _SubItem('Bulk Upload', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const BulkUploadScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const BulkUploadScreen()));
               }),
             ]),
-            _ExpandableDrawerItem(Icons.task_alt_outlined, 'Tasks', 4, selectedIndex, () => onItemSelected(4), _activeBgColor, [
+            _ExpandableDrawerItem(Icons.task_alt_outlined, 'Tasks', 4,
+                selectedIndex, () => onItemSelected(4), _activeBgColor, [
               _SubItem('New Task', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const NewTaskScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NewTaskScreen()));
               }),
               _SubItem('Pending Tasks', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const PendingTasksScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PendingTasksScreen()));
               }),
               _SubItem('Completed Tasks', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const CompletedTasksScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const CompletedTasksScreen()));
               }),
             ]),
-            _DrawerItem(Icons.business_center_outlined, 'Services', 5, selectedIndex, () => openMainTab(5), Colors.blue, _activeBgColor),
-            _DrawerItem(Icons.local_offer_outlined, 'Tags', 6, selectedIndex, () => openMainTab(6), Colors.blue, _activeBgColor),
+            _DrawerItem(
+                Icons.business_center_outlined,
+                'Services',
+                5,
+                selectedIndex,
+                () => openMainTab(5),
+                const Color(0xFF0B5CFF),
+                _activeBgColor),
+            _DrawerItem(Icons.local_offer_outlined, 'Tags', 6, selectedIndex,
+                () => openMainTab(6), const Color(0xFF0B5CFF), _activeBgColor),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Text('REPORTS', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
+              child: Text('REPORTS',
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(Icons.bar_chart_outlined, 'Reports', -1, selectedIndex, () {}, _activeBgColor, [
+            _ExpandableDrawerItem(Icons.bar_chart_outlined, 'Reports', -1,
+                selectedIndex, () {}, _activeBgColor, [
               _SubItem('Lead Reports', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const LeadReportsScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LeadReportsScreen()));
               }),
             ]),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Text('MY ACCOUNT', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w600)),
+              child: Text('MY ACCOUNT',
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(Icons.person_outline, 'Profile', -2, selectedIndex, () {}, _activeBgColor, [
+            _ExpandableDrawerItem(Icons.person_outline, 'Profile', -2,
+                selectedIndex, () {}, _activeBgColor, [
               _SubItem('Billing', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const BillingScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const BillingScreen()));
               }),
               _SubItem('Manage Profile', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ManageProfileScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ManageProfileScreen()));
               }),
               _SubItem('Change Password', () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ChangePasswordScreen()));
               }),
             ]),
             ListTile(
-              leading: const Icon(Icons.logout, size: 18, color: Colors.blue),
+              leading: const Icon(Icons.logout,
+                  size: 18, color: const Color(0xFF0B5CFF)),
               title: const Text('Logout', style: TextStyle(fontSize: 13)),
               onTap: () {
                 Navigator.of(context).pushAndRemoveUntil(
@@ -161,14 +252,18 @@ class _DrawerItem extends StatelessWidget {
   final Color iconColor;
   final Color activeBgColor;
 
-  const _DrawerItem(this.icon, this.title, this.index, this.selectedIndex, this.onTap, this.iconColor, this.activeBgColor);
+  const _DrawerItem(this.icon, this.title, this.index, this.selectedIndex,
+      this.onTap, this.iconColor, this.activeBgColor);
 
   @override
   Widget build(BuildContext context) {
     final isSelected = index == selectedIndex;
     return ListTile(
-      leading: Icon(icon, color: isSelected ? Colors.white : iconColor, size: 18),
-      title: Text(title, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontSize: 13)),
+      leading:
+          Icon(icon, color: isSelected ? Colors.white : iconColor, size: 18),
+      title: Text(title,
+          style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black87, fontSize: 13)),
       tileColor: isSelected ? activeBgColor : Colors.transparent,
       onTap: onTap,
       dense: true,
@@ -185,7 +280,8 @@ class _ExpandableDrawerItem extends StatefulWidget {
   final Color activeBgColor;
   final List<Widget> children;
 
-  const _ExpandableDrawerItem(this.icon, this.title, this.index, this.selectedIndex, this.onTap, this.activeBgColor, this.children);
+  const _ExpandableDrawerItem(this.icon, this.title, this.index,
+      this.selectedIndex, this.onTap, this.activeBgColor, this.children);
 
   @override
   State<_ExpandableDrawerItem> createState() => _ExpandableDrawerItemState();
@@ -200,9 +296,17 @@ class _ExpandableDrawerItemState extends State<_ExpandableDrawerItem> {
     return Column(
       children: [
         ListTile(
-          leading: Icon(widget.icon, color: isSelected ? Colors.white : Colors.blue, size: 18),
-          title: Text(widget.title, style: TextStyle(color: isSelected ? Colors.white : Colors.black87, fontSize: 13)),
-          trailing: Icon(_isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: isSelected ? Colors.white : Colors.grey),
+          leading: Icon(widget.icon,
+              color: isSelected ? Colors.white : const Color(0xFF0B5CFF),
+              size: 18),
+          title: Text(widget.title,
+              style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black87,
+                  fontSize: 13)),
+          trailing: Icon(
+              _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+              size: 16,
+              color: isSelected ? Colors.white : Colors.grey),
           tileColor: isSelected ? widget.activeBgColor : Colors.transparent,
           onTap: () {
             setState(() => _isExpanded = !_isExpanded);
@@ -225,7 +329,8 @@ class _SubItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: const EdgeInsets.only(left: 56),
-      title: Text(title, style: const TextStyle(fontSize: 12, color: Colors.black87)),
+      title: Text(title,
+          style: const TextStyle(fontSize: 12, color: Colors.black87)),
       onTap: onTap,
       dense: true,
       visualDensity: const VisualDensity(vertical: -2),
