@@ -60,6 +60,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen> {
             minute: int.parse(parts[1].split(' ')[0]));
       }
     }
+    _serviceManager.refreshServices().then((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   void _saveChanges() {
@@ -124,8 +129,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen> {
                         'Are you sure you want to delete this lead?'),
                     actions: [
                       TextButton(
-                        onPressed: () =>
-                            Navigator.pop(dialogContext, false),
+                        onPressed: () => Navigator.pop(dialogContext, false),
                         child: const Text('Cancel'),
                       ),
                       TextButton(
@@ -186,143 +190,55 @@ class _DetailLeadScreenState extends State<DetailLeadScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-              _buildField('Name', _nameController, Icons.person_outline),
-              const SizedBox(height: 20),
-              _buildField('Email', _emailController, Icons.email_outlined),
-              const SizedBox(height: 20),
-              _buildField('Phone', _phoneController, Icons.phone_outlined),
-              const SizedBox(height: 20),
-              const Text('Address',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _addressController,
-                maxLines: 3,
-                enabled: _isEditing,
-                style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
-                decoration: InputDecoration(
-                  prefixIcon: const Padding(
-                      padding: EdgeInsets.only(bottom: 40),
-                      child: Icon(Icons.location_on_outlined, size: 20)),
-                  filled: true,
-                  fillColor: _isEditing ? Colors.white : Colors.grey[100],
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey[300]!)),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey[300]!)),
-                  disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey[300]!)),
-                  contentPadding: const EdgeInsets.all(16),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text('Country',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 8),
-              _isEditing
-                  ? DropdownButtonFormField<String>(
-                      initialValue: _selectedCountry,
-                      decoration: InputDecoration(
-                        hintText: 'Select Country',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[300]!)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[300]!)),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                            value: 'Australia',
-                            child: Text('Australia',
-                                style: TextStyle(fontFamily: 'Inter'))),
-                        DropdownMenuItem(
-                            value: 'Canada',
-                            child: Text('Canada',
-                                style: TextStyle(fontFamily: 'Inter'))),
-                        DropdownMenuItem(
-                            value: 'United Kingdom',
-                            child: Text('United Kingdom',
-                                style: TextStyle(fontFamily: 'Inter'))),
-                        DropdownMenuItem(
-                            value: 'United States',
-                            child: Text('United States',
-                                style: TextStyle(fontFamily: 'Inter'))),
-                        DropdownMenuItem(
-                            value: 'Other',
-                            child: Text('Other',
-                                style: TextStyle(fontFamily: 'Inter'))),
-                      ],
-                      onChanged: (value) =>
-                          setState(() => _selectedCountry = value),
-                    )
-                  : Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[300]!),
-                      ),
-                      child: Text(_selectedCountry ?? 'N/A',
-                          style: const TextStyle(
-                              fontFamily: 'Inter', fontSize: 14)),
+                  _buildField('Name', _nameController, Icons.person_outline),
+                  const SizedBox(height: 20),
+                  _buildField('Email', _emailController, Icons.email_outlined),
+                  const SizedBox(height: 20),
+                  _buildField('Phone', _phoneController, Icons.phone_outlined),
+                  const SizedBox(height: 20),
+                  const Text('Address',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter')),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _addressController,
+                    maxLines: 3,
+                    enabled: _isEditing,
+                    style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
+                    decoration: InputDecoration(
+                      prefixIcon: const Padding(
+                          padding: EdgeInsets.only(bottom: 40),
+                          child: Icon(Icons.location_on_outlined, size: 20)),
+                      filled: true,
+                      fillColor: _isEditing ? Colors.white : Colors.grey[100],
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey[300]!)),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey[300]!)),
+                      disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey[300]!)),
+                      contentPadding: const EdgeInsets.all(16),
                     ),
-              const SizedBox(height: 20),
-              _buildField('State', _stateController, Icons.map_outlined),
-              const SizedBox(height: 20),
-              _buildField(
-                  'City', _cityController, Icons.location_city_outlined),
-              const SizedBox(height: 20),
-              _buildField('Zip', _zipController, Icons.pin_outlined),
-              const SizedBox(height: 20),
-              const Text('Service',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 8),
-              _isEditing
-                  ? Autocomplete<String>(
-                      initialValue:
-                          TextEditingValue(text: _selectedService ?? ''),
-                      optionsBuilder: (textEditingValue) {
-                        if (textEditingValue.text.isEmpty) {
-                          return _serviceManager.services;
-                        }
-                        return _serviceManager.services.where((service) =>
-                            service
-                                .toLowerCase()
-                                .contains(textEditingValue.text.toLowerCase()));
-                      },
-                      onSelected: (value) =>
-                          setState(() => _selectedService = value),
-                      fieldViewBuilder:
-                          (context, controller, focusNode, onEditingComplete) {
-                        return TextField(
-                          controller: controller,
-                          focusNode: focusNode,
-                          style: const TextStyle(
-                              fontFamily: 'Inter', fontSize: 14),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Country',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter')),
+                  const SizedBox(height: 8),
+                  _isEditing
+                      ? DropdownButtonFormField<String>(
+                          initialValue: _selectedCountry,
                           decoration: InputDecoration(
-                            hintText: 'Type or select service',
-                            suffixIcon: const Icon(Icons.arrow_drop_down),
+                            hintText: 'Select Country',
                             filled: true,
                             fillColor: Colors.white,
                             border: OutlineInputBorder(
@@ -336,136 +252,229 @@ class _DetailLeadScreenState extends State<DetailLeadScreen> {
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 14),
                           ),
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'Australia',
+                                child: Text('Australia',
+                                    style: TextStyle(fontFamily: 'Inter'))),
+                            DropdownMenuItem(
+                                value: 'Canada',
+                                child: Text('Canada',
+                                    style: TextStyle(fontFamily: 'Inter'))),
+                            DropdownMenuItem(
+                                value: 'United Kingdom',
+                                child: Text('United Kingdom',
+                                    style: TextStyle(fontFamily: 'Inter'))),
+                            DropdownMenuItem(
+                                value: 'United States',
+                                child: Text('United States',
+                                    style: TextStyle(fontFamily: 'Inter'))),
+                            DropdownMenuItem(
+                                value: 'Other',
+                                child: Text('Other',
+                                    style: TextStyle(fontFamily: 'Inter'))),
+                          ],
                           onChanged: (value) =>
+                              setState(() => _selectedCountry = value),
+                        )
+                      : Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
+                          child: Text(_selectedCountry ?? 'N/A',
+                              style: const TextStyle(
+                                  fontFamily: 'Inter', fontSize: 14)),
+                        ),
+                  const SizedBox(height: 20),
+                  _buildField('State', _stateController, Icons.map_outlined),
+                  const SizedBox(height: 20),
+                  _buildField(
+                      'City', _cityController, Icons.location_city_outlined),
+                  const SizedBox(height: 20),
+                  _buildField('Zip', _zipController, Icons.pin_outlined),
+                  const SizedBox(height: 20),
+                  const Text('Service',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter')),
+                  const SizedBox(height: 8),
+                  _isEditing
+                      ? Autocomplete<String>(
+                          initialValue:
+                              TextEditingValue(text: _selectedService ?? ''),
+                          optionsBuilder: (textEditingValue) {
+                            if (textEditingValue.text.isEmpty) {
+                              return _serviceManager.services;
+                            }
+                            return _serviceManager.services.where((service) =>
+                                service.toLowerCase().contains(
+                                    textEditingValue.text.toLowerCase()));
+                          },
+                          onSelected: (value) =>
                               setState(() => _selectedService = value),
-                        );
-                      },
-                    )
-                  : Container(
+                          fieldViewBuilder: (context, controller, focusNode,
+                              onEditingComplete) {
+                            return TextField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              style: const TextStyle(
+                                  fontFamily: 'Inter', fontSize: 14),
+                              decoration: InputDecoration(
+                                hintText: 'Type or select service',
+                                suffixIcon: const Icon(Icons.arrow_drop_down),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey[300]!)),
+                                enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide:
+                                        BorderSide(color: Colors.grey[300]!)),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 14),
+                              ),
+                              onChanged: (value) =>
+                                  setState(() => _selectedService = value),
+                            );
+                          },
+                        )
+                      : Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
+                          child: Text(_selectedService ?? 'N/A',
+                              style: const TextStyle(
+                                  fontFamily: 'Inter', fontSize: 14)),
+                        ),
+                  const SizedBox(height: 20),
+                  _buildField('Tags', _tagsController, Icons.label_outline),
+                  const SizedBox(height: 20),
+                  const Text('Notes',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter')),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _notesController,
+                    maxLines: 4,
+                    enabled: _isEditing,
+                    style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Description or Notes',
+                      filled: true,
+                      fillColor: _isEditing ? Colors.white : Colors.grey[100],
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey[300]!)),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey[300]!)),
+                      disabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey[300]!)),
+                      contentPadding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Follow-up Date',
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter')),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: _isEditing
+                        ? () async {
+                            final date = await showDatePicker(
+                                context: context,
+                                initialDate: _followUpDate ?? DateTime.now(),
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime(2100));
+                            if (date != null) {
+                              setState(() => _followUpDate = date);
+                            }
+                          }
+                        : null,
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 14),
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
+                        color: _isEditing ? Colors.white : Colors.grey[100],
                         border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(_selectedService ?? 'N/A',
-                          style: const TextStyle(
-                              fontFamily: 'Inter', fontSize: 14)),
+                      child: Row(
+                        children: [
+                          Icon(Icons.calendar_today,
+                              size: 18, color: Colors.grey[600]),
+                          const SizedBox(width: 12),
+                          Text(
+                              _followUpDate != null
+                                  ? '${_followUpDate!.day}/${_followUpDate!.month}/${_followUpDate!.year}'
+                                  : 'N/A',
+                              style: const TextStyle(
+                                  fontSize: 14, fontFamily: 'Inter')),
+                        ],
+                      ),
                     ),
-              const SizedBox(height: 20),
-              _buildField('Tags', _tagsController, Icons.label_outline),
-              const SizedBox(height: 20),
-              const Text('Notes',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _notesController,
-                maxLines: 4,
-                enabled: _isEditing,
-                style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Description or Notes',
-                  filled: true,
-                  fillColor: _isEditing ? Colors.white : Colors.grey[100],
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey[300]!)),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey[300]!)),
-                  disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey[300]!)),
-                  contentPadding: const EdgeInsets.all(16),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text('Follow-up Date',
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: _isEditing
-                    ? () async {
-                        final date = await showDatePicker(
-                            context: context,
-                            initialDate: _followUpDate ?? DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime(2100));
-                        if (date != null) setState(() => _followUpDate = date);
-                      }
-                    : null,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: _isEditing ? Colors.white : Colors.grey[100],
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_today,
-                          size: 18, color: Colors.grey[600]),
-                      const SizedBox(width: 12),
-                      Text(
-                          _followUpDate != null
-                              ? '${_followUpDate!.day}/${_followUpDate!.month}/${_followUpDate!.year}'
-                              : 'N/A',
-                          style: const TextStyle(
-                              fontSize: 14, fontFamily: 'Inter')),
-                    ],
+                  const SizedBox(height: 20),
+                  const Text('Follow-up Time',
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter')),
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: _isEditing
+                        ? () async {
+                            final time = await showTimePicker(
+                                context: context,
+                                initialTime: _followUpTime ?? TimeOfDay.now());
+                            if (time != null) {
+                              setState(() => _followUpTime = time);
+                            }
+                          }
+                        : null,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: _isEditing ? Colors.white : Colors.grey[100],
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.access_time,
+                              size: 18, color: Colors.grey[600]),
+                          const SizedBox(width: 12),
+                          Text(
+                              _followUpTime != null
+                                  ? _followUpTime!.format(context)
+                                  : 'N/A',
+                              style: const TextStyle(
+                                  fontSize: 14, fontFamily: 'Inter')),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text('Follow-up Time',
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: _isEditing
-                    ? () async {
-                        final time = await showTimePicker(
-                            context: context,
-                            initialTime: _followUpTime ?? TimeOfDay.now());
-                        if (time != null) setState(() => _followUpTime = time);
-                      }
-                    : null,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: _isEditing ? Colors.white : Colors.grey[100],
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.access_time,
-                          size: 18, color: Colors.grey[600]),
-                      const SizedBox(width: 12),
-                      Text(
-                          _followUpTime != null
-                              ? _followUpTime!.format(context)
-                              : 'N/A',
-                          style: const TextStyle(
-                              fontSize: 14, fontFamily: 'Inter')),
-                    ],
-                  ),
-                ),
-              ),
                 ],
               ),
             ),
@@ -526,4 +535,3 @@ class _DetailLeadScreenState extends State<DetailLeadScreen> {
     super.dispose();
   }
 }
-

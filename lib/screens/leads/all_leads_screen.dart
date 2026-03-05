@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../services/service_manager.dart';
 import '../../widgets/app_drawer.dart';
@@ -15,6 +15,16 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
   final _leadManager = LeadManager();
   final _serviceManager = ServiceManager();
   String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _serviceManager.refreshServices().then((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -388,116 +398,116 @@ class _AllLeadsScreenState extends State<AllLeadsScreen> {
                       itemBuilder: (context, index) {
                         final lead = filteredLeads[index];
                         return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ViewLeadsScreen(lead: lead),
-                                  ),
-                                ).then((_) => setState(() {}));
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: Colors.grey[300]!),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ViewLeadsScreen(lead: lead),
+                              ),
+                            ).then((_) => setState(() {}));
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: Colors.grey[300]!),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
                                   children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(lead.contactName,
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'Inter')),
-                                        ),
-                                        if (lead.isCompleted)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                                color: Colors.green[50],
-                                                borderRadius:
-                                                    BorderRadius.circular(4)),
-                                            child: const Text('Completed',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.green,
-                                                    fontFamily: 'Inter')),
-                                          ),
-                                        if (lead.isOverdue)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                                color: Colors.red[50],
-                                                borderRadius:
-                                                    BorderRadius.circular(4)),
-                                            child: const Text('Overdue',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.red,
-                                                    fontFamily: 'Inter')),
-                                          ),
-                                      ],
+                                    Expanded(
+                                      child: Text(lead.contactName,
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'Inter')),
                                     ),
-                                    const SizedBox(height: 8),
-                                    if (lead.phone != null)
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.phone_outlined,
-                                              size: 16, color: Colors.grey),
-                                          const SizedBox(width: 6),
-                                          Expanded(
-                                            child: Text('Phone: ${lead.phone}',
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontFamily: 'Inter',
-                                                    color: Colors.grey)),
-                                          ),
-                                        ],
+                                    if (lead.isCompleted)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                            color: Colors.green[50],
+                                            borderRadius:
+                                                BorderRadius.circular(4)),
+                                        child: const Text('Completed',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.green,
+                                                fontFamily: 'Inter')),
                                       ),
-                                    if (lead.email != null)
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.email_outlined,
-                                              size: 16, color: Colors.grey),
-                                          const SizedBox(width: 6),
-                                          Expanded(
-                                            child: Text('Email: ${lead.email}',
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontFamily: 'Inter',
-                                                    color: Colors.grey)),
-                                          ),
-                                        ],
-                                      ),
-                                    if (lead.followUpDate != null)
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.access_time_outlined,
-                                              size: 16, color: Colors.blue),
-                                          const SizedBox(width: 6),
-                                          Expanded(
-                                            child: Text(
-                                                'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontFamily: 'Inter',
-                                                    color: Colors.blue)),
-                                          ),
-                                        ],
+                                    if (lead.isOverdue)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                            color: Colors.red[50],
+                                            borderRadius:
+                                                BorderRadius.circular(4)),
+                                        child: const Text('Overdue',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.red,
+                                                fontFamily: 'Inter')),
                                       ),
                                   ],
                                 ),
-                              ),
-                            );
+                                const SizedBox(height: 8),
+                                if (lead.phone != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.phone_outlined,
+                                          size: 16, color: Colors.grey),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text('Phone: ${lead.phone}',
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: 'Inter',
+                                                color: Colors.grey)),
+                                      ),
+                                    ],
+                                  ),
+                                if (lead.email != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.email_outlined,
+                                          size: 16, color: Colors.grey),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text('Email: ${lead.email}',
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: 'Inter',
+                                                color: Colors.grey)),
+                                      ),
+                                    ],
+                                  ),
+                                if (lead.followUpDate != null)
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.access_time_outlined,
+                                          size: 16, color: Colors.blue),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                            'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: 'Inter',
+                                                color: Colors.blue)),
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
                       },
                     ),
             ),

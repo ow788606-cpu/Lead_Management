@@ -143,7 +143,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
             );
             if (result != null && result.trim().isNotEmpty) {
-              _serviceManager.addService(result.trim());
+              await _serviceManager.addService(result.trim());
               if (mounted) setState(() {});
             }
           },
