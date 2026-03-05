@@ -25,6 +25,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
   final _leadManager = LeadManager();
   static const Color _brandBlue = Color(0xFF0B5CFF);
   int _selectedTab = 0;
+  bool _isFabExpanded = false;
   bool _isEditingService = false;
   bool _isEditingTags = false;
   late TextEditingController _serviceController;
@@ -1310,6 +1311,59 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (_isFabExpanded) ...[
+            _buildQuickActionButton(
+              label: 'Activity',
+              icon: Icons.home_outlined,
+              onTap: () {
+                setState(() {
+                  _selectedTab = 0;
+                  _isFabExpanded = false;
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            _buildQuickActionButton(
+              label: 'Notes',
+              icon: Icons.note_outlined,
+              onTap: () {
+                setState(() {
+                  _selectedTab = 1;
+                  _isFabExpanded = false;
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+            _buildQuickActionButton(
+              label: 'Tasks',
+              icon: Icons.task_outlined,
+              onTap: () {
+                setState(() {
+                  _selectedTab = 2;
+                  _isFabExpanded = false;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+          ],
+          FloatingActionButton(
+            heroTag: 'lead_details_fab',
+            backgroundColor: _brandBlue,
+            onPressed: () {
+              setState(() => _isFabExpanded = !_isFabExpanded);
+            },
+            child: Icon(
+              _isFabExpanded ? Icons.close : Icons.add,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -2040,6 +2094,49 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
             child: Text(text,
                 style: const TextStyle(
                     fontSize: 14, fontFamily: 'Inter', color: Colors.black87))),
+      ],
+    );
+  }
+
+  Widget _buildQuickActionButton({
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: _brandBlue,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Inter',
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        FloatingActionButton(
+          mini: true,
+          heroTag: 'lead_details_$label',
+          backgroundColor: _brandBlue,
+          onPressed: onTap,
+          child: Icon(icon, color: Colors.white, size: 18),
+        ),
       ],
     );
   }
