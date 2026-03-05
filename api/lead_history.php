@@ -23,7 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 require_once __DIR__ . '/db.php';
 
 $leadId = isset($_GET['lead_id']) ? (int)$_GET['lead_id'] : 0;
-if ($leadId <= 0) {
+$userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
+if ($leadId <= 0 || $userId <= 0) {
     http_response_code(422);
     echo json_encode([
         'success' => false,
@@ -33,10 +34,11 @@ if ($leadId <= 0) {
 }
 
 $stmt = $conn->prepare(
-    "SELECT id, lead_id, title, description, status_id, priority, scheduled_at, result_notes, meta, created_at
-     FROM lead_history
-     WHERE lead_id = ? AND deleted_at IS NULL
-     ORDER BY id DESC"
+    "SELECT lh.id, lh.lead_id, lh.title, lh.description, lh.status_id, lh.priority, lh.scheduled_at, lh.result_notes, lh.meta, lh.created_at
+     FROM lead_history lh
+     INNER JOIN leads l ON l.id = lh.lead_id
+     WHERE lh.lead_id = ? AND l.owner_user_id = ? AND lh.deleted_at IS NULL
+     ORDER BY lh.id DESC"
 );
 
 if (!$stmt) {
@@ -48,7 +50,7 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param('i', $leadId);
+$stmt->bind_param('ii', $leadId, $userId);
 $stmt->execute();
 $result = $stmt->get_result();
 

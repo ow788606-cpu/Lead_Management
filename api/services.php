@@ -14,11 +14,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/db.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
+$requestUserId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 
 if ($method === 'GET') {
+    if ($requestUserId <= 0) {
+        echo json_encode(['success' => true, 'data' => []]);
+        exit;
+    }
+
     $sql = "SELECT service_id, service_name
             FROM services
             WHERE deleted_at IS NULL
+              AND service_user_id = $requestUserId
             ORDER BY service_id ASC";
     $result = $conn->query($sql);
 
@@ -96,8 +103,9 @@ if ($method === 'POST') {
 }
 
 if ($method === 'DELETE') {
+    $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-    if ($id <= 0) {
+    if ($id <= 0 || $userId <= 0) {
         http_response_code(422);
         echo json_encode([
             'success' => false,
@@ -109,7 +117,7 @@ if ($method === 'DELETE') {
     $stmt = $conn->prepare(
         "UPDATE services
          SET deleted_at = NOW(), updated_at = NOW()
-         WHERE service_id = ? AND deleted_at IS NULL"
+         WHERE service_id = ? AND service_user_id = ? AND deleted_at IS NULL"
     );
     if (!$stmt) {
         http_response_code(500);
@@ -120,7 +128,7 @@ if ($method === 'DELETE') {
         exit;
     }
 
-    $stmt->bind_param('i', $id);
+    $stmt->bind_param('ii', $id, $userId);
     $ok = $stmt->execute();
     $stmt->close();
 

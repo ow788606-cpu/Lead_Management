@@ -16,10 +16,17 @@ require_once __DIR__ . '/db.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
+    if ($userId <= 0) {
+        echo json_encode(['success' => true, 'data' => []]);
+        exit;
+    }
+
     $sql = "SELECT id, owner_user_id, created_by, assigned_to, lead_id, contact_id, title, description, status, priority,
                    due_at, completed_at, created_at, updated_at
             FROM tasks
             WHERE deleted_at IS NULL
+              AND owner_user_id = $userId
             ORDER BY id DESC";
     $result = $conn->query($sql);
 
@@ -116,9 +123,10 @@ if ($method === 'POST') {
 if ($method === 'PATCH') {
     $payload = json_decode(file_get_contents('php://input'), true);
     $id = (int)($payload['id'] ?? 0);
+    $userId = (int)($payload['user_id'] ?? 0);
     $action = trim((string)($payload['action'] ?? ''));
 
-    if ($id <= 0 || $action === '') {
+    if ($id <= 0 || $userId <= 0 || $action === '') {
         http_response_code(422);
         echo json_encode([
             'success' => false,
@@ -131,7 +139,7 @@ if ($method === 'PATCH') {
         $stmt = $conn->prepare(
             "UPDATE tasks
              SET status = 'completed', completed_at = NOW(), updated_at = NOW()
-             WHERE id = ? AND deleted_at IS NULL"
+             WHERE id = ? AND owner_user_id = ? AND deleted_at IS NULL"
         );
         if (!$stmt) {
             http_response_code(500);
@@ -141,7 +149,7 @@ if ($method === 'PATCH') {
             ]);
             exit;
         }
-        $stmt->bind_param('i', $id);
+        $stmt->bind_param('ii', $id, $userId);
         $ok = $stmt->execute();
         $stmt->close();
 
@@ -160,8 +168,9 @@ if ($method === 'PATCH') {
 }
 
 if ($method === 'DELETE') {
+    $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-    if ($id <= 0) {
+    if ($id <= 0 || $userId <= 0) {
         http_response_code(422);
         echo json_encode([
             'success' => false,
@@ -173,7 +182,7 @@ if ($method === 'DELETE') {
     $stmt = $conn->prepare(
         "UPDATE tasks
          SET deleted_at = NOW(), updated_at = NOW()
-         WHERE id = ? AND deleted_at IS NULL"
+         WHERE id = ? AND owner_user_id = ? AND deleted_at IS NULL"
     );
     if (!$stmt) {
         http_response_code(500);
@@ -184,7 +193,7 @@ if ($method === 'DELETE') {
         exit;
     }
 
-    $stmt->bind_param('i', $id);
+    $stmt->bind_param('ii', $id, $userId);
     $ok = $stmt->execute();
     $stmt->close();
 

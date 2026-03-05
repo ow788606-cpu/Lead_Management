@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../managers/auth_manager.dart';
 import 'api_config.dart';
 
 class ServiceItem {
@@ -22,10 +23,12 @@ class ServiceItem {
 }
 
 class ServiceApi {
-  static Uri _servicesUri() => Uri.parse('${ApiConfig.baseUrl}/services.php');
+  static Uri _servicesUri({int? userId}) => Uri.parse(
+      '${ApiConfig.baseUrl}/services.php${userId != null ? '?user_id=$userId' : ''}');
 
   static Future<List<ServiceItem>> fetchServices() async {
-    final response = await http.get(_servicesUri());
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.get(_servicesUri(userId: userId));
     if (response.statusCode != 200) {
       throw Exception(
         'Failed to load services (HTTP ${response.statusCode}): ${response.body}',
@@ -52,11 +55,12 @@ class ServiceApi {
     required String serviceName,
     int userId = 1,
   }) async {
+    final effectiveUserId = await AuthManager().getUserId() ?? userId;
     final response = await http.post(
       _servicesUri(),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'user_id': userId,
+        'user_id': effectiveUserId,
         'service_name': serviceName,
       }),
     );
@@ -67,8 +71,9 @@ class ServiceApi {
   }
 
   static Future<void> deleteService(int id) async {
+    final userId = await AuthManager().getUserId() ?? 0;
     final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/services.php?id=$id'),
+      Uri.parse('${ApiConfig.baseUrl}/services.php?id=$id&user_id=$userId'),
     );
 
     if (response.statusCode != 200) {

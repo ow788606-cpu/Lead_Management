@@ -3,16 +3,19 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
+import '../../managers/auth_manager.dart';
 import '../../models/contact.dart';
 import '../../services/api_config.dart';
 
 class ContactApi {
-  static Uri _contactsUri() => Uri.parse('${ApiConfig.baseUrl}/contacts.php');
+  static Uri _contactsUri({int? userId}) => Uri.parse(
+      '${ApiConfig.baseUrl}/contacts.php${userId != null ? '?user_id=$userId' : ''}');
   static Uri _bulkUploadUri() =>
       Uri.parse('${ApiConfig.baseUrl}/contacts_bulk_upload.php');
 
   static Future<List<Contact>> fetchContacts() async {
-    final response = await http.get(_contactsUri());
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.get(_contactsUri(userId: userId));
     if (response.statusCode != 200) {
       throw Exception('Failed to load contacts');
     }
@@ -33,11 +36,12 @@ class ContactApi {
   }
 
   static Future<void> addContact(Contact contact, {int userId = 1}) async {
+    final effectiveUserId = await AuthManager().getUserId() ?? userId;
     final response = await http.post(
       _contactsUri(),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'user_id': userId,
+        'user_id': effectiveUserId,
         'name': contact.name,
         'email': contact.email,
         'contact_number': contact.phone,
@@ -58,10 +62,12 @@ class ContactApi {
   }
 
   static Future<void> updateContact(Contact contact) async {
+    final userId = await AuthManager().getUserId() ?? 0;
     final response = await http.put(
       _contactsUri(),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
+        'user_id': userId,
         'id': int.tryParse(contact.id) ?? 0,
         'name': contact.name,
         'email': contact.email,
@@ -84,8 +90,9 @@ class ContactApi {
 
   static Future<void> deleteContact(String id) async {
     final contactId = int.tryParse(id) ?? 0;
+    final userId = await AuthManager().getUserId() ?? 0;
     final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/contacts.php?id=$contactId'),
+      Uri.parse('${ApiConfig.baseUrl}/contacts.php?id=$contactId&user_id=$userId'),
     );
 
     if (response.statusCode != 200) {
@@ -98,6 +105,7 @@ class ContactApi {
     required String fileName,
     int userId = 1,
   }) async {
+    final effectiveUserId = await AuthManager().getUserId() ?? userId;
     final request = http.MultipartRequest('POST', _bulkUploadUri());
     request.files.add(
       http.MultipartFile.fromBytes(
@@ -106,7 +114,7 @@ class ContactApi {
         filename: fileName,
       ),
     );
-    request.fields['user_id'] = userId.toString();
+    request.fields['user_id'] = effectiveUserId.toString();
 
     final streamed = await request.send();
     final response = await http.Response.fromStream(streamed);

@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../../managers/auth_manager.dart';
 import '../../services/api_config.dart';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
@@ -240,8 +241,10 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
       return;
     }
     try {
+      final userId = await AuthManager().getUserId() ?? 0;
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/lead_history.php?lead_id=$leadId'),
+        Uri.parse(
+            '${ApiConfig.baseUrl}/lead_history.php?lead_id=$leadId&user_id=$userId'),
       );
       if (response.statusCode != 200) {
         return;

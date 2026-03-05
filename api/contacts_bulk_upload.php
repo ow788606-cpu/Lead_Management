@@ -62,6 +62,7 @@ $errors = [];
 $checkStmt = $conn->prepare(
     "SELECT id FROM contacts
      WHERE deleted_at IS NULL
+       AND owner_user_id = ?
        AND ((email IS NOT NULL AND email <> '' AND email = ?) OR (contact_number IS NOT NULL AND contact_number <> '' AND contact_number = ?))
      LIMIT 1"
 );
@@ -104,7 +105,7 @@ while (($row = fgetcsv($handle)) !== false) {
         continue;
     }
 
-    $checkStmt->bind_param('ss', $email, $contactNumber);
+    $checkStmt->bind_param('iss', $userId, $email, $contactNumber);
     $checkStmt->execute();
     $checkResult = $checkStmt->get_result();
     if ($checkResult && $checkResult->num_rows > 0) {

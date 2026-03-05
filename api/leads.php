@@ -18,6 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 require_once __DIR__ . '/db.php';
+$userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
+if ($userId <= 0) {
+    echo json_encode(['success' => true, 'data' => []]);
+    exit;
+}
 
 $sql = "SELECT
             l.id,
@@ -36,6 +41,7 @@ $sql = "SELECT
         LEFT JOIN services s ON FIND_IN_SET(s.service_id, l.service_id) > 0
         LEFT JOIN status st ON st.id = l.status
         WHERE l.deleted_at IS NULL
+          AND l.owner_user_id = $userId
         GROUP BY l.id, c.name, c.email, c.contact_number, l.tags, l.description, l.next_followup_at, l.created_at, l.status, st.name
         ORDER BY l.id DESC";
 

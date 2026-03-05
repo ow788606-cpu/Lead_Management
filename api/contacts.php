@@ -16,10 +16,17 @@ require_once __DIR__ . '/db.php';
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
+    $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
+    if ($userId <= 0) {
+        echo json_encode(['success' => true, 'data' => []]);
+        exit;
+    }
+
     $sql = "SELECT id, name, email, contact_number, contact_number2, address, country, state, city, zip,
                    lead_source, remark, tags, created_at
             FROM contacts
             WHERE deleted_at IS NULL
+              AND owner_user_id = $userId
             ORDER BY id DESC";
     $result = $conn->query($sql);
     if (!$result) {
@@ -112,8 +119,9 @@ if ($method === 'POST') {
 
 if ($method === 'PUT') {
     $payload = json_decode(file_get_contents('php://input'), true);
+    $userId = (int)($payload['user_id'] ?? 0);
     $id = (int)($payload['id'] ?? 0);
-    if ($id <= 0) {
+    if ($id <= 0 || $userId <= 0) {
         http_response_code(422);
         echo json_encode(['success' => false, 'message' => 'Invalid contact id']);
         exit;
@@ -141,7 +149,7 @@ if ($method === 'PUT') {
         "UPDATE contacts
          SET name = ?, email = ?, contact_number = ?, contact_number2 = ?, address = ?, country = ?, state = ?, city = ?, zip = ?,
              lead_source = ?, remark = ?, updated_at = NOW()
-         WHERE id = ? AND deleted_at IS NULL"
+         WHERE id = ? AND owner_user_id = ? AND deleted_at IS NULL"
     );
     if (!$stmt) {
         http_response_code(500);
@@ -159,7 +167,7 @@ if ($method === 'PUT') {
     $remarkValue = $remark === '' ? null : $remark;
 
     $stmt->bind_param(
-        'sssssssssssi',
+        'sssssssssssii',
         $name,
         $emailValue,
         $contactNumber,
@@ -171,7 +179,8 @@ if ($method === 'PUT') {
         $zipValue,
         $leadSourceValue,
         $remarkValue,
-        $id
+        $id,
+        $userId
     );
     $ok = $stmt->execute();
     $stmt->close();
@@ -187,20 +196,21 @@ if ($method === 'PUT') {
 }
 
 if ($method === 'DELETE') {
+    $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-    if ($id <= 0) {
+    if ($id <= 0 || $userId <= 0) {
         http_response_code(422);
         echo json_encode(['success' => false, 'message' => 'Invalid contact id']);
         exit;
     }
 
-    $stmt = $conn->prepare("UPDATE contacts SET deleted_at = NOW(), updated_at = NOW() WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE contacts SET deleted_at = NOW(), updated_at = NOW() WHERE id = ? AND owner_user_id = ?");
     if (!$stmt) {
         http_response_code(500);
         echo json_encode(['success' => false, 'message' => 'Prepare failed']);
         exit;
     }
-    $stmt->bind_param('i', $id);
+    $stmt->bind_param('ii', $id, $userId);
     $ok = $stmt->execute();
     $stmt->close();
 

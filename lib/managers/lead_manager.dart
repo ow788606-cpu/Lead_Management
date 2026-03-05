@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'auth_manager.dart';
 import '../models/lead.dart';
 import '../services/api_config.dart';
 
@@ -40,8 +41,10 @@ class LeadManager {
 
   Future<void> loadLeads({bool forceRefresh = false}) async {
     if (_isLoaded && !forceRefresh) return;
-    final response =
-        await http.get(Uri.parse('${ApiConfig.baseUrl}/leads.php'));
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.get(
+      Uri.parse('${ApiConfig.baseUrl}/leads.php?user_id=$userId'),
+    );
     if (response.statusCode != 200) {
       throw Exception('Failed to load leads');
     }

@@ -2,14 +2,17 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../managers/auth_manager.dart';
 import '../../models/task.dart';
 import '../../services/api_config.dart';
 
 class TaskApi {
-  static Uri _tasksUri() => Uri.parse('${ApiConfig.baseUrl}/tasks.php');
+  static Uri _tasksUri({int? userId}) => Uri.parse(
+      '${ApiConfig.baseUrl}/tasks.php${userId != null ? '?user_id=$userId' : ''}');
 
   static Future<List<Task>> fetchTasks() async {
-    final response = await http.get(_tasksUri());
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.get(_tasksUri(userId: userId));
     if (response.statusCode != 200) {
       throw Exception(
         'Failed to load tasks (HTTP ${response.statusCode}): ${response.body}',
@@ -33,6 +36,7 @@ class TaskApi {
   }
 
   static Future<void> addTask(Task task, {int userId = 1}) async {
+    final effectiveUserId = await AuthManager().getUserId() ?? userId;
     final dueAt = DateTime(
       task.dueDate.year,
       task.dueDate.month,
@@ -45,7 +49,7 @@ class TaskApi {
       _tasksUri(),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'user_id': userId,
+        'user_id': effectiveUserId,
         'title': task.title,
         'description': task.description,
         'priority': _mapPriorityToDb(task.priority),
@@ -59,11 +63,13 @@ class TaskApi {
   }
 
   static Future<void> completeTask(String id) async {
+    final userId = await AuthManager().getUserId() ?? 0;
     final response = await http.patch(
       _tasksUri(),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'id': int.tryParse(id) ?? 0,
+        'user_id': userId,
         'action': 'complete',
       }),
     );
@@ -75,8 +81,9 @@ class TaskApi {
 
   static Future<void> deleteTask(String id) async {
     final taskId = int.tryParse(id) ?? 0;
+    final userId = await AuthManager().getUserId() ?? 0;
     final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/tasks.php?id=$taskId'),
+      Uri.parse('${ApiConfig.baseUrl}/tasks.php?id=$taskId&user_id=$userId'),
     );
 
     if (response.statusCode != 200) {

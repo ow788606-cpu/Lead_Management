@@ -14,11 +14,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/db.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
+$requestUserId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
 
 if ($method === 'GET') {
+    if ($requestUserId <= 0) {
+        echo json_encode([
+            'success' => true,
+            'data' => [],
+        ]);
+        exit;
+    }
+
     $sql = "SELECT id, name, COALESCE(description, '') AS description, COALESCE(tag_class, '#0B5CFF') AS color_hex
             FROM tags
             WHERE deleted_at IS NULL
+              AND user_id = $requestUserId
             ORDER BY id DESC";
     $result = $conn->query($sql);
 
@@ -100,8 +110,9 @@ if ($method === 'POST') {
 }
 
 if ($method === 'DELETE') {
+    $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-    if ($id <= 0) {
+    if ($id <= 0 || $userId <= 0) {
         http_response_code(422);
         echo json_encode([
             'success' => false,
@@ -110,7 +121,7 @@ if ($method === 'DELETE') {
         exit;
     }
 
-    $stmt = $conn->prepare("UPDATE tags SET deleted_at = NOW() WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE tags SET deleted_at = NOW() WHERE id = ? AND user_id = ?");
     if (!$stmt) {
         http_response_code(500);
         echo json_encode([
@@ -120,7 +131,7 @@ if ($method === 'DELETE') {
         exit;
     }
 
-    $stmt->bind_param('i', $id);
+    $stmt->bind_param('ii', $id, $userId);
     $ok = $stmt->execute();
     $stmt->close();
 
