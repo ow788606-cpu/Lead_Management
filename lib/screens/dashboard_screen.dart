@@ -13,11 +13,13 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final _leadManager = LeadManager();
   String _username = '';
+  bool _isLoadingLeads = true;
 
   @override
   void initState() {
     super.initState();
     _loadUsername();
+    _loadLeads();
   }
 
   void _loadUsername() async {
@@ -29,6 +31,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _loadLeads() async {
+    try {
+      await _leadManager.loadLeads(forceRefresh: true);
+    } catch (_) {
+      // Keep dashboard usable if API fails.
+    }
+    if (!mounted) return;
+    setState(() => _isLoadingLeads = false);
+  }
+
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) return 'Good Morning';
@@ -38,17 +50,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingLeads) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final allLeads = _leadManager.allLeads;
     final freshLeads = allLeads.where((lead) => lead.isFresh).length;
-    final scheduledAppointments = allLeads.where((lead) => lead.followUpDate != null && !lead.isOverdue && !lead.isCompleted).length;
-    final followUpLeads = allLeads.where((lead) => lead.followUpDate != null && !lead.isOverdue && !lead.isCompleted).length;
+    final scheduledAppointments = allLeads
+        .where((lead) =>
+            lead.followUpDate != null && !lead.isOverdue && !lead.isCompleted)
+        .length;
+    final followUpLeads =
+        allLeads.where((lead) => lead.followUpDate != null).length;
     final overdueLeads = allLeads.where((lead) => lead.isOverdue).length;
-    final completedLeads = allLeads.where((lead) => lead.isCompleted).length;
-    final lostLeads = allLeads.where((lead) => lead.tags?.toLowerCase().contains('lost') ?? false).length;
-    final convertedLeads = allLeads.where((lead) => lead.tags?.toLowerCase().contains('converted') ?? false).length;
-    final todaysTasks = allLeads.where((lead) => lead.followUpDate != null && lead.followUpDate!.year == DateTime.now().year && lead.followUpDate!.month == DateTime.now().month && lead.followUpDate!.day == DateTime.now().day).length;
+    final lostLeads = allLeads
+        .where((lead) => lead.tags?.toLowerCase().contains('lost') ?? false)
+        .length;
+    final convertedLeads = allLeads
+        .where(
+            (lead) => lead.tags?.toLowerCase().contains('converted') ?? false)
+        .length;
+    final todaysTasks = allLeads
+        .where((lead) =>
+            lead.followUpDate != null &&
+            lead.followUpDate!.year == DateTime.now().year &&
+            lead.followUpDate!.month == DateTime.now().month &&
+            lead.followUpDate!.day == DateTime.now().day)
+        .length;
     final overdueTasks = overdueLeads;
-    final activeTasks = allLeads.where((lead) => !lead.isCompleted && lead.followUpDate != null).length;
+    final activeTasks = allLeads
+        .where((lead) => !lead.isCompleted && lead.followUpDate != null)
+        .length;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -58,7 +90,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(_getGreeting(),
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(
+                      fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               Text('Welcome${_username.isNotEmpty ? ', $_username' : ''}!',
                   style: TextStyle(fontSize: 18, color: Colors.grey[600])),
@@ -251,7 +284,20 @@ class _TaskManagementCard extends StatelessWidget {
   }
 
   String _getMonthName(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     return months[month - 1];
   }
 }
@@ -260,7 +306,20 @@ class _WeeklyReportCard extends StatelessWidget {
   const _WeeklyReportCard();
 
   String _getMonthName(int month) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     return months[month - 1];
   }
 
@@ -316,12 +375,15 @@ class _WeeklyReportCard extends StatelessWidget {
                       interval: 1,
                       getTitlesWidget: (value, meta) {
                         final now = DateTime.now();
-                        final dates = List.generate(4, (i) => now.subtract(Duration(days: (3 - i) * 2)));
-                        if (value.toInt() >= 0 && value.toInt() < dates.length) {
+                        final dates = List.generate(4,
+                            (i) => now.subtract(Duration(days: (3 - i) * 2)));
+                        if (value.toInt() >= 0 &&
+                            value.toInt() < dates.length) {
                           final date = dates[value.toInt()];
                           return Padding(
                             padding: const EdgeInsets.only(top: 6),
-                            child: Text('${date.day} ${_getMonthName(date.month)}',
+                            child: Text(
+                                '${date.day} ${_getMonthName(date.month)}',
                                 style: const TextStyle(
                                     fontSize: 9, color: Colors.red)),
                           );
@@ -454,8 +516,13 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
     final filteredLeads = _selectedTab == 'Fresh Leads'
         ? widget.leads.where((lead) => lead.isFresh).toList()
         : _selectedTab == 'Appointment Scheduled'
-            ? widget.leads.where((lead) => lead.followUpDate != null && !lead.isOverdue && !lead.isCompleted).toList()
-            : widget.leads.where((lead) => lead.followUpDate != null && !lead.isOverdue && !lead.isCompleted).toList();
+            ? widget.leads
+                .where((lead) =>
+                    lead.followUpDate != null &&
+                    !lead.isOverdue &&
+                    !lead.isCompleted)
+                .toList()
+            : widget.leads.where((lead) => lead.followUpDate != null).toList();
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -484,7 +551,8 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                       _selectedTab = 'Fresh Leads';
                     });
                   },
-                  child: _TabButton('Fresh Leads', _selectedTab == 'Fresh Leads'),
+                  child:
+                      _TabButton('Fresh Leads', _selectedTab == 'Fresh Leads'),
                 ),
                 const SizedBox(width: 8),
                 GestureDetector(
@@ -493,7 +561,8 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                       _selectedTab = 'Appointment Scheduled';
                     });
                   },
-                  child: _TabButton('Appointment Scheduled', _selectedTab == 'Appointment Scheduled'),
+                  child: _TabButton('Appointment Scheduled',
+                      _selectedTab == 'Appointment Scheduled'),
                 ),
                 const SizedBox(width: 8),
                 GestureDetector(
@@ -530,34 +599,52 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                     border: Border.all(color: Colors.grey[300]!),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      Text(lead.contactName,
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      if (lead.phone != null)
+                        Row(
                           children: [
-                            Text(lead.contactName,
-                                style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 4),
-                            if (lead.phone != null)
-                              Text('Phone: ${lead.phone}',
+                            const Icon(Icons.phone_outlined,
+                                size: 14, color: Colors.grey),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text('Phone: ${lead.phone}',
                                   style: const TextStyle(
                                       fontSize: 12, color: Colors.grey)),
-                            if (lead.email != null)
-                              Text('Email: ${lead.email}',
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey)),
-                            if (lead.service != null)
-                              Text('Service: ${lead.service}',
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey)),
+                            ),
                           ],
                         ),
-                      ),
-                      const Icon(Icons.visibility_outlined,
-                          size: 20, color: Colors.blue),
+                      if (lead.email != null)
+                        Row(
+                          children: [
+                            const Icon(Icons.email_outlined,
+                                size: 14, color: Colors.grey),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text('Email: ${lead.email}',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey)),
+                            ),
+                          ],
+                        ),
+                      if (lead.service != null)
+                        Row(
+                          children: [
+                            const Icon(Icons.miscellaneous_services_outlined,
+                                size: 14, color: Colors.grey),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text('Service: ${lead.service}',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey)),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 );
