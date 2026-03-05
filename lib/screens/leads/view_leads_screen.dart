@@ -1325,6 +1325,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                   _selectedTab = 0;
                   _isFabExpanded = false;
                 });
+                _showAddActivityDialog();
               },
             ),
             const SizedBox(height: 10),
@@ -1336,6 +1337,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                   _selectedTab = 1;
                   _isFabExpanded = false;
                 });
+                _showAddNoteDialog();
               },
             ),
             const SizedBox(height: 10),
@@ -1347,6 +1349,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                   _selectedTab = 2;
                   _isFabExpanded = false;
                 });
+                _showAddTaskDialog();
               },
             ),
             const SizedBox(height: 12),
@@ -1718,26 +1721,11 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                     child: _selectedTab == 0
                         ? Column(
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Lead Activity',
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Inter')),
-                                  ElevatedButton(
-                                    onPressed: _showAddActivityDialog,
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: _brandBlue),
-                                    child: const Text('Add Activity',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'Inter')),
-                                  ),
-                                ],
-                              ),
+                              const Text('Lead Activity',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Inter')),
                               const SizedBox(height: 16),
                               _activities.isEmpty
                                   ? const Padding(
@@ -1857,26 +1845,11 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                             ? Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text('Notes',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Inter')),
-                                      ElevatedButton(
-                                        onPressed: _showAddNoteDialog,
-                                        style: ElevatedButton.styleFrom(
-                                            backgroundColor: _brandBlue),
-                                        child: const Text('Add Note',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'Inter')),
-                                      ),
-                                    ],
-                                  ),
+                                  const Text('Notes',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Inter')),
                                   const SizedBox(height: 16),
                                   _notes.isEmpty
                                       ? const Padding(
@@ -1914,26 +1887,11 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                             : Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text('Tasks',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Inter')),
-                                      ElevatedButton(
-                                        onPressed: _showAddTaskDialog,
-                                        style: ElevatedButton.styleFrom(
-                                            backgroundColor: _brandBlue),
-                                        child: const Text('Add Task',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'Inter')),
-                                      ),
-                                    ],
-                                  ),
+                                  const Text('Tasks',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Inter')),
                                   const SizedBox(height: 16),
                                   _tasks.isEmpty
                                       ? const Padding(
