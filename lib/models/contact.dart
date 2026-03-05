@@ -32,36 +32,65 @@ class Contact {
   });
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'email': email,
-    'phone': phone,
-    'phone2': phone2,
-    'address': address,
-    'country': country,
-    'state': state,
-    'city': city,
-    'zip': zip,
-    'leadSource': leadSource,
-    'remark': remark,
-    'tags': tags,
-    'createdAt': createdAt.toIso8601String(),
-  };
+        'id': id,
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'phone2': phone2,
+        'address': address,
+        'country': country,
+        'state': state,
+        'city': city,
+        'zip': zip,
+        'leadSource': leadSource,
+        'remark': remark,
+        'tags': tags,
+        'createdAt': createdAt.toIso8601String(),
+      };
 
-  factory Contact.fromJson(Map<String, dynamic> json) => Contact(
-    id: json['id'],
-    name: json['name'],
-    email: json['email'],
-    phone: json['phone'],
-    phone2: json['phone2'],
-    address: json['address'],
-    country: json['country'],
-    state: json['state'],
-    city: json['city'],
-    zip: json['zip'],
-    leadSource: json['leadSource'],
-    remark: json['remark'],
-    tags: List<String>.from(json['tags'] ?? []),
-    createdAt: DateTime.parse(json['createdAt']),
-  );
+  factory Contact.fromJson(Map<String, dynamic> json) {
+    final parsedTags = _parseTags(json['tags']);
+    return Contact(
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? '').toString(),
+      email: _nullableString(json['email']),
+      phone: (json['phone'] ?? json['contact_number'] ?? '').toString(),
+      phone2: _nullableString(json['phone2'] ?? json['contact_number2']),
+      address: (json['address'] ?? '').toString(),
+      country: _nullableString(json['country']),
+      state: _nullableString(json['state']),
+      city: _nullableString(json['city']),
+      zip: _nullableString(json['zip']),
+      leadSource: _nullableString(json['leadSource'] ?? json['lead_source']),
+      remark: _nullableString(json['remark']),
+      tags: parsedTags,
+      createdAt: DateTime.tryParse(
+            (json['createdAt'] ?? json['created_at'] ?? '').toString(),
+          ) ??
+          DateTime.now(),
+    );
+  }
+
+  static String? _nullableString(dynamic value) {
+    if (value == null) return null;
+    final v = value.toString().trim();
+    return v.isEmpty ? null : v;
+  }
+
+  static List<String> _parseTags(dynamic value) {
+    if (value == null) return const [];
+    if (value is List) {
+      return value
+          .map((e) => e.toString().trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    }
+    final raw = value.toString().trim();
+    if (raw.isEmpty || raw.toLowerCase() == 'null') return const [];
+    return raw
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+  }
 }

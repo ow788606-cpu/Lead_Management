@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../managers/contact_manager.dart';
 import '../../widgets/app_drawer.dart';
 
 class BulkUploadScreen extends StatefulWidget {
@@ -11,16 +12,21 @@ class BulkUploadScreen extends StatefulWidget {
 
 class _BulkUploadScreenState extends State<BulkUploadScreen> {
   String? _fileName;
+  PlatformFile? _selectedFile;
   bool _scheduleFollowUp = false;
+  bool _isImporting = false;
+  final _contactManager = ContactManager();
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['csv', 'xlsx', 'xls'],
+      allowedExtensions: ['csv'],
+      withData: true,
     );
 
     if (result != null) {
       setState(() {
+        _selectedFile = result.files.single;
         _fileName = result.files.single.name;
       });
     }
@@ -32,16 +38,44 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
     );
   }
 
-  void _importData() {
-    if (_fileName == null) {
+  Future<void> _importData() async {
+    if (_selectedFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a file first')),
+        const SnackBar(content: Text('Please select a CSV file first')),
       );
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Importing $_fileName...')),
-    );
+
+    final bytes = _selectedFile!.bytes;
+    if (bytes == null || bytes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selected file is empty or unreadable')),
+      );
+      return;
+    }
+
+    setState(() => _isImporting = true);
+    try {
+      final result = await _contactManager.bulkUploadCsv(
+        bytes: bytes,
+        fileName: _selectedFile!.name,
+      );
+      if (!mounted) return;
+      setState(() => _isImporting = false);
+      final inserted = result['inserted'] ?? 0;
+      final skipped = result['skipped'] ?? 0;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Import completed. Inserted: $inserted, Skipped: $skipped')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isImporting = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to import CSV')),
+      );
+    }
   }
 
   @override
@@ -113,7 +147,7 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
 
               // File Selection Section
               const Text(
-                'Choose CSV / XLSX file',
+                'Choose CSV file',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -162,15 +196,15 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _importData,
+                  onPressed: _isImporting ? null : _importData,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text(
-                    'Import Data',
-                    style: TextStyle(fontSize: 16),
+                  child: Text(
+                    _isImporting ? 'Importing...' : 'Import Data',
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),
@@ -187,7 +221,7 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
               const SizedBox(height: 16),
               _buildInstruction(
                 '1',
-                'Download the demo file from above and use it as a template.',
+                'Download the demo file from above and use it as a CSV template.',
               ),
               _buildInstruction(
                 '2',
