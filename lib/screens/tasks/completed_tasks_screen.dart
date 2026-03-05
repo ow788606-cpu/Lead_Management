@@ -18,6 +18,7 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
     super.initState();
     taskManager = TaskManager();
     taskManager.addListener(_onTasksChanged);
+    taskManager.loadTasks(forceRefresh: true);
   }
 
   @override
@@ -69,76 +70,77 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                               fontSize: 14,
                               fontFamily: 'Inter')))
                   : ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  final task = tasks[index];
-                  return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey[300]!),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        final task = tasks[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(task.title,
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: 'Inter')),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.visibility_outlined, color: Colors.blue, size: 20),
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => ViewTasksScreen(task: task),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green[50],
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: const Text('Completed',
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.green,
-                                                fontFamily: 'Inter')),
-                                      ),
-                                    ],
-                                  ),
-                                  if (task.description.isNotEmpty) ...[
-                                    const SizedBox(height: 8),
-                                    Text(task.description,
+                                  Expanded(
+                                    child: Text(task.title,
                                         style: const TextStyle(
-                                            fontSize: 14,
-                                            fontFamily: 'Inter',
-                                            color: Colors.grey)),
-                                  ],
-                                  const SizedBox(height: 8),
-                                  Text(
-                                      'Completed: ${task.completedDate!.day}/${task.completedDate!.month}/${task.completedDate!.year}',
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontFamily: 'Inter',
-                                          color: Colors.blue)),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Inter')),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.visibility_outlined,
+                                        color: Colors.blue, size: 20),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ViewTasksScreen(task: task),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[50],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Text('Completed',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.green,
+                                            fontFamily: 'Inter')),
+                                  ),
                                 ],
                               ),
-                            );
-                          },
-                        ),
+                              if (task.description.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Text(task.description,
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: 'Inter',
+                                        color: Colors.grey)),
+                              ],
+                              const SizedBox(height: 8),
+                              Text(
+                                  'Completed: ${task.completedDate!.day}/${task.completedDate!.month}/${task.completedDate!.year}',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontFamily: 'Inter',
+                                      color: Colors.blue)),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -146,4 +148,3 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
     );
   }
 }
-
