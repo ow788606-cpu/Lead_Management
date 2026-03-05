@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
-import 'detail_lead_screen.dart';
 import 'view_leads_screen.dart';
 
 class FollowUpsScreen extends StatefulWidget {
@@ -15,6 +14,7 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
   final _leadManager = LeadManager();
   bool _isLoading = true;
   String? _error;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -42,6 +42,15 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
         .where((lead) => lead.followUpDate != null)
         .toList()
       ..sort((a, b) => a.followUpDate!.compareTo(b.followUpDate!));
+    final filteredLeads = followUpLeads.where((lead) {
+      final q = _searchQuery.trim().toLowerCase();
+      if (q.isEmpty) return true;
+      return lead.contactName.toLowerCase().contains(q) ||
+          (lead.phone?.toLowerCase().contains(q) ?? false) ||
+          (lead.email?.toLowerCase().contains(q) ?? false) ||
+          (lead.service?.toLowerCase().contains(q) ?? false) ||
+          (lead.tags?.toLowerCase().contains(q) ?? false);
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -69,6 +78,26 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Inter')),
             const SizedBox(height: 16),
+            TextField(
+              onChanged: (value) => setState(() => _searchQuery = value),
+              decoration: InputDecoration(
+                hintText: 'Search follow-ups...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
+            const SizedBox(height: 16),
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -82,7 +111,7 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
                                 fontFamily: 'Inter'),
                           ),
                         )
-                      : followUpLeads.isEmpty
+                      : filteredLeads.isEmpty
                           ? const Center(
                               child: Text('No follow-ups scheduled.',
                                   style: TextStyle(
@@ -90,16 +119,16 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
                                       fontSize: 14,
                                       fontFamily: 'Inter')))
                           : ListView.builder(
-                              itemCount: followUpLeads.length,
+                              itemCount: filteredLeads.length,
                               itemBuilder: (context, index) {
-                                final lead = followUpLeads[index];
+                                final lead = filteredLeads[index];
                                 return GestureDetector(
                                   onTap: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            DetailLeadScreen(lead: lead),
+                                            ViewLeadsScreen(lead: lead),
                                       ),
                                     ).then((_) => _loadLeads());
                                   },
@@ -125,22 +154,6 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       fontFamily: 'Inter')),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(
-                                                  Icons.visibility_outlined,
-                                                  color: Colors.blue,
-                                                  size: 20),
-                                              onPressed: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ViewLeadsScreen(
-                                                            lead: lead),
-                                                  ),
-                                                );
-                                              },
                                             ),
                                             if (lead.isCompleted)
                                               Container(

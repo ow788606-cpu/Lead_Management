@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
+import 'view_leads_screen.dart';
 
 class CompletedScreen extends StatefulWidget {
   const CompletedScreen({super.key});
@@ -13,6 +14,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
   final _leadManager = LeadManager();
   bool _isLoading = true;
   String? _error;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -37,6 +39,15 @@ class _CompletedScreenState extends State<CompletedScreen> {
   @override
   Widget build(BuildContext context) {
     final leads = _leadManager.completedLeads;
+    final filteredLeads = leads.where((lead) {
+      final q = _searchQuery.trim().toLowerCase();
+      if (q.isEmpty) return true;
+      return lead.contactName.toLowerCase().contains(q) ||
+          (lead.phone?.toLowerCase().contains(q) ?? false) ||
+          (lead.email?.toLowerCase().contains(q) ?? false) ||
+          (lead.service?.toLowerCase().contains(q) ?? false) ||
+          (lead.tags?.toLowerCase().contains(q) ?? false);
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -64,6 +75,26 @@ class _CompletedScreenState extends State<CompletedScreen> {
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Inter')),
             const SizedBox(height: 16),
+            TextField(
+              onChanged: (value) => setState(() => _searchQuery = value),
+              decoration: InputDecoration(
+                hintText: 'Search completed leads...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
+            const SizedBox(height: 16),
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -77,7 +108,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
                                 fontFamily: 'Inter'),
                           ),
                         )
-                      : leads.isEmpty
+                      : filteredLeads.isEmpty
                           ? const Center(
                               child: Text('No completed leads found.',
                                   style: TextStyle(
@@ -85,73 +116,88 @@ class _CompletedScreenState extends State<CompletedScreen> {
                                       fontSize: 14,
                                       fontFamily: 'Inter')))
                           : ListView.builder(
-                              itemCount: leads.length,
+                              itemCount: filteredLeads.length,
                               itemBuilder: (context, index) {
-                                final lead = leads[index];
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border:
-                                        Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(lead.contactName,
-                                                style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontFamily: 'Inter')),
-                                          ),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                                color: Colors.green[50],
-                                                borderRadius:
-                                                    BorderRadius.circular(4)),
-                                            child: const Text('Completed',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.green,
-                                                    fontFamily: 'Inter')),
-                                          ),
-                                        ],
+                                final lead = filteredLeads[index];
+                                return InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ViewLeadsScreen(lead: lead),
                                       ),
-                                      const SizedBox(height: 8),
-                                      if (lead.phone != null)
-                                        Text('Phone: ${lead.phone}',
-                                            style: const TextStyle(
-                                                fontSize: 14,
-                                                fontFamily: 'Inter',
-                                                color: Colors.grey)),
-                                      if (lead.email != null)
-                                        Text('Email: ${lead.email}',
-                                            style: const TextStyle(
-                                                fontSize: 14,
-                                                fontFamily: 'Inter',
-                                                color: Colors.grey)),
-                                      if (lead.service != null)
-                                        Text('Service: ${lead.service}',
-                                            style: const TextStyle(
-                                                fontSize: 14,
-                                                fontFamily: 'Inter',
-                                                color: Colors.grey)),
-                                      if (lead.followUpDate != null)
-                                        Text(
-                                            'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
-                                            style: const TextStyle(
-                                                fontSize: 14,
-                                                fontFamily: 'Inter',
-                                                color: Colors.grey)),
-                                    ],
+                                    ).then((_) => _loadLeads());
+                                  },
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border:
+                                          Border.all(color: Colors.grey[300]!),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(lead.contactName,
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontFamily: 'Inter')),
+                                            ),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.green[50],
+                                                  borderRadius:
+                                                      BorderRadius.circular(4)),
+                                              child: const Text('Completed',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.green,
+                                                      fontFamily: 'Inter')),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        if (lead.phone != null)
+                                          Text('Phone: ${lead.phone}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.grey)),
+                                        if (lead.email != null)
+                                          Text('Email: ${lead.email}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.grey)),
+                                        if (lead.service != null)
+                                          Text('Service: ${lead.service}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.grey)),
+                                        if (lead.followUpDate != null)
+                                          Text(
+                                              'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.grey)),
+                                      ],
+                                    ),
                                   ),
                                 );
                               },

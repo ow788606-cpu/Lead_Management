@@ -1,6 +1,11 @@
 // ignore_for_file: deprecated_member_use, duplicate_ignore
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+import '../../services/api_config.dart';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
@@ -17,6 +22,7 @@ class ViewLeadsScreen extends StatefulWidget {
 
 class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
   final _leadManager = LeadManager();
+  static const Color _brandBlue = Color(0xFF0B5CFF);
   int _selectedTab = 0;
   bool _isEditingService = false;
   bool _isEditingTags = false;
@@ -31,6 +37,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     super.initState();
     _serviceController = TextEditingController(text: widget.lead.service ?? '');
     _tagsController = TextEditingController(text: widget.lead.tags ?? '');
+    _loadLeadHistory();
   }
 
   @override
@@ -178,8 +185,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                           ),
                           onTap: () async {
                             final time = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.now());
+                                context: context, initialTime: TimeOfDay.now());
                             if (time != null) {
                               setDialogState(() => dueTimeController.text =
                                   time.format(context));
@@ -207,7 +213,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: _brandBlue,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -226,6 +232,137 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _loadLeadHistory() async {
+    final leadId = int.tryParse(widget.lead.id);
+    if (leadId == null || leadId <= 0) {
+      return;
+    }
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/lead_history.php?lead_id=$leadId'),
+      );
+      if (response.statusCode != 200) {
+        return;
+      }
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
+        return;
+      }
+
+      final rows = (decoded['data'] as List<dynamic>? ?? [])
+          .whereType<Map<String, dynamic>>()
+          .toList();
+
+      final activities = <Map<String, dynamic>>[];
+      final notes = <String>[];
+      final tasks = <Map<String, dynamic>>[];
+
+      for (final row in rows) {
+        final activityType = (row['activity'] ?? '').toString().toLowerCase();
+        final statusId =
+            int.tryParse((row['status_id'] ?? '0').toString()) ?? 0;
+        final createdAt =
+            DateTime.tryParse((row['created_at'] ?? '').toString()) ??
+                DateTime.now();
+        final scheduledAt =
+            DateTime.tryParse((row['scheduled_at'] ?? '').toString());
+        final dueAt = DateTime.tryParse((row['due_at'] ?? '').toString());
+        final schedule = dueAt ?? scheduledAt;
+        final description = _stripHtml((row['description'] ?? '').toString());
+        final resultNotes = _stripHtml((row['result_notes'] ?? '').toString());
+        final effectiveText =
+            resultNotes.isNotEmpty ? resultNotes : description;
+
+        final isNote = activityType == 'note' || statusId == 12;
+        final isTask = activityType == 'task' || statusId == 13;
+
+        if (isNote) {
+          if (effectiveText.isNotEmpty) {
+            notes.add(effectiveText);
+          }
+          continue;
+        }
+
+        if (isTask) {
+          tasks.add({
+            'title': (row['title'] ?? '').toString().trim().isEmpty
+                ? (description.isNotEmpty ? description : 'Task')
+                : (row['title'] ?? '').toString(),
+            'notes': effectiveText,
+            'priority':
+                _priorityLabel((row['priority'] ?? 'normal').toString()),
+            'dueDate': schedule == null ? '' : _formatDate(schedule),
+            'dueTime': schedule == null ? '' : _formatTime(schedule),
+            'timestamp': createdAt,
+          });
+          continue;
+        }
+
+        activities.add({
+          'activity': _activityLabel(activityType),
+          'remark': effectiveText,
+          'date': schedule == null ? '' : _formatDate(schedule),
+          'time': schedule == null ? '' : _formatTime(schedule),
+          'lostReason': (row['lost_reason'] ?? '').toString(),
+          'dealAmount': (row['amount'] ?? '').toString(),
+          'timestamp': createdAt,
+        });
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _activities
+          ..clear()
+          ..addAll(activities);
+        _notes
+          ..clear()
+          ..addAll(notes);
+        _tasks
+          ..clear()
+          ..addAll(tasks);
+      });
+    } catch (_) {
+      // Keep screen usable even if history API fails.
+    }
+  }
+
+  String _stripHtml(String input) {
+    return input
+        .replaceAll(RegExp(r'<[^>]*>'), ' ')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  String _priorityLabel(String value) {
+    switch (value.toLowerCase()) {
+      case 'low':
+        return 'Low';
+      case 'high':
+        return 'High';
+      case 'critical':
+        return 'Critical';
+      default:
+        return 'Normal';
+    }
+  }
+
+  String _activityLabel(String activity) {
+    if (activity.isEmpty) return 'Activity';
+    return activity[0].toUpperCase() + activity.substring(1);
+  }
+
+  String _formatDate(DateTime dt) {
+    return '${dt.day}/${dt.month}/${dt.year}';
+  }
+
+  String _formatTime(DateTime dt) {
+    final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final suffix = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$hour12:$minute $suffix';
   }
 
   void _showAddNoteDialog() {
@@ -271,7 +408,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: _brandBlue,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -531,7 +668,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                             onChanged: (value) => setDialogState(
                                 () => selectedCalledSubOption = value),
                           ),
-                          if (selectedCalledSubOption == 'Ringing - No Response') ...[
+                          if (selectedCalledSubOption ==
+                              'Ringing - No Response') ...[
                             Padding(
                               padding: const EdgeInsets.only(
                                   left: 16, right: 16, bottom: 16),
@@ -697,7 +835,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                             onChanged: (value) => setDialogState(
                                 () => selectedCalledSubOption = value),
                           ),
-                          if (selectedCalledSubOption == 'Switched Off / Unavailable') ...[
+                          if (selectedCalledSubOption ==
+                              'Switched Off / Unavailable') ...[
                             Padding(
                               padding: const EdgeInsets.only(
                                   left: 16, right: 16, bottom: 16),
@@ -1072,7 +1211,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: _brandBlue,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8)),
@@ -1134,8 +1273,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                         'Are you sure you want to delete this lead?'),
                     actions: [
                       TextButton(
-                        onPressed: () =>
-                            Navigator.pop(dialogContext, false),
+                        onPressed: () => Navigator.pop(dialogContext, false),
                         child: const Text('Cancel'),
                       ),
                       TextButton(
@@ -1197,7 +1335,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                 children: [
                   CircleAvatar(
                     radius: 35,
-                    backgroundColor: Colors.blue,
+                    backgroundColor: _brandBlue,
                     child: Text(
                       widget.lead.contactName[0].toUpperCase(),
                       style: const TextStyle(
@@ -1299,7 +1437,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                         icon: const Icon(Icons.edit_outlined, size: 16),
                         label: Text(_isEditingService ? 'Save' : 'Edit'),
                         style:
-                            TextButton.styleFrom(foregroundColor: Colors.blue),
+                            TextButton.styleFrom(foregroundColor: _brandBlue),
                       ),
                     ],
                   ),
@@ -1323,9 +1461,9 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                   label: Text(widget.lead.service!,
                                       style: const TextStyle(
                                           fontSize: 12, fontFamily: 'Inter')),
-                                  backgroundColor: Colors.blue[50],
+                                  backgroundColor: const Color(0xFFEAF1FF),
                                   labelStyle:
-                                      const TextStyle(color: Colors.blue),
+                                      const TextStyle(color: _brandBlue),
                                 ),
                               ],
                             )
@@ -1366,7 +1504,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                         icon: const Icon(Icons.edit_outlined, size: 16),
                         label: Text(_isEditingTags ? 'Save' : 'Edit'),
                         style:
-                            TextButton.styleFrom(foregroundColor: Colors.blue),
+                            TextButton.styleFrom(foregroundColor: _brandBlue),
                       ),
                     ],
                   ),
@@ -1426,7 +1564,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               color: _selectedTab == 0
-                                  ? Colors.blue
+                                  ? _brandBlue
                                   : Colors.transparent,
                               borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(12)),
@@ -1459,7 +1597,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               color: _selectedTab == 1
-                                  ? Colors.blue
+                                  ? _brandBlue
                                   : Colors.transparent,
                             ),
                             child: Row(
@@ -1490,7 +1628,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               color: _selectedTab == 2
-                                  ? Colors.blue
+                                  ? _brandBlue
                                   : Colors.transparent,
                               borderRadius: const BorderRadius.only(
                                   topRight: Radius.circular(12)),
@@ -1535,7 +1673,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                   ElevatedButton(
                                     onPressed: _showAddActivityDialog,
                                     style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.blue),
+                                        backgroundColor: _brandBlue),
                                     child: const Text('Add Activity',
                                         style: TextStyle(
                                             color: Colors.white,
@@ -1577,7 +1715,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                           horizontal: 8,
                                                           vertical: 4),
                                                       decoration: BoxDecoration(
-                                                        color: Colors.blue[50],
+                                                        color: const Color(
+                                                            0xFFEAF1FF),
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(4),
@@ -1586,7 +1725,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                         activity['activity'] ??
                                                             '',
                                                         style: const TextStyle(
-                                                            color: Colors.blue,
+                                                            color: _brandBlue,
                                                             fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -1673,7 +1812,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                       ElevatedButton(
                                         onPressed: _showAddNoteDialog,
                                         style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.blue),
+                                            backgroundColor: _brandBlue),
                                         child: const Text('Add Note',
                                             style: TextStyle(
                                                 color: Colors.white,
@@ -1730,7 +1869,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                       ElevatedButton(
                                         onPressed: _showAddTaskDialog,
                                         style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.blue),
+                                            backgroundColor: _brandBlue),
                                         child: const Text('Add Task',
                                             style: TextStyle(
                                                 color: Colors.white,
@@ -1798,11 +1937,12 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                                             'Low'
                                                                         ? Colors.green[
                                                                             50]
-                                                                        : Colors.blue[
-                                                                            50],
+                                                                        : const Color(
+                                                                            0xFFEAF1FF),
                                                             borderRadius:
                                                                 BorderRadius
-                                                                    .circular(4),
+                                                                    .circular(
+                                                                        4),
                                                           ),
                                                           child: Text(
                                                             task['priority'] ??
@@ -1819,8 +1959,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                                                 'Low'
                                                                             ? Colors
                                                                                 .green
-                                                                            : Colors
-                                                                                .blue,
+                                                                            : _brandBlue,
                                                                 fontSize: 12,
                                                                 fontWeight:
                                                                     FontWeight
@@ -1840,7 +1979,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                         style: const TextStyle(
                                                             fontSize: 13,
                                                             color: Colors.grey,
-                                                            fontFamily: 'Inter'),
+                                                            fontFamily:
+                                                                'Inter'),
                                                       ),
                                                     ],
                                                     if (task['dueDate']
@@ -1858,12 +1998,14 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                               width: 4),
                                                           Text(
                                                             '${task['dueDate']} ${task['dueTime'] ?? ''}',
-                                                            style: const TextStyle(
-                                                                fontSize: 12,
-                                                                color:
-                                                                    Colors.grey,
-                                                                fontFamily:
-                                                                    'Inter'),
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontFamily:
+                                                                        'Inter'),
                                                           ),
                                                         ],
                                                       ),
@@ -1917,4 +2059,3 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     return months[month - 1];
   }
 }
-
