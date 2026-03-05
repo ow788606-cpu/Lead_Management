@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../widgets/app_drawer.dart';
+import '../../managers/auth_manager.dart';
+import '../../services/api_config.dart';
 
 class ManageProfileScreen extends StatefulWidget {
   const ManageProfileScreen({super.key});
@@ -18,6 +22,121 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
   final _cityController = TextEditingController();
   final _zipController = TextEditingController();
   final _countryController = TextEditingController();
+  bool _isLoading = true;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final userId = await AuthManager().getUserId();
+      if (userId == null || userId <= 0) {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/users.php?user_id=$userId'),
+      );
+      if (response.statusCode != 200) {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final data = decoded['data'];
+      if (data is! Map<String, dynamic>) {
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      _nameController.text = (data['name'] ?? '').toString();
+      _locationController.text = (data['location'] ?? '').toString();
+      _emailController.text = (data['email'] ?? '').toString();
+      _phoneController.text = (data['phone'] ?? '').toString();
+      _addressController.text = (data['address'] ?? '').toString();
+      _cityController.text = (data['city'] ?? '').toString();
+      _zipController.text = (data['zip'] ?? '').toString();
+      _countryController.text = (data['country'] ?? '').toString();
+    } catch (_) {
+      // Keep form editable even when load fails.
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _saveProfile() async {
+    if (_isSaving || !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      final userId = await AuthManager().getUserId();
+      if (userId == null || userId <= 0) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please login again.')),
+        );
+        return;
+      }
+
+      final response = await http.put(
+        Uri.parse('${ApiConfig.baseUrl}/users.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'user_id': userId,
+          'name': _nameController.text.trim(),
+          'location': _locationController.text.trim(),
+          'email': _emailController.text.trim(),
+          'phone': _phoneController.text.trim(),
+          'address': _addressController.text.trim(),
+          'city': _cityController.text.trim(),
+          'zip': _zipController.text.trim(),
+          'country': _countryController.text.trim(),
+        }),
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully')),
+        );
+        Navigator.pop(context);
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update profile')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update profile')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -51,10 +170,12 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Form(
+                key: _formKey,
+                child: Column(
+                  children: [
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text('Manage Profile',
@@ -140,16 +261,7 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text('Profile Updated Successfully')),
-                            );
-                            Navigator.pop(context);
-                          }
-                        },
+                        onPressed: _isSaving ? null : _saveProfile,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
@@ -157,17 +269,26 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6)),
                         ),
-                        child: const Text('Update Profile',
-                            style:
-                                TextStyle(fontSize: 14, fontFamily: 'Inter')),
+                        child: _isSaving
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Update Profile',
+                                style: TextStyle(
+                                    fontSize: 14, fontFamily: 'Inter')),
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
+                  ],
+                ),
+              ),
       ),
     );
   }
