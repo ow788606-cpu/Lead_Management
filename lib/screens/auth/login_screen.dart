@@ -15,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
   bool _obscurePassword = true;
+  bool _isSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     alignment: Alignment.centerLeft,
                     child: RichText(
                       text: const TextSpan(
-                        text: 'Email ',
+                        text: 'User ID or Email ',
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 14,
@@ -175,34 +176,50 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton(
-                      onPressed: () async {
-                        final authManager = AuthManager();
-                        final emailText = _emailController.text.trim();
-                        // use part before '@' as username if possible
-                        final username = emailText.contains('@')
-                            ? emailText.split('@')[0]
-                            : emailText;
-                        await authManager.setUsername(username);
-                        await authManager.setLoggedIn(true);
-                        if (!context.mounted) return;
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const MainScreen()),
-                        );
-                      },
+                      onPressed: _isSubmitting
+                          ? null
+                          : () async {
+                              setState(() => _isSubmitting = true);
+                              final authManager = AuthManager();
+                              final identifier = _emailController.text.trim();
+                              final password = _passwordController.text;
+                              final isSuccess = await authManager.login(
+                                identifier: identifier,
+                                password: password,
+                              );
+                              if (!context.mounted) return;
+                              setState(() => _isSubmitting = false);
+
+                              if (!isSuccess) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Invalid user id and password'),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              if (!context.mounted) return;
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const MainScreen()),
+                              );
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'Sign In',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white),
+                      child: Text(
+                        _isSubmitting ? 'Signing In...' : 'Sign In',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
