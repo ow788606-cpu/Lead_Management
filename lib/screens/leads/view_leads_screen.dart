@@ -433,806 +433,290 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
   }
 
   void _showAddActivityDialog() {
-    String? selectedActivity;
-    String? selectedCalledSubOption;
-    String? lostReason;
-    final remarkController = TextEditingController();
-    final dateController = TextEditingController();
-    final timeController = TextEditingController();
-    final dealAmountController = TextEditingController();
+    const activityOptions = [
+      'Called',
+      'SMS Sent',
+      'Email Sent',
+      'Lead Cost',
+      'Lead Converted',
+    ];
 
     showDialog(
       context: context,
-      builder: (context) => Dialog(
+      builder: (dialogContext) => Dialog(
         child: Container(
-          width: 400,
-          padding: const EdgeInsets.all(24),
-          child: SingleChildScrollView(
-            child: StatefulBuilder(
-              builder: (context, setDialogState) => Column(
-                mainAxisSize: MainAxisSize.min,
+          width: 380,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Lead Activity',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Inter')),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(dialogContext),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ...activityOptions.map(
+                (item) => ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(item, style: const TextStyle(fontFamily: 'Inter')),
+                  trailing: const Icon(Icons.chevron_right, size: 18),
+                  onTap: () {
+                    Navigator.pop(dialogContext);
+                    _showActivityEntrySheet(item);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showActivityEntrySheet(String activity) {
+    const callOutcomeOptions = [
+      'Appointment Scheduled',
+      'Call Later',
+      'Ringing - No Response',
+      'Busy',
+      'Switched Off / Unavailable',
+      'Invalid Number',
+    ];
+
+    final remarkController = TextEditingController();
+    final dateController = TextEditingController();
+    final timeController = TextEditingController();
+    String? selectedCallOutcome;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        final mediaQuery = MediaQuery.of(sheetContext);
+        final bottomInset =
+            mediaQuery.viewInsets.bottom + mediaQuery.padding.bottom + 20;
+
+        return StatefulBuilder(
+          builder: (context, setSheetState) => AnimatedPadding(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.fromLTRB(20, 8, 20, bottomInset),
+            child: SizedBox(
+              height: mediaQuery.size.height * 0.78,
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Task Details',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter')),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Text('Lead Activity *',
-                      style: TextStyle(
-                          fontSize: 14,
+                  Text(activity,
+                      style: const TextStyle(
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Inter')),
-                  const SizedBox(height: 8),
-                  // ignore: duplicate_ignore
-                  // ignore: deprecated_member_use
-                  RadioListTile<String>(
-                    title: const Text('Called',
-                        style: TextStyle(fontFamily: 'Inter')),
-                    value: 'Called',
-                    // ignore: duplicate_ignore
-                    // ignore: deprecated_member_use
-                    groupValue: selectedActivity,
-                    // ignore: duplicate_ignore
-                    // ignore: deprecated_member_use
-                    onChanged: (value) =>
-                        setDialogState(() => selectedActivity = value),
-                  ),
-                  if (selectedActivity == 'Called') ...[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 32),
-                      child: Column(
-                        children: [
-                          // ignore: duplicate_ignore
-                          // ignore: deprecated_member_use
-                          RadioListTile<String>(
-                            title: const Text('Appointment Scheduled',
-                                style: TextStyle(fontFamily: 'Inter')),
-                            value: 'Appointment Scheduled',
-                            // ignore: deprecated_member_use
-                            groupValue: selectedCalledSubOption,
-                            // ignore: deprecated_member_use
-                            onChanged: (value) => setDialogState(
-                                () => selectedCalledSubOption = value),
-                          ),
-                          if (selectedCalledSubOption ==
-                              'Appointment Scheduled') ...[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 16, right: 16, bottom: 16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Appointment Date',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: dateController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon:
-                                          const Icon(Icons.calendar_today),
-                                    ),
-                                    onTap: () async {
-                                      final date = await showDatePicker(
-                                          context: context,
-                                          firstDate: DateTime.now(),
-                                          lastDate: DateTime(2100));
-                                      if (date != null) {
-                                        setDialogState(() => dateController
-                                                .text =
-                                            '${date.day}/${date.month}/${date.year}');
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text('Appointment Time',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: timeController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      hintText: '--:--',
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon: const Icon(Icons.access_time),
-                                    ),
-                                    onTap: () async {
-                                      final time = await showTimePicker(
-                                          context: context,
-                                          initialTime: TimeOfDay.now());
-                                      if (time != null) {
-                                        setDialogState(() => timeController
-                                            .text = time.format(context));
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                          // ignore: deprecated_member_use
-                          RadioListTile<String>(
-                            title: const Text('Call Later',
-                                style: TextStyle(fontFamily: 'Inter')),
-                            value: 'Call Later',
-                            // ignore: deprecated_member_use
-                            groupValue: selectedCalledSubOption,
-                            // ignore: deprecated_member_use
-                            onChanged: (value) => setDialogState(
-                                () => selectedCalledSubOption = value),
-                          ),
-                          if (selectedCalledSubOption == 'Call Later') ...[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 16, right: 16, bottom: 16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Call Later Date',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: dateController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon:
-                                          const Icon(Icons.calendar_today),
-                                    ),
-                                    onTap: () async {
-                                      final date = await showDatePicker(
-                                          context: context,
-                                          firstDate: DateTime.now(),
-                                          lastDate: DateTime(2100));
-                                      if (date != null) {
-                                        setDialogState(() => dateController
-                                                .text =
-                                            '${date.day}/${date.month}/${date.year}');
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text('Call Later Time',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: timeController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      hintText: '--:--',
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon: const Icon(Icons.access_time),
-                                    ),
-                                    onTap: () async {
-                                      final time = await showTimePicker(
-                                          context: context,
-                                          initialTime: TimeOfDay.now());
-                                      if (time != null) {
-                                        setDialogState(() => timeController
-                                            .text = time.format(context));
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                          // ignore: deprecated_member_use
-                          RadioListTile<String>(
-                            title: const Text('Ringing - No Response',
-                                style: TextStyle(fontFamily: 'Inter')),
-                            value: 'Ringing - No Response',
-                            // ignore: deprecated_member_use
-                            groupValue: selectedCalledSubOption,
-                            // ignore: deprecated_member_use
-                            onChanged: (value) => setDialogState(
-                                () => selectedCalledSubOption = value),
-                          ),
-                          if (selectedCalledSubOption ==
-                              'Ringing - No Response') ...[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 16, right: 16, bottom: 16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Ringing Date',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: dateController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon:
-                                          const Icon(Icons.calendar_today),
-                                    ),
-                                    onTap: () async {
-                                      final date = await showDatePicker(
-                                          context: context,
-                                          firstDate: DateTime.now(),
-                                          lastDate: DateTime(2100));
-                                      if (date != null) {
-                                        setDialogState(() => dateController
-                                                .text =
-                                            '${date.day}/${date.month}/${date.year}');
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text('Ringing Time',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: timeController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      hintText: '--:--',
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon: const Icon(Icons.access_time),
-                                    ),
-                                    onTap: () async {
-                                      final time = await showTimePicker(
-                                          context: context,
-                                          initialTime: TimeOfDay.now());
-                                      if (time != null) {
-                                        setDialogState(() => timeController
-                                            .text = time.format(context));
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                          // ignore: deprecated_member_use
-                          RadioListTile<String>(
-                            title: const Text('Busy',
-                                style: TextStyle(fontFamily: 'Inter')),
-                            value: 'Busy',
-                            // ignore: deprecated_member_use
-                            groupValue: selectedCalledSubOption,
-                            // ignore: deprecated_member_use
-                            onChanged: (value) => setDialogState(
-                                () => selectedCalledSubOption = value),
-                          ),
-                          if (selectedCalledSubOption == 'Busy') ...[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 16, right: 16, bottom: 16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Busy Date',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: dateController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon:
-                                          const Icon(Icons.calendar_today),
-                                    ),
-                                    onTap: () async {
-                                      final date = await showDatePicker(
-                                          context: context,
-                                          firstDate: DateTime.now(),
-                                          lastDate: DateTime(2100));
-                                      if (date != null) {
-                                        setDialogState(() => dateController
-                                                .text =
-                                            '${date.day}/${date.month}/${date.year}');
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text('Busy Time',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: timeController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      hintText: '--:--',
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon: const Icon(Icons.access_time),
-                                    ),
-                                    onTap: () async {
-                                      final time = await showTimePicker(
-                                          context: context,
-                                          initialTime: TimeOfDay.now());
-                                      if (time != null) {
-                                        setDialogState(() => timeController
-                                            .text = time.format(context));
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                          // ignore: deprecated_member_use
-                          RadioListTile<String>(
-                            title: const Text('Switched Off / Unavailable',
-                                style: TextStyle(fontFamily: 'Inter')),
-                            value: 'Switched Off / Unavailable',
-                            // ignore: deprecated_member_use
-                            groupValue: selectedCalledSubOption,
-                            // ignore: deprecated_member_use
-                            onChanged: (value) => setDialogState(
-                                () => selectedCalledSubOption = value),
-                          ),
-                          if (selectedCalledSubOption ==
-                              'Switched Off / Unavailable') ...[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 16, right: 16, bottom: 16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Switched Off Date',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: dateController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon:
-                                          const Icon(Icons.calendar_today),
-                                    ),
-                                    onTap: () async {
-                                      final date = await showDatePicker(
-                                          context: context,
-                                          firstDate: DateTime.now(),
-                                          lastDate: DateTime(2100));
-                                      if (date != null) {
-                                        setDialogState(() => dateController
-                                                .text =
-                                            '${date.day}/${date.month}/${date.year}');
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(height: 16),
-                                  const Text('Switched Off Time',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                          fontFamily: 'Inter')),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    controller: timeController,
-                                    readOnly: true,
-                                    decoration: InputDecoration(
-                                      hintText: '--:--',
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8)),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 12),
-                                      suffixIcon: const Icon(Icons.access_time),
-                                    ),
-                                    onTap: () async {
-                                      final time = await showTimePicker(
-                                          context: context,
-                                          initialTime: TimeOfDay.now());
-                                      if (time != null) {
-                                        setDialogState(() => timeController
-                                            .text = time.format(context));
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                          // ignore: deprecated_member_use
-                          RadioListTile<String>(
-                            title: const Text('Invalid Number',
-                                style: TextStyle(fontFamily: 'Inter')),
-                            value: 'Invalid Number',
-                            // ignore: deprecated_member_use
-                            groupValue: selectedCalledSubOption,
-                            // ignore: deprecated_member_use
-                            onChanged: (value) => setDialogState(
-                                () => selectedCalledSubOption = value),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  // ignore: deprecated_member_use
-                  RadioListTile<String>(
-                    title: const Text('SMS Sent',
-                        style: TextStyle(fontFamily: 'Inter')),
-                    value: 'SMS Sent',
-                    // ignore: deprecated_member_use
-                    groupValue: selectedActivity,
-                    onChanged: (value) =>
-                        setDialogState(() => selectedActivity = value),
-                  ),
-                  if (selectedActivity == 'SMS Sent') ...[
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 16, right: 16, bottom: 16),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('SMS Date',
+                          if (activity == 'Called') ...[
+                            const Text('Call Outcome',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Inter')),
+                            const SizedBox(height: 10),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF7F9FC),
+                                borderRadius: BorderRadius.circular(14),
+                                border:
+                                    Border.all(color: const Color(0xFFDCE4F2)),
+                              ),
+                              child: Column(
+                                children: callOutcomeOptions
+                                    .map(
+                                      (option) => RadioListTile<String>(
+                                        value: option,
+                                        groupValue: selectedCallOutcome,
+                                        activeColor: _brandBlue,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 12),
+                                        dense: true,
+                                        title: Text(
+                                          option,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontFamily: 'Inter'),
+                                        ),
+                                        onChanged: (value) {
+                                          setSheetState(() {
+                                            selectedCallOutcome = value;
+                                          });
+                                        },
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                          ],
+                          const Text('Date',
                               style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w600,
                                   fontFamily: 'Inter')),
                           const SizedBox(height: 8),
                           TextField(
                             controller: dateController,
                             readOnly: true,
                             decoration: InputDecoration(
+                              hintText: 'Select date',
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
+                                  horizontal: 16, vertical: 16),
                               suffixIcon: const Icon(Icons.calendar_today),
                             ),
                             onTap: () async {
                               final date = await showDatePicker(
-                                  context: context,
-                                  firstDate: DateTime.now(),
-                                  lastDate: DateTime(2100));
+                                context: sheetContext,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                                initialDate: DateTime.now(),
+                              );
                               if (date != null) {
-                                setDialogState(() => dateController.text =
-                                    '${date.day}/${date.month}/${date.year}');
+                                dateController.text =
+                                    '${date.day}/${date.month}/${date.year}';
                               }
                             },
                           ),
                           const SizedBox(height: 16),
-                          const Text('SMS Time',
+                          const Text('Time',
                               style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w600,
                                   fontFamily: 'Inter')),
                           const SizedBox(height: 8),
                           TextField(
                             controller: timeController,
                             readOnly: true,
                             decoration: InputDecoration(
-                              hintText: '--:--',
+                              hintText: 'Select time',
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
+                                  horizontal: 16, vertical: 16),
                               suffixIcon: const Icon(Icons.access_time),
                             ),
                             onTap: () async {
                               final time = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.now());
+                                context: sheetContext,
+                                initialTime: TimeOfDay.now(),
+                              );
                               if (time != null) {
-                                setDialogState(() =>
-                                    timeController.text = time.format(context));
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  // ignore: deprecated_member_use
-                  RadioListTile<String>(
-                    title: const Text('Email Sent',
-                        style: TextStyle(fontFamily: 'Inter')),
-                    value: 'Email Sent',
-                    groupValue: selectedActivity,
-                    onChanged: (value) =>
-                        setDialogState(() => selectedActivity = value),
-                  ),
-                  if (selectedActivity == 'Email Sent') ...[
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 16, right: 16, bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Email Date',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontFamily: 'Inter')),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: dateController,
-                            readOnly: true,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
-                              suffixIcon: const Icon(Icons.calendar_today),
-                            ),
-                            onTap: () async {
-                              final date = await showDatePicker(
-                                  context: context,
-                                  firstDate: DateTime.now(),
-                                  lastDate: DateTime(2100));
-                              if (date != null) {
-                                setDialogState(() => dateController.text =
-                                    '${date.day}/${date.month}/${date.year}');
+                                timeController.text = _formatTimeOfDay(time);
                               }
                             },
                           ),
                           const SizedBox(height: 16),
-                          const Text('Email Time',
+                          const Text('Remark *',
                               style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w600,
                                   fontFamily: 'Inter')),
                           const SizedBox(height: 8),
                           TextField(
-                            controller: timeController,
-                            readOnly: true,
+                            controller: remarkController,
+                            minLines: 4,
+                            maxLines: 6,
                             decoration: InputDecoration(
-                              hintText: '--:--',
+                              hintText: 'Enter remark...',
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
-                              suffixIcon: const Icon(Icons.access_time),
-                            ),
-                            onTap: () async {
-                              final time = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.now());
-                              if (time != null) {
-                                setDialogState(() =>
-                                    timeController.text = time.format(context));
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  // ignore: deprecated_member_use
-                  RadioListTile<String>(
-                    title: const Text('Lead Lost',
-                        style: TextStyle(fontFamily: 'Inter')),
-                    value: 'Lead Lost',
-                    groupValue: selectedActivity,
-                    onChanged: (value) =>
-                        setDialogState(() => selectedActivity = value),
-                  ),
-                  if (selectedActivity == 'Lead Lost') ...[
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 16, right: 16, bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Lost Reason',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontFamily: 'Inter')),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<String>(
-                            isExpanded: true,
-                            decoration: InputDecoration(
-                              hintText: 'Select reason',
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                  value: 'No Budget', child: Text('No Budget')),
-                              DropdownMenuItem(
-                                  value: 'Not Interested',
-                                  child: Text('Not Interested')),
-                              DropdownMenuItem(
-                                  value: 'Postponed / Will decide later',
-                                  child: Text('Postponed / Will decide later')),
-                              DropdownMenuItem(
-                                  value: 'No Response',
-                                  child: Text('No Response')),
-                              DropdownMenuItem(
-                                  value: 'Bought service from someone else',
-                                  child:
-                                      Text('Bought service from someone else')),
-                            ],
-                            onChanged: (value) =>
-                                setDialogState(() => lostReason = value),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  // ignore: deprecated_member_use
-                  RadioListTile<String>(
-                    title: const Text('Lead Converted',
-                        style: TextStyle(fontFamily: 'Inter')),
-                    value: 'Lead Converted',
-                    groupValue: selectedActivity,
-                    onChanged: (value) =>
-                        setDialogState(() => selectedActivity = value),
-                  ),
-                  if (selectedActivity == 'Lead Converted') ...[
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 16, right: 16, bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Deal Amount',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                  fontFamily: 'Inter')),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: dealAmountController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              hintText: 'Enter Amount',
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 12),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              contentPadding: const EdgeInsets.all(16),
+                              alignLabelWithHint: true,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                  const SizedBox(height: 16),
-                  const Text('Remark *',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter')),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: remarkController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: 'Enter remark...',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.all(12),
-                    ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (selectedActivity != null &&
-                            remarkController.text.isNotEmpty) {
-                          setState(() {
-                            _activities.add({
-                              'activity': selectedActivity == 'Called'
-                                  ? selectedCalledSubOption
-                                  : selectedActivity,
-                              'remark': remarkController.text,
-                              'date': dateController.text,
-                              'time': timeController.text,
-                              'lostReason': lostReason,
-                              'dealAmount': dealAmountController.text,
-                              'timestamp': DateTime.now(),
-                            });
-                          });
-                          Navigator.pop(context);
+                        if (remarkController.text.trim().isEmpty) return;
+                        if (activity == 'Called' &&
+                            selectedCallOutcome == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text('Activity added successfully!')),
+                              content: Text('Please select a call outcome'),
+                            ),
                           );
+                          return;
                         }
+                        setState(() {
+                          _activities.add({
+                            'activity': activity,
+                            'callOutcome': selectedCallOutcome ?? '',
+                            'remark': remarkController.text.trim(),
+                            'date': dateController.text.trim(),
+                            'time': timeController.text.trim(),
+                            'lostReason': '',
+                            'dealAmount': '',
+                            'timestamp': DateTime.now(),
+                          });
+                        });
+                        Navigator.pop(sheetContext);
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(this.context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Activity added successfully!'),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _brandBlue,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       child: const Text('Update',
                           style: TextStyle(
                               color: Colors.white,
                               fontFamily: 'Inter',
-                              fontSize: 16)),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600)),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -1789,15 +1273,42 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                   ],
                                                 ),
                                                 const SizedBox(height: 8),
-                                                Text(
-                                                  activity['remark'] ?? '',
-                                                  style: const TextStyle(
-                                                      fontSize: 13,
-                                                      fontFamily: 'Inter'),
-                                                ),
-                                                if (activity['date']
-                                                        ?.isNotEmpty ??
-                                                    false) ...[
+                                                 Text(
+                                                   activity['remark'] ?? '',
+                                                   style: const TextStyle(
+                                                       fontSize: 13,
+                                                       fontFamily: 'Inter'),
+                                                 ),
+                                                 if (activity['callOutcome']
+                                                         ?.isNotEmpty ??
+                                                     false) ...[
+                                                   const SizedBox(height: 8),
+                                                   Container(
+                                                     padding:
+                                                         const EdgeInsets.symmetric(
+                                                             horizontal: 10,
+                                                             vertical: 6),
+                                                     decoration: BoxDecoration(
+                                                       color:
+                                                           const Color(0xFFF4F7FC),
+                                                       borderRadius:
+                                                           BorderRadius.circular(
+                                                               999),
+                                                     ),
+                                                     child: Text(
+                                                       activity['callOutcome'],
+                                                       style: const TextStyle(
+                                                           fontSize: 12,
+                                                           color: _brandBlue,
+                                                           fontWeight:
+                                                               FontWeight.w600,
+                                                           fontFamily: 'Inter'),
+                                                     ),
+                                                   ),
+                                                 ],
+                                                 if (activity['date']
+                                                         ?.isNotEmpty ??
+                                                     false) ...[
                                                   const SizedBox(height: 4),
                                                   Text(
                                                     'Date: ${activity['date']} ${activity['time']?.isNotEmpty ?? false ? 'Time: ${activity['time']}' : ''}',
@@ -2097,6 +1608,13 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
         ),
       ],
     );
+  }
+
+  String _formatTimeOfDay(TimeOfDay time) {
+    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+    final minute = time.minute.toString().padLeft(2, '0');
+    final suffix = time.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$hour:$minute $suffix';
   }
 
   String _getMonthName(int month) {
