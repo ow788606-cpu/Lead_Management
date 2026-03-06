@@ -49,8 +49,8 @@ class AppDrawer extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           children: [
             Container(
-              height: 80,
-              padding: const EdgeInsets.all(20),
+              height: 72,
+              padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(color: Colors.white),
               child: Row(
                 children: [
@@ -63,7 +63,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
             const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              padding: EdgeInsets.fromLTRB(16, 12, 16, 6),
               child: Text('MAIN',
                   style: TextStyle(
                       color: Colors.grey,
@@ -73,7 +73,7 @@ class AppDrawer extends StatelessWidget {
             _DrawerItem(Icons.dashboard_outlined, 'Dashboard', 0, selectedIndex,
                 () => openMainTab(0), const Color(0xFF0B5CFF), _activeBgColor),
             const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Text('LET\'S CLOOP',
                   style: TextStyle(
                       color: Colors.grey,
@@ -180,7 +180,7 @@ class AppDrawer extends StatelessWidget {
             _DrawerItem(Icons.local_offer_outlined, 'Tags', 6, selectedIndex,
                 () => openMainTab(6), const Color(0xFF0B5CFF), _activeBgColor),
             const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Text('REPORTS',
                   style: TextStyle(
                       color: Colors.grey,
@@ -197,7 +197,7 @@ class AppDrawer extends StatelessWidget {
               }),
             ]),
             const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+              padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Text('MY ACCOUNT',
                   style: TextStyle(
                       color: Colors.grey,

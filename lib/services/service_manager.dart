@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
+
 import 'service_api.dart';
 
-class ServiceManager {
+class ServiceManager extends ChangeNotifier {
   static final ServiceManager _instance = ServiceManager._internal();
   factory ServiceManager() => _instance;
   ServiceManager._internal() {
@@ -16,6 +18,7 @@ class ServiceManager {
     _items
       ..clear()
       ..addAll(fetched);
+    notifyListeners();
   }
 
   Future<void> addService(String service, {int userId = 1}) async {

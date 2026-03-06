@@ -19,7 +19,19 @@ class _ServicesScreenState extends State<ServicesScreen> {
   @override
   void initState() {
     super.initState();
+    _serviceManager.addListener(_onServicesChanged);
     _loadServices();
+  }
+
+  @override
+  void dispose() {
+    _serviceManager.removeListener(_onServicesChanged);
+    super.dispose();
+  }
+
+  void _onServicesChanged() {
+    if (!mounted) return;
+    setState(() {});
   }
 
   Future<void> _loadServices() async {
@@ -141,8 +153,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                       if (originalIndex != -1) {
                                         await _serviceManager
                                             .removeService(originalIndex);
-                                        if (!mounted) return;
-                                        setState(() {});
                                       }
                                     },
                                   ),
