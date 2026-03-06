@@ -157,34 +157,17 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: 'Inter')),
                                         const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            const Icon(Icons.phone_outlined,
-                                                size: 16, color: Colors.grey),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: Text(
-                                                  'Phone: ${contact.phone}',
-                                                  style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontFamily: 'Inter',
-                                                      color: Colors.grey)),
-                                            ),
-                                          ],
-                                        ),
-                                        if (contact.phone2 != null) ...[
-                                          const SizedBox(height: 6),
-                                          Row(
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 12),
+                                          child: Row(
                                             children: [
-                                              const Icon(
-                                                  Icons
-                                                      .phone_forwarded_outlined,
-                                                  size: 16,
-                                                  color: Colors.grey),
+                                              const Icon(Icons.phone_outlined,
+                                                  size: 16, color: Colors.grey),
                                               const SizedBox(width: 8),
                                               Expanded(
                                                 child: Text(
-                                                    'Phone 2: ${contact.phone2}',
+                                                    'Phone: ${contact.phone}',
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         fontFamily: 'Inter',
@@ -192,23 +175,54 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                               ),
                                             ],
                                           ),
+                                        ),
+                                        if (contact.phone2 != null) ...[
+                                          const SizedBox(height: 6),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 12),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                    Icons
+                                                        .phone_forwarded_outlined,
+                                                    size: 16,
+                                                    color: Colors.grey),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                      'Phone 2: ${contact.phone2}',
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontFamily: 'Inter',
+                                                          color: Colors.grey)),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ],
                                         if (contact.email != null) ...[
                                           const SizedBox(height: 6),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.email_outlined,
-                                                  size: 16, color: Colors.grey),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Text(
-                                                    'Email: ${contact.email}',
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontFamily: 'Inter',
-                                                        color: Colors.grey)),
-                                              ),
-                                            ],
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 12),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                    Icons.email_outlined,
+                                                    size: 16,
+                                                    color: Colors.grey),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                      'Email: ${contact.email}',
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontFamily: 'Inter',
+                                                          color: Colors.grey)),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                         if (contact.city != null ||

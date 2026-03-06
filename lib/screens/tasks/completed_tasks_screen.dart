@@ -125,6 +125,9 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                               children: [
                                 Row(
                                   children: [
+                                    // const Icon(Icons.check_circle_outline,
+                                    //     size: 18, color: Colors.green),
+                                    const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(task.title,
                                           style: const TextStyle(
@@ -148,20 +151,46 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                                   ],
                                 ),
                                 if (task.description.isNotEmpty) ...[
-                                  const SizedBox(height: 8),
-                                  Text(task.description,
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontFamily: 'Inter',
-                                          color: Colors.grey)),
+                                  const SizedBox(height: 10),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 12),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Icon(Icons.notes_outlined,
+                                            size: 16, color: Colors.grey),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(task.description,
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.grey)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ],
-                                const SizedBox(height: 8),
-                                Text(
-                                    'Completed: ${task.completedDate!.day}/${task.completedDate!.month}/${task.completedDate!.year}',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: 'Inter',
-                                        color: Color(0xFF0B5CFF))),
+                                const SizedBox(height: 10),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.event_available_outlined,
+                                          size: 16, color: Color(0xFF0B5CFF)),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                            'Completed: ${task.completedDate!.day}/${task.completedDate!.month}/${task.completedDate!.year}',
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: 'Inter',
+                                                color: Color(0xFF0B5CFF))),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),

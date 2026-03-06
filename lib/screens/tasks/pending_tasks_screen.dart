@@ -125,6 +125,9 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                               children: [
                                 Row(
                                   children: [
+                                    const Icon(Icons.task_alt_outlined,
+                                        size: 18, color: Color(0xFF0B5CFF)),
+                                    const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(task.title,
                                           style: const TextStyle(
@@ -150,20 +153,46 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                   ],
                                 ),
                                 if (task.description.isNotEmpty) ...[
-                                  const SizedBox(height: 8),
-                                  Text(task.description,
-                                      style: const TextStyle(
-                                          fontSize: 14,
-                                          fontFamily: 'Inter',
-                                          color: Colors.grey)),
+                                  const SizedBox(height: 10),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 12),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Icon(Icons.notes_outlined,
+                                            size: 16, color: Colors.grey),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(task.description,
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.grey)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ],
-                                const SizedBox(height: 8),
-                                Text(
-                                    'Due: ${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year} ${task.dueTime}',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: 'Inter',
-                                        color: Color(0xFF0B5CFF))),
+                                const SizedBox(height: 10),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 12),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.schedule_outlined,
+                                          size: 16, color: Color(0xFF0B5CFF)),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                            'Due: ${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year} ${task.dueTime}',
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontFamily: 'Inter',
+                                                color: Color(0xFF0B5CFF))),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),

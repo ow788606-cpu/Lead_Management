@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
-import '../leads/detail_lead_screen.dart';
 import '../leads/view_leads_screen.dart';
 
 class LeadReportsScreen extends StatefulWidget {
@@ -64,7 +63,7 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      DetailLeadScreen(lead: lead),
+                                      ViewLeadsScreen(lead: lead),
                                 ),
                               ).then((_) => setState(() {}));
                             },
@@ -81,27 +80,15 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
                                 children: [
                                   Row(
                                     children: [
+                                      // const Icon(Icons.person_outline_rounded,
+                                      //     size: 18, color: Color(0xFF0B5CFF)),
+                                      const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(lead.contactName,
                                             style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: 'Inter')),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                            Icons.visibility_outlined,
-                                            color: const Color(0xFF0B5CFF),
-                                            size: 20),
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ViewLeadsScreen(lead: lead),
-                                            ),
-                                          );
-                                        },
                                       ),
                                       if (lead.isCompleted)
                                         Container(
@@ -117,6 +104,8 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
                                                   color: Colors.green,
                                                   fontFamily: 'Inter')),
                                         ),
+                                      if (lead.isCompleted && lead.isOverdue)
+                                        const SizedBox(width: 8),
                                       if (lead.isOverdue)
                                         Container(
                                           padding: const EdgeInsets.symmetric(
@@ -133,26 +122,67 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
                                         ),
                                     ],
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 10),
                                   if (lead.phone != null)
-                                    Text('Phone: ${lead.phone}',
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontFamily: 'Inter',
-                                            color: Colors.grey)),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 12),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.phone_outlined,
+                                              size: 16, color: Colors.grey),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text('Phone: ${lead.phone}',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontFamily: 'Inter',
+                                                    color: Colors.grey)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   if (lead.email != null)
-                                    Text('Email: ${lead.email}',
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontFamily: 'Inter',
-                                            color: Colors.grey)),
+                                    const SizedBox(height: 8),
+                                  if (lead.email != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 12),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.email_outlined,
+                                              size: 16, color: Colors.grey),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text('Email: ${lead.email}',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontFamily: 'Inter',
+                                                    color: Colors.grey)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   if (lead.followUpDate != null)
-                                    Text(
-                                        'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontFamily: 'Inter',
-                                            color: const Color(0xFF0B5CFF))),
+                                    const SizedBox(height: 8),
+                                  if (lead.followUpDate != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 12),
+                                      child: Row(
+                                        children: [
+                                          const Icon(Icons.access_time_outlined,
+                                              size: 16,
+                                              color: Color(0xFF0B5CFF)),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                                'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? ""}',
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontFamily: 'Inter',
+                                                    color: Color(0xFF0B5CFF))),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
