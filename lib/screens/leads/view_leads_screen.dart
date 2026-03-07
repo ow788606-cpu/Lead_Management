@@ -218,19 +218,46 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: () {
-                      if (taskTitleController.text.isNotEmpty) {
+                    onPressed: () async {
+                      if (taskTitleController.text.isEmpty) {
+                        return;
+                      }
+
+                      final dueAt = _combineDateAndTime(
+                        dueDateController.text,
+                        dueTimeController.text,
+                      );
+
+                      try {
+                        await _saveLeadHistoryEntry(
+                          title: taskTitleController.text.trim(),
+                          description: taskNotesController.text.trim(),
+                          statusId: 13,
+                          priority: priority.toLowerCase(),
+                          scheduledAt: dueAt,
+                          meta: {
+                            'activity': 'task',
+                            'due_at': dueAt?.toIso8601String(),
+                          },
+                        );
+
+                        if (!mounted) return;
                         setState(() {
                           _tasks.add({
-                            'title': taskTitleController.text,
-                            'notes': taskNotesController.text,
+                            'title': taskTitleController.text.trim(),
+                            'notes': taskNotesController.text.trim(),
                             'priority': priority,
                             'dueDate': dueDateController.text,
                             'dueTime': dueTimeController.text,
                             'timestamp': DateTime.now(),
                           });
                         });
-                        Navigator.pop(context);
+                        Navigator.of(this.context).pop();
+                      } catch (_) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(this.context).showSnackBar(
+                          const SnackBar(content: Text('Failed to save task')),
+                        );
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -325,6 +352,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
 
         activities.add({
           'activity': _activityLabel(activityType),
+          'callOutcome': (row['result'] ?? '').toString(),
           'remark': effectiveText,
           'date': schedule == null ? '' : _formatDate(schedule),
           'time': schedule == null ? '' : _formatTime(schedule),
@@ -349,6 +377,74 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     } catch (_) {
       // Keep screen usable even if history API fails.
     }
+  }
+
+  Future<void> _saveLeadHistoryEntry({
+    required String title,
+    required String description,
+    required int statusId,
+    String priority = 'normal',
+    String resultNotes = '',
+    DateTime? scheduledAt,
+    Map<String, dynamic> meta = const {},
+  }) async {
+    final leadId = int.tryParse(widget.lead.id) ?? 0;
+    final userId = await AuthManager().getUserId() ?? 0;
+    if (leadId <= 0 || userId <= 0) {
+      throw Exception('Invalid lead or user');
+    }
+
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/lead_history.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'lead_id': leadId,
+        'user_id': userId,
+        'title': title,
+        'description': description,
+        'status_id': statusId,
+        'priority': priority,
+        'result_notes': resultNotes,
+        'scheduled_at': scheduledAt?.toIso8601String() ?? '',
+        'meta': meta,
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to save lead history');
+    }
+
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
+      throw Exception('Invalid lead history response');
+    }
+  }
+
+  DateTime? _combineDateAndTime(String date, String time) {
+    if (date.trim().isEmpty) return null;
+
+    final dateParts = date.split('/');
+    if (dateParts.length != 3) return null;
+
+    final day = int.tryParse(dateParts[0]) ?? 0;
+    final month = int.tryParse(dateParts[1]) ?? 0;
+    final year = int.tryParse(dateParts[2]) ?? 0;
+    if (day <= 0 || month <= 0 || year <= 0) return null;
+
+    var hour = 0;
+    var minute = 0;
+    final normalizedTime = time.trim().toUpperCase();
+    final match =
+        RegExp(r'^(\d{1,2}):(\d{2})\s*(AM|PM)?$').firstMatch(normalizedTime);
+    if (match != null) {
+      hour = int.tryParse(match.group(1) ?? '0') ?? 0;
+      minute = int.tryParse(match.group(2) ?? '0') ?? 0;
+      final period = match.group(3);
+      if (period == 'PM' && hour < 12) hour += 12;
+      if (period == 'AM' && hour == 12) hour = 0;
+    }
+
+    return DateTime(year, month, day, hour, minute);
   }
 
   Future<void> _loadStatusOptions() async {
@@ -507,12 +603,29 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (noteController.text.isNotEmpty) {
+                  onPressed: () async {
+                    if (noteController.text.isEmpty) {
+                      return;
+                    }
+
+                    try {
+                      await _saveLeadHistoryEntry(
+                        title: 'Note',
+                        description: noteController.text.trim(),
+                        statusId: 12,
+                        meta: const {'activity': 'note'},
+                      );
+
+                      if (!mounted) return;
                       setState(() {
-                        _notes.add(noteController.text);
+                        _notes.add(noteController.text.trim());
                       });
-                      Navigator.pop(context);
+                      Navigator.of(this.context).pop();
+                    } catch (_) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(content: Text('Failed to save note')),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -587,12 +700,11 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
   void _showActivityEntrySheet(String activity) {
     final callOutcomeOptions = _callOutcomeOptions;
     const lostReasonOptions = [
-      'Price too high',
-      'Chose competitor',
-      'Not interested',
-      'No budget',
-      'No response',
-      'Other',
+      'No Budget',
+      'Not Interested',
+      'Postponed / Will decide later',
+      'No Response',
+      'Bought service from someone else',
     ];
 
     final remarkController = TextEditingController();
@@ -603,12 +715,14 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     String? selectedLostReason;
     final isLeadCost = activity == 'Lead Cost';
     final isLeadConverted = activity == 'Lead Converted';
-    final isCompactActivitySheet = isLeadCost || isLeadConverted;
-    final sheetHeightFactor = isLeadCost || isLeadConverted
+    final isCompactActivitySheet = isLeadConverted;
+    final sheetHeightFactor = isLeadConverted
         ? 0.38
-        : activity == 'Called'
-            ? 0.76
-            : 0.62;
+        : isLeadCost
+            ? 0.56
+            : activity == 'Called'
+                ? 0.76
+                : 0.62;
     final headerSpacing = isCompactActivitySheet ? 8.0 : 20.0;
     final footerSpacing = isCompactActivitySheet ? 4.0 : 12.0;
     final buttonVerticalPadding = isCompactActivitySheet ? 12.0 : 16.0;
@@ -731,6 +845,28 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                               selectedLostReason = value;
                                             });
                                           },
+                                        ),
+                                        const SizedBox(height: 16),
+                                        const Text('Remark',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                fontFamily: 'Inter')),
+                                        const SizedBox(height: 8),
+                                        TextField(
+                                          controller: remarkController,
+                                          minLines: 4,
+                                          maxLines: 5,
+                                          decoration: InputDecoration(
+                                            hintText: 'Enter remark...',
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.all(16),
+                                            alignLabelWithHint: true,
+                                          ),
                                         ),
                                       ] else if (isLeadConverted) ...[
                                         const Text('Deal Amount',
@@ -856,7 +992,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton(
-                                  onPressed: () {
+                                  onPressed: () async {
                                     if (activity == 'Called' &&
                                         selectedCallOutcome == null) {
                                       ScaffoldMessenger.of(context)
@@ -897,38 +1033,78 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                         remarkController.text.trim().isEmpty) {
                                       return;
                                     }
-                                    setState(() {
-                                      _activities.add({
-                                        'activity': activity,
-                                        'callOutcome':
-                                            selectedCallOutcome ?? '',
-                                        'remark': isLeadCost || isLeadConverted
+                                    final scheduledAt =
+                                        isLeadCost || isLeadConverted
+                                            ? null
+                                            : _combineDateAndTime(
+                                                dateController.text.trim(),
+                                                timeController.text.trim(),
+                                              );
+
+                                    try {
+                                      await _saveLeadHistoryEntry(
+                                        title: activity,
+                                        description: isLeadConverted
                                             ? ''
                                             : remarkController.text.trim(),
-                                        'date': isLeadCost || isLeadConverted
-                                            ? ''
-                                            : dateController.text.trim(),
-                                        'time': isLeadCost || isLeadConverted
-                                            ? ''
-                                            : timeController.text.trim(),
-                                        'lostReason': isLeadCost
-                                            ? selectedLostReason
+                                        statusId: 0,
+                                        resultNotes: isLeadCost
+                                            ? remarkController.text.trim()
                                             : '',
-                                        'dealAmount': isLeadConverted
-                                            ? dealAmountController.text.trim()
-                                            : '',
-                                        'timestamp': DateTime.now(),
+                                        scheduledAt: scheduledAt,
+                                        meta: {
+                                          'activity': activity.toLowerCase(),
+                                          'result': selectedCallOutcome ?? '',
+                                          'lost_reason':
+                                              isLeadCost ? selectedLostReason : '',
+                                          'amount': isLeadConverted
+                                              ? dealAmountController.text.trim()
+                                              : '',
+                                        },
+                                      );
+
+                                      if (!mounted) return;
+                                      setState(() {
+                                        _activities.add({
+                                          'activity': activity,
+                                          'callOutcome':
+                                              selectedCallOutcome ?? '',
+                                          'remark': isLeadConverted
+                                              ? ''
+                                              : remarkController.text.trim(),
+                                          'date': isLeadCost || isLeadConverted
+                                              ? ''
+                                              : dateController.text.trim(),
+                                          'time': isLeadCost || isLeadConverted
+                                              ? ''
+                                              : timeController.text.trim(),
+                                          'lostReason': isLeadCost
+                                              ? selectedLostReason
+                                              : '',
+                                          'dealAmount': isLeadConverted
+                                              ? dealAmountController.text.trim()
+                                              : '',
+                                          'timestamp': DateTime.now(),
+                                        });
                                       });
-                                    });
-                                    Navigator.pop(sheetContext);
-                                    if (!mounted) return;
-                                    ScaffoldMessenger.of(this.context)
-                                        .showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                            'Activity added successfully!'),
-                                      ),
-                                    );
+                                      Navigator.of(this.context).pop();
+                                      ScaffoldMessenger.of(this.context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Activity added successfully!'),
+                                        ),
+                                      );
+                                    } catch (_) {
+                                      if (!mounted) return;
+                                      ScaffoldMessenger.of(this.context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content:
+                                              Text('Failed to save activity'),
+                                        ),
+                                      );
+                                    }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: _brandBlue,
@@ -940,8 +1116,11 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
-                                  child: const Text('Update',
-                                      style: TextStyle(
+                                  child: Text(
+                                      activity == 'Lead Cost'
+                                          ? 'Update Call'
+                                          : 'Update',
+                                      style: const TextStyle(
                                           color: Colors.white,
                                           fontFamily: 'Inter',
                                           fontSize: 16,

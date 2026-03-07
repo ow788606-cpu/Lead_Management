@@ -32,7 +32,7 @@ if ($userId <= 0) {
     exit;
 }
 
-$userCheckStmt = $conn->prepare("SELECT id FROM users WHERE id = ? LIMIT 1");
+$userCheckStmt = $conn->prepare("SELECT user_Id FROM users WHERE user_Id = ? LIMIT 1");
 if (!$userCheckStmt) {
     http_response_code(500);
     echo json_encode([
@@ -55,13 +55,29 @@ if (!$userExists) {
     exit;
 }
 
-$sql = "SELECT id, name, description, status_class, is_active, icon_class, `order`
-        FROM status
-        WHERE COALESCE(is_active, 0) = 1
-        ORDER BY `order` ASC, id ASC";
+$stmt = $conn->prepare(
+    "SELECT DISTINCT s.id, s.name, s.description, s.status_class, s.is_active, s.icon_class, s.`order`
+     FROM status s
+     INNER JOIN leads l ON l.status = s.id
+     WHERE COALESCE(s.is_active, 0) = 1
+       AND l.deleted_at IS NULL
+       AND l.owner_user_id = ?
+     ORDER BY s.`order` ASC, s.id ASC"
+);
+if (!$stmt) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Prepare failed',
+    ]);
+    exit;
+}
 
-$result = $conn->query($sql);
+$stmt->bind_param('i', $userId);
+$stmt->execute();
+$result = $stmt->get_result();
 if (!$result) {
+    $stmt->close();
     http_response_code(500);
     echo json_encode([
         'success' => false,
@@ -74,6 +90,7 @@ $rows = [];
 while ($row = $result->fetch_assoc()) {
     $rows[] = $row;
 }
+$stmt->close();
 
 echo json_encode([
     'success' => true,
