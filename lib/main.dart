@@ -143,6 +143,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final contactManager = ContactManager();
     final leadManager = LeadManager();
     final taskManager = TaskManager();
+
     await Future.wait([
       contactManager.loadContacts(),
       leadManager.loadLeads(),
