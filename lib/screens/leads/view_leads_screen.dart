@@ -734,404 +734,397 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
 
           return StatefulBuilder(
               builder: (context, setSheetState) => Dialog(
-                      insetPadding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: SizedBox(
-                        width: 520,
-                        height: mediaQuery.size.height * sheetHeightFactor,
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(activity,
-                                  style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Inter')),
-                              SizedBox(height: headerSpacing),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      if (activity == 'Called') ...[
-                                        const Text('Call Outcome',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w700,
-                                                fontFamily: 'Inter')),
-                                        const SizedBox(height: 10),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF7F9FC),
-                                            borderRadius:
-                                                BorderRadius.circular(14),
-                                            border: Border.all(
-                                                color: const Color(0xFFDCE4F2)),
-                                          ),
-                                          child: Column(
-                                            children: callOutcomeOptions
-                                                .map(
-                                                  (option) =>
-                                                      RadioListTile<String>(
-                                                    value: option,
-                                                    groupValue:
-                                                        selectedCallOutcome,
-                                                    activeColor: _brandBlue,
-                                                    contentPadding:
-                                                        const EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: 12),
-                                                    dense: true,
-                                                    title: Text(
-                                                      option,
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          fontFamily: 'Inter'),
-                                                    ),
-                                                    onChanged: (value) {
-                                                      setSheetState(() {
-                                                        selectedCallOutcome =
-                                                            value;
-                                                      });
-                                                    },
-                                                  ),
-                                                )
-                                                .toList(),
-                                          ),
+                    insetPadding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 24),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: SizedBox(
+                      width: 520,
+                      height: mediaQuery.size.height * sheetHeightFactor,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(activity,
+                                style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Inter')),
+                            SizedBox(height: headerSpacing),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (activity == 'Called') ...[
+                                      const Text('Call Outcome',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                              fontFamily: 'Inter')),
+                                      const SizedBox(height: 10),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF7F9FC),
+                                          borderRadius:
+                                              BorderRadius.circular(14),
+                                          border: Border.all(
+                                              color: const Color(0xFFDCE4F2)),
                                         ),
-                                        const SizedBox(height: 18),
-                                      ],
-                                      if (isLeadCost) ...[
-                                        const Text('Lost Reason',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Inter')),
-                                        const SizedBox(height: 8),
-                                        DropdownButtonFormField<String>(
-                                          value: selectedLostReason,
-                                          decoration: InputDecoration(
-                                            hintText: 'Select reason',
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 16),
-                                          ),
-                                          items: lostReasonOptions
+                                        child: Column(
+                                          children: callOutcomeOptions
                                               .map(
-                                                (reason) =>
-                                                    DropdownMenuItem<String>(
-                                                  value: reason,
-                                                  child: Text(
-                                                    reason,
+                                                (option) =>
+                                                    RadioListTile<String>(
+                                                  value: option,
+                                                  groupValue:
+                                                      selectedCallOutcome,
+                                                  activeColor: _brandBlue,
+                                                  contentPadding:
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 12),
+                                                  dense: true,
+                                                  title: Text(
+                                                    option,
                                                     style: const TextStyle(
+                                                        fontSize: 14,
                                                         fontFamily: 'Inter'),
                                                   ),
+                                                  onChanged: (value) {
+                                                    setSheetState(() {
+                                                      selectedCallOutcome =
+                                                          value;
+                                                    });
+                                                  },
                                                 ),
                                               )
                                               .toList(),
-                                          onChanged: (value) {
-                                            setSheetState(() {
-                                              selectedLostReason = value;
-                                            });
-                                          },
                                         ),
-                                        const SizedBox(height: 16),
-                                        const Text('Remark',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Inter')),
-                                        const SizedBox(height: 8),
-                                        TextField(
-                                          controller: remarkController,
-                                          minLines: 4,
-                                          maxLines: 5,
-                                          decoration: InputDecoration(
-                                            hintText: 'Enter remark...',
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.all(16),
-                                            alignLabelWithHint: true,
-                                          ),
-                                        ),
-                                      ] else if (isLeadConverted) ...[
-                                        const Text('Deal Amount',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Inter')),
-                                        const SizedBox(height: 8),
-                                        TextField(
-                                          controller: dealAmountController,
-                                          keyboardType: const TextInputType
-                                              .numberWithOptions(decimal: true),
-                                          decoration: InputDecoration(
-                                            hintText: 'Enter Amount',
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 16),
-                                          ),
-                                        ),
-                                      ] else ...[
-                                        const Text('Date',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Inter')),
-                                        const SizedBox(height: 8),
-                                        TextField(
-                                          controller: dateController,
-                                          readOnly: true,
-                                          decoration: InputDecoration(
-                                            hintText: 'Select date',
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 16),
-                                            suffixIcon: const Icon(
-                                                Icons.calendar_today),
-                                          ),
-                                          onTap: () async {
-                                            final date = await showDatePicker(
-                                              context: sheetContext,
-                                              firstDate: DateTime(2000),
-                                              lastDate: DateTime(2100),
-                                              initialDate: DateTime.now(),
-                                            );
-                                            if (date != null) {
-                                              dateController.text =
-                                                  '${date.day}/${date.month}/${date.year}';
-                                            }
-                                          },
-                                        ),
-                                        const SizedBox(height: 16),
-                                        const Text('Time',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Inter')),
-                                        const SizedBox(height: 8),
-                                        TextField(
-                                          controller: timeController,
-                                          readOnly: true,
-                                          decoration: InputDecoration(
-                                            hintText: 'Select time',
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 16),
-                                            suffixIcon:
-                                                const Icon(Icons.access_time),
-                                          ),
-                                          onTap: () async {
-                                            final time = await showTimePicker(
-                                              context: sheetContext,
-                                              initialTime: TimeOfDay.now(),
-                                            );
-                                            if (time != null) {
-                                              timeController.text =
-                                                  _formatTimeOfDay(time);
-                                            }
-                                          },
-                                        ),
-                                        const SizedBox(height: 16),
-                                        const Text('Remark *',
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: 'Inter')),
-                                        const SizedBox(height: 8),
-                                        TextField(
-                                          controller: remarkController,
-                                          minLines: 4,
-                                          maxLines: 6,
-                                          decoration: InputDecoration(
-                                            hintText: 'Enter remark...',
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.all(16),
-                                            alignLabelWithHint: true,
-                                          ),
-                                        ),
-                                      ],
+                                      ),
+                                      const SizedBox(height: 18),
                                     ],
-                                  ),
+                                    if (isLeadCost) ...[
+                                      const Text('Lost Reason',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Inter')),
+                                      const SizedBox(height: 8),
+                                      DropdownButtonFormField<String>(
+                                        value: selectedLostReason,
+                                        decoration: InputDecoration(
+                                          hintText: 'Select reason',
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 16),
+                                        ),
+                                        items: lostReasonOptions
+                                            .map(
+                                              (reason) =>
+                                                  DropdownMenuItem<String>(
+                                                value: reason,
+                                                child: Text(
+                                                  reason,
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Inter'),
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                        onChanged: (value) {
+                                          setSheetState(() {
+                                            selectedLostReason = value;
+                                          });
+                                        },
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text('Remark',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Inter')),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: remarkController,
+                                        minLines: 4,
+                                        maxLines: 5,
+                                        decoration: InputDecoration(
+                                          hintText: 'Enter remark...',
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.all(16),
+                                          alignLabelWithHint: true,
+                                        ),
+                                      ),
+                                    ] else if (isLeadConverted) ...[
+                                      const Text('Deal Amount',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Inter')),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: dealAmountController,
+                                        keyboardType: const TextInputType
+                                            .numberWithOptions(decimal: true),
+                                        decoration: InputDecoration(
+                                          hintText: 'Enter Amount',
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 16),
+                                        ),
+                                      ),
+                                    ] else ...[
+                                      const Text('Date',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Inter')),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: dateController,
+                                        readOnly: true,
+                                        decoration: InputDecoration(
+                                          hintText: 'Select date',
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 16),
+                                          suffixIcon:
+                                              const Icon(Icons.calendar_today),
+                                        ),
+                                        onTap: () async {
+                                          final date = await showDatePicker(
+                                            context: sheetContext,
+                                            firstDate: DateTime(2000),
+                                            lastDate: DateTime(2100),
+                                            initialDate: DateTime.now(),
+                                          );
+                                          if (date != null) {
+                                            dateController.text =
+                                                '${date.day}/${date.month}/${date.year}';
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text('Time',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Inter')),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: timeController,
+                                        readOnly: true,
+                                        decoration: InputDecoration(
+                                          hintText: 'Select time',
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 16),
+                                          suffixIcon:
+                                              const Icon(Icons.access_time),
+                                        ),
+                                        onTap: () async {
+                                          final time = await showTimePicker(
+                                            context: sheetContext,
+                                            initialTime: TimeOfDay.now(),
+                                          );
+                                          if (time != null) {
+                                            timeController.text =
+                                                _formatTimeOfDay(time);
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text('Remark *',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              fontFamily: 'Inter')),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: remarkController,
+                                        minLines: 4,
+                                        maxLines: 6,
+                                        decoration: InputDecoration(
+                                          hintText: 'Enter remark...',
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.all(16),
+                                          alignLabelWithHint: true,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ),
-                              SizedBox(height: footerSpacing),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (activity == 'Called' &&
-                                        selectedCallOutcome == null) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Please select a call outcome'),
-                                        ),
-                                      );
-                                      return;
-                                    }
-                                    if (isLeadCost &&
-                                        selectedLostReason == null) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content:
-                                              Text('Please select lost reason'),
-                                        ),
-                                      );
-                                      return;
-                                    }
-                                    if (isLeadConverted &&
-                                        dealAmountController.text
-                                            .trim()
-                                            .isEmpty) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content:
-                                              Text('Please enter deal amount'),
-                                        ),
-                                      );
-                                      return;
-                                    }
-                                    if (!isLeadCost &&
-                                        !isLeadConverted &&
-                                        remarkController.text.trim().isEmpty) {
-                                      return;
-                                    }
-                                    final scheduledAt =
-                                        isLeadCost || isLeadConverted
-                                            ? null
-                                            : _combineDateAndTime(
-                                                dateController.text.trim(),
-                                                timeController.text.trim(),
-                                              );
+                            ),
+                            SizedBox(height: footerSpacing),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (activity == 'Called' &&
+                                      selectedCallOutcome == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Please select a call outcome'),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (isLeadCost &&
+                                      selectedLostReason == null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text('Please select lost reason'),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (isLeadConverted &&
+                                      dealAmountController.text
+                                          .trim()
+                                          .isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text('Please enter deal amount'),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  if (!isLeadCost &&
+                                      !isLeadConverted &&
+                                      remarkController.text.trim().isEmpty) {
+                                    return;
+                                  }
+                                  final scheduledAt =
+                                      isLeadCost || isLeadConverted
+                                          ? null
+                                          : _combineDateAndTime(
+                                              dateController.text.trim(),
+                                              timeController.text.trim(),
+                                            );
 
-                                    try {
-                                      await _saveLeadHistoryEntry(
-                                        title: activity,
-                                        description: isLeadConverted
+                                  try {
+                                    await _saveLeadHistoryEntry(
+                                      title: activity,
+                                      description: isLeadConverted
+                                          ? ''
+                                          : remarkController.text.trim(),
+                                      statusId: 0,
+                                      resultNotes: isLeadCost
+                                          ? remarkController.text.trim()
+                                          : '',
+                                      scheduledAt: scheduledAt,
+                                      meta: {
+                                        'activity': activity.toLowerCase(),
+                                        'result': selectedCallOutcome ?? '',
+                                        'lost_reason': isLeadCost
+                                            ? selectedLostReason
+                                            : '',
+                                        'amount': isLeadConverted
+                                            ? dealAmountController.text.trim()
+                                            : '',
+                                      },
+                                    );
+
+                                    if (!mounted) return;
+                                    setState(() {
+                                      _activities.add({
+                                        'activity': activity,
+                                        'callOutcome':
+                                            selectedCallOutcome ?? '',
+                                        'remark': isLeadConverted
                                             ? ''
                                             : remarkController.text.trim(),
-                                        statusId: 0,
-                                        resultNotes: isLeadCost
-                                            ? remarkController.text.trim()
+                                        'date': isLeadCost || isLeadConverted
+                                            ? ''
+                                            : dateController.text.trim(),
+                                        'time': isLeadCost || isLeadConverted
+                                            ? ''
+                                            : timeController.text.trim(),
+                                        'lostReason': isLeadCost
+                                            ? selectedLostReason
                                             : '',
-                                        scheduledAt: scheduledAt,
-                                        meta: {
-                                          'activity': activity.toLowerCase(),
-                                          'result': selectedCallOutcome ?? '',
-                                          'lost_reason':
-                                              isLeadCost ? selectedLostReason : '',
-                                          'amount': isLeadConverted
-                                              ? dealAmountController.text.trim()
-                                              : '',
-                                        },
-                                      );
-
-                                      if (!mounted) return;
-                                      setState(() {
-                                        _activities.add({
-                                          'activity': activity,
-                                          'callOutcome':
-                                              selectedCallOutcome ?? '',
-                                          'remark': isLeadConverted
-                                              ? ''
-                                              : remarkController.text.trim(),
-                                          'date': isLeadCost || isLeadConverted
-                                              ? ''
-                                              : dateController.text.trim(),
-                                          'time': isLeadCost || isLeadConverted
-                                              ? ''
-                                              : timeController.text.trim(),
-                                          'lostReason': isLeadCost
-                                              ? selectedLostReason
-                                              : '',
-                                          'dealAmount': isLeadConverted
-                                              ? dealAmountController.text.trim()
-                                              : '',
-                                          'timestamp': DateTime.now(),
-                                        });
+                                        'dealAmount': isLeadConverted
+                                            ? dealAmountController.text.trim()
+                                            : '',
+                                        'timestamp': DateTime.now(),
                                       });
-                                      Navigator.of(this.context).pop();
-                                      ScaffoldMessenger.of(this.context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Activity added successfully!'),
-                                        ),
-                                      );
-                                    } catch (_) {
-                                      if (!mounted) return;
-                                      ScaffoldMessenger.of(this.context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content:
-                                              Text('Failed to save activity'),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: _brandBlue,
-                                    minimumSize: Size(
-                                        0, isCompactActivitySheet ? 44 : 53),
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: buttonVerticalPadding),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
+                                    });
+                                    Navigator.of(this.context).pop();
+                                    ScaffoldMessenger.of(this.context)
+                                        .showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Activity added successfully!'),
+                                      ),
+                                    );
+                                  } catch (_) {
+                                    if (!mounted) return;
+                                    ScaffoldMessenger.of(this.context)
+                                        .showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text('Failed to save activity'),
+                                      ),
+                                    );
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: _brandBlue,
+                                  minimumSize:
+                                      Size(0, isCompactActivitySheet ? 44 : 53),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: buttonVerticalPadding),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Text(
-                                      activity == 'Lead Cost'
-                                          ? 'Update Call'
-                                          : 'Update',
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Inter',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600)),
                                 ),
+                                child: Text(
+                                    activity == 'Lead Cost'
+                                        ? 'Update Call'
+                                        : 'Update',
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Inter',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600)),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ));
+                    ),
+                  ));
         });
   }
 
@@ -1356,8 +1349,6 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Inter')),
                   const SizedBox(height: 12),
-                  _buildDetailRow(
-                      Icons.location_on_outlined, widget.lead.address ?? 'N/A'),
                   const SizedBox(height: 10),
                   _buildDetailRow(
                       Icons.email_outlined, widget.lead.email ?? 'N/A'),
