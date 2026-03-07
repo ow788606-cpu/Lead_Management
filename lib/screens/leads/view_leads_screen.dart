@@ -24,6 +24,8 @@ class ViewLeadsScreen extends StatefulWidget {
 class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
   final _leadManager = LeadManager();
   static const Color _brandBlue = Color(0xFF0B5CFF);
+  static const double _dialogWidth = 420;
+  static const double _dialogHeightFactor = 0.62;
   static const List<String> _defaultActivityOptions = [
     'Called',
     'SMS Sent',
@@ -77,31 +79,15 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        child: Container(
-          width: 400,
-          padding: const EdgeInsets.all(24),
-          child: StatefulBuilder(
-            builder: (context, setDialogState) => SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Add New Task',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter')),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
+      builder: (dialogContext) => _buildLeadDialog(
+        dialogContext: dialogContext,
+        title: 'Add New Task',
+        child: StatefulBuilder(
+          builder: (context, setDialogState) => SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                   const Text('Task Title *',
                       style: TextStyle(
                           fontSize: 14,
@@ -277,9 +263,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
+      ),);
   }
 
   Future<void> _loadLeadHistory() async {
@@ -519,6 +503,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
         return 'Appointment Scheduled';
       case 'call later':
         return 'Call Later';
+      case 'ringing - no response':
+      case 'ringing – no response':
       case 'ringing no response':
         return 'Ringing - No Response';
       case 'busy':
@@ -569,25 +555,65 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     return '$hour12:$minute $suffix';
   }
 
+  Widget _buildLeadDialog({
+    required BuildContext dialogContext,
+    required String title,
+    required Widget child,
+    double width = _dialogWidth,
+    double heightFactor = _dialogHeightFactor,
+  }) {
+    final screenHeight = MediaQuery.of(dialogContext).size.height;
+    final dialogHeight =
+        (screenHeight * heightFactor).clamp(360.0, 560.0).toDouble();
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: SizedBox(
+        width: width,
+        height: dialogHeight,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(dialogContext),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Expanded(child: child),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showAddNoteDialog() {
     final noteController = TextEditingController();
 
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        child: Container(
-          width: 400,
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Add Notes',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 24),
+      builder: (dialogContext) => _buildLeadDialog(
+        dialogContext: dialogContext,
+        title: 'Add Notes',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
               TextField(
                 controller: noteController,
                 maxLines: 6,
@@ -600,8 +626,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              Align(
-                alignment: Alignment.centerRight,
+              SizedBox(
+                width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
                     if (noteController.text.isEmpty) {
@@ -620,10 +646,10 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                       setState(() {
                         _notes.add(noteController.text.trim());
                       });
-                      Navigator.of(this.context).pop();
+                      Navigator.of(context).pop();
                     } catch (_) {
                       if (!mounted) return;
-                      ScaffoldMessenger.of(this.context).showSnackBar(
+                      ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Failed to save note')),
                       );
                     }
@@ -644,7 +670,6 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
               ),
             ],
           ),
-        ),
       ),
     );
   }
@@ -654,29 +679,15 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
 
     showDialog(
       context: context,
-      builder: (dialogContext) => Dialog(
-        child: Container(
-          width: 380,
-          padding: const EdgeInsets.all(20),
+      builder: (dialogContext) => _buildLeadDialog(
+        dialogContext: dialogContext,
+        title: 'Lead Activity',
+        width: _dialogWidth,
+        child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Lead Activity',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Inter')),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(dialogContext),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
               ...activityOptions.map(
                 (item) => ListTile(
                   dense: true,
@@ -698,7 +709,11 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
   }
 
   void _showActivityEntrySheet(String activity) {
-    final callOutcomeOptions = _callOutcomeOptions;
+    final callOutcomeOptions = <String>[
+      ..._defaultCallOutcomeOptions,
+      ..._callOutcomeOptions
+          .where((item) => !_defaultCallOutcomeOptions.contains(item)),
+    ];
     const lostReasonOptions = [
       'No Budget',
       'Not Interested',
@@ -716,13 +731,6 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     final isLeadCost = activity == 'Lead Cost';
     final isLeadConverted = activity == 'Lead Converted';
     final isCompactActivitySheet = isLeadConverted;
-    final sheetHeightFactor = isLeadConverted
-        ? 0.38
-        : isLeadCost
-            ? 0.56
-            : activity == 'Called'
-                ? 0.76
-                : 0.62;
     final headerSpacing = isCompactActivitySheet ? 8.0 : 20.0;
     final footerSpacing = isCompactActivitySheet ? 4.0 : 12.0;
     final buttonVerticalPadding = isCompactActivitySheet ? 12.0 : 16.0;
@@ -740,8 +748,10 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: SizedBox(
-                      width: 520,
-                      height: mediaQuery.size.height * sheetHeightFactor,
+                      width: _dialogWidth,
+                      height: (mediaQuery.size.height * _dialogHeightFactor)
+                          .clamp(360.0, 560.0)
+                          .toDouble(),
                       child: Padding(
                         padding: const EdgeInsets.all(20),
                         child: Column(
@@ -1209,63 +1219,69 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (_isFabExpanded) ...[
-            _buildQuickActionButton(
-              label: 'Activity',
-              icon: Icons.home_outlined,
-              onTap: () {
-                setState(() {
-                  _selectedTab = 0;
-                  _isFabExpanded = false;
-                });
-                _showAddActivityDialog();
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 4, bottom: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (_isFabExpanded) ...[
+              _buildAnimatedQuickActionFab(
+                animationIndex: 0,
+                label: 'Tasks',
+                icon: Icons.task_outlined,
+                onTap: () {
+                  setState(() {
+                    _selectedTab = 2;
+                    _isFabExpanded = false;
+                  });
+                  _showAddTaskDialog();
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildAnimatedQuickActionFab(
+                animationIndex: 1,
+                label: 'Notes',
+                icon: Icons.note_outlined,
+                onTap: () {
+                  setState(() {
+                    _selectedTab = 1;
+                    _isFabExpanded = false;
+                  });
+                  _showAddNoteDialog();
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildAnimatedQuickActionFab(
+                animationIndex: 2,
+                label: 'Activity',
+                icon: Icons.home_outlined,
+                onTap: () {
+                  setState(() {
+                    _selectedTab = 0;
+                    _isFabExpanded = false;
+                  });
+                  _showAddActivityDialog();
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
+            FloatingActionButton(
+              heroTag: 'lead_details_fab',
+              backgroundColor: _brandBlue,
+              onPressed: () {
+                setState(() => _isFabExpanded = !_isFabExpanded);
               },
+              child: Icon(
+                _isFabExpanded ? Icons.close : Icons.add,
+                color: Colors.white,
+              ),
             ),
-            const SizedBox(height: 10),
-            _buildQuickActionButton(
-              label: 'Notes',
-              icon: Icons.note_outlined,
-              onTap: () {
-                setState(() {
-                  _selectedTab = 1;
-                  _isFabExpanded = false;
-                });
-                _showAddNoteDialog();
-              },
-            ),
-            const SizedBox(height: 10),
-            _buildQuickActionButton(
-              label: 'Tasks',
-              icon: Icons.task_outlined,
-              onTap: () {
-                setState(() {
-                  _selectedTab = 2;
-                  _isFabExpanded = false;
-                });
-                _showAddTaskDialog();
-              },
-            ),
-            const SizedBox(height: 12),
           ],
-          FloatingActionButton(
-            heroTag: 'lead_details_fab',
-            backgroundColor: _brandBlue,
-            onPressed: () {
-              setState(() => _isFabExpanded = !_isFabExpanded);
-            },
-            child: Icon(
-              _isFabExpanded ? Icons.close : Icons.add,
-              color: Colors.white,
-            ),
-          ),
-        ],
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1837,10 +1853,12 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.all(12),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
+                                                child: SizedBox(
+                                                  height: 112,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                    children: [
                                                     Row(
                                                       children: [
                                                         Expanded(
@@ -1853,6 +1871,9 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                                         .bold,
                                                                 fontFamily:
                                                                     'Inter'),
+                                                            maxLines: 1,
+                                                            overflow:
+                                                                TextOverflow.ellipsis,
                                                           ),
                                                         ),
                                                         Container(
@@ -1918,6 +1939,9 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                             color: Colors.grey,
                                                             fontFamily:
                                                                 'Inter'),
+                                                        maxLines: 2,
+                                                        overflow:
+                                                            TextOverflow.ellipsis,
                                                       ),
                                                     ],
                                                     if (task['dueDate']
@@ -1947,7 +1971,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                         ],
                                                       ),
                                                     ],
-                                                  ],
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             );
@@ -1978,46 +2003,45 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     );
   }
 
-  Widget _buildQuickActionButton({
+  Widget _buildAnimatedQuickActionFab({
+    required int animationIndex,
     required String label,
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: _brandBlue,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              fontFamily: 'Inter',
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        FloatingActionButton(
-          mini: true,
-          heroTag: 'lead_details_$label',
-          backgroundColor: _brandBlue,
-          onPressed: onTap,
-          child: Icon(icon, color: Colors.white, size: 18),
-        ),
-      ],
+    final duration = Duration(milliseconds: 170 + (animationIndex * 45));
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: duration,
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, (1 - value) * 14),
+          child: Opacity(opacity: value, child: child),
+        );
+      },
+      child: _buildQuickActionFab(
+        label: label,
+        icon: icon,
+        onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildQuickActionFab({
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Tooltip(
+      message: label,
+      child: FloatingActionButton(
+        mini: true,
+        heroTag: 'lead_details_$label',
+        backgroundColor: _brandBlue,
+        onPressed: onTap,
+        child: Icon(icon, color: Colors.white, size: 18),
+      ),
     );
   }
 
