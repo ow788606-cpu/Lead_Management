@@ -20,9 +20,10 @@ class ContactManager {
       ..addAll(fetched);
   }
 
-  Future<void> addContact(Contact contact) async {
-    await ContactApi.addContact(contact);
+  Future<String> addContact(Contact contact) async {
+    final contactId = await ContactApi.addContact(contact);
     await loadContacts(forceRefresh: true);
+    return contactId;
   }
 
   Future<void> updateContact(String id, Contact updatedContact) async {

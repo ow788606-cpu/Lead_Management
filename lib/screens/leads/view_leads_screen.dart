@@ -1137,6 +1137,11 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final displayName = widget.lead.contactName.trim().isEmpty
+        ? 'Unknown Lead'
+        : widget.lead.contactName.trim();
+    final avatarInitial = displayName[0].toUpperCase();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       drawer: AppDrawer(
@@ -1296,7 +1301,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                     radius: 35,
                     backgroundColor: _brandBlue,
                     child: Text(
-                      widget.lead.contactName[0].toUpperCase(),
+                      avatarInitial,
                       style: const TextStyle(
                           fontSize: 28,
                           color: Colors.white,
@@ -1308,7 +1313,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        widget.lead.contactName,
+                        displayName,
                         style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

@@ -35,7 +35,7 @@ class ContactApi {
     return rows;
   }
 
-  static Future<void> addContact(Contact contact, {int userId = 1}) async {
+  static Future<String> addContact(Contact contact, {int userId = 1}) async {
     final effectiveUserId = await AuthManager().getUserId() ?? userId;
     final response = await http.post(
       _contactsUri(),
@@ -59,6 +59,15 @@ class ContactApi {
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Failed to add contact');
     }
+
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
+      throw Exception(
+          (decoded['message'] ?? 'Contacts API returned error').toString());
+    }
+
+    final data = decoded['data'] as Map<String, dynamic>? ?? {};
+    return (data['id'] ?? '').toString();
   }
 
   static Future<void> updateContact(Contact contact) async {

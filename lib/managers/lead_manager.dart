@@ -63,6 +63,40 @@ class LeadManager {
     _isLoaded = true;
   }
 
+  Future<void> createLead({
+    required String contactId,
+    String? serviceName,
+    String? tags,
+    String? description,
+    DateTime? nextFollowUpAt,
+  }) async {
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/leads.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'user_id': userId,
+        'contact_id': int.tryParse(contactId) ?? 0,
+        'service_name': serviceName?.trim(),
+        'tags': tags?.trim(),
+        'description': description?.trim(),
+        'next_followup_at': nextFollowUpAt?.toIso8601String(),
+        'status_id': 1,
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to create lead');
+    }
+
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
+      throw Exception((decoded['message'] ?? 'Invalid lead response').toString());
+    }
+
+    await loadLeads(forceRefresh: true);
+  }
+
   void addLead(Lead lead) {
     _leads.add(lead);
     _isLoaded = true;
