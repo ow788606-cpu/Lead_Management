@@ -10,6 +10,8 @@ import '../../services/api_config.dart';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
+import '../../widgets/rich_text_editor.dart';
+import '../../widgets/markdown_renderer.dart';
 import 'detail_lead_screen.dart';
 
 class ViewLeadsScreen extends StatefulWidget {
@@ -630,108 +632,141 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
 
     showDialog(
       context: context,
-      builder: (dialogContext) => _buildLeadDialog(
-        dialogContext: dialogContext,
-        title: 'Add Notes',
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: noteController,
-              maxLines: 6,
-              decoration: InputDecoration(
-                hintText: 'Add your notes here...',
-                hintStyle: const TextStyle(fontStyle: FontStyle.italic),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding: const EdgeInsets.all(12),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF7F9FC),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFDCE4F2)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.lightbulb_outline,
-                          size: 16, color: Colors.grey[600]),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Quick Tips',
+      builder: (dialogContext) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: _dialogWidth,
+            maxHeight: MediaQuery.of(dialogContext).size.height * 0.7,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(dialogContext),
+                      child: const Icon(Icons.arrow_back, color: Colors.black),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Add Notes',
                         style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                           fontFamily: 'Inter',
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '• Track customer preferences and requirements\n• Record important conversation points\n• Note follow-up actions or commitments\n• Document special requests or concerns',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey[600],
-                      fontFamily: 'Inter',
-                      height: 1.4,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(dialogContext),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RichTextEditor(
+                          controller: noteController,
+                          hintText: 'Add your notes here...',
+                          maxLines: 5,
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF7F9FC),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFDCE4F2)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.lightbulb_outline,
+                                      size: 14, color: Colors.grey[600]),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Quick Tips',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[700],
+                                      fontFamily: 'Inter',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                '• Track customer preferences\n• Record conversation points\n• Note follow-up actions',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey[600],
+                                  fontFamily: 'Inter',
+                                  height: 1.3,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (noteController.text.isEmpty) {
-                    return;
-                  }
-
-                  try {
-                    await _saveLeadHistoryEntry(
-                      title: 'Note',
-                      description: noteController.text.trim(),
-                      statusId: 12,
-                      meta: const {'activity': 'note'},
-                    );
-
-                    if (!mounted) return;
-                    setState(() {
-                      _notes.add(noteController.text.trim());
-                    });
-                    Navigator.of(context).pop();
-                  } catch (_) {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to save note')),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _brandBlue,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('Add Note',
-                    style: TextStyle(
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (noteController.text.isEmpty) return;
+                      try {
+                        await _saveLeadHistoryEntry(
+                          title: 'Note',
+                          description: noteController.text.trim(),
+                          statusId: 12,
+                          meta: const {'activity': 'note'},
+                        );
+                        if (!mounted) return;
+                        setState(() => _notes.add(noteController.text.trim()));
+                        Navigator.of(context).pop();
+                      } catch (_) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Failed to save note')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _brandBlue,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'Add Note',
+                      style: TextStyle(
                         color: Colors.white,
                         fontFamily: 'Inter',
-                        fontSize: 14)),
-              ),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -2153,11 +2188,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.all(12),
-                                                child: Text(
-                                                  _notes[index],
-                                                  style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontFamily: 'Inter'),
+                                                child: MarkdownRenderer(
+                                                  text: _notes[index],
                                                 ),
                                               ),
                                             );
