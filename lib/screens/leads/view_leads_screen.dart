@@ -88,182 +88,182 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                  const Text('Task Title *',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Inter')),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: taskTitleController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 12),
-                    ),
+                const Text('Task Title *',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Inter')),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: taskTitleController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
                   ),
-                  const SizedBox(height: 16),
-                  const Text('Notes',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Inter')),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: taskNotesController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.all(12),
-                    ),
+                ),
+                const SizedBox(height: 8),
+                const Text('Notes',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Inter')),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: taskNotesController,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    contentPadding: const EdgeInsets.all(12),
                   ),
-                  const SizedBox(height: 16),
-                  const Text('Priority',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Inter')),
-                  const SizedBox(height: 8),
-                  DropdownButtonFormField<String>(
-                    value: priority,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 12),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: 'Low', child: Text('Low')),
-                      DropdownMenuItem(value: 'Normal', child: Text('Normal')),
-                      DropdownMenuItem(value: 'High', child: Text('High')),
-                      DropdownMenuItem(
-                          value: 'Critical', child: Text('Critical')),
-                    ],
-                    onChanged: (value) =>
-                        setDialogState(() => priority = value!),
+                ),
+                const SizedBox(height: 8),
+                const Text('Priority',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Inter')),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: priority,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
                   ),
-                  const SizedBox(height: 16),
-                  const Text('Due Time',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Inter')),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: dueDateController,
-                          readOnly: true,
-                          decoration: InputDecoration(
-                            hintText: '--:--',
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 12),
-                            suffixIcon: const Icon(Icons.calendar_today),
-                          ),
-                          onTap: () async {
-                            final date = await showDatePicker(
-                                context: context,
-                                firstDate: DateTime.now(),
-                                lastDate: DateTime(2100));
-                            if (date != null) {
-                              setDialogState(() => dueDateController.text =
-                                  '${date.day}/${date.month}/${date.year}');
-                            }
-                          },
+                  items: const [
+                    DropdownMenuItem(value: 'Low', child: Text('Low')),
+                    DropdownMenuItem(value: 'Normal', child: Text('Normal')),
+                    DropdownMenuItem(value: 'High', child: Text('High')),
+                    DropdownMenuItem(
+                        value: 'Critical', child: Text('Critical')),
+                  ],
+                  onChanged: (value) => setDialogState(() => priority = value!),
+                ),
+                const SizedBox(height: 8),
+                const Text('Due Time',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Inter')),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: dueDateController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          hintText: '--:--',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                          suffixIcon: const Icon(Icons.calendar_today),
                         ),
+                        onTap: () async {
+                          final date = await showDatePicker(
+                              context: context,
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime(2100));
+                          if (date != null) {
+                            setDialogState(() => dueDateController.text =
+                                '${date.day}/${date.month}/${date.year}');
+                          }
+                        },
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: dueTimeController,
-                          readOnly: true,
-                          decoration: InputDecoration(
-                            hintText: '--:--',
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 12),
-                            suffixIcon: const Icon(Icons.access_time),
-                          ),
-                          onTap: () async {
-                            final time = await showTimePicker(
-                                context: context, initialTime: TimeOfDay.now());
-                            if (time != null) {
-                              setDialogState(() => dueTimeController.text =
-                                  time.format(context));
-                            }
-                          },
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: dueTimeController,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          hintText: '--:--',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                          suffixIcon: const Icon(Icons.access_time),
                         ),
+                        onTap: () async {
+                          final time = await showTimePicker(
+                              context: context, initialTime: TimeOfDay.now());
+                          if (time != null) {
+                            setDialogState(() =>
+                                dueTimeController.text = time.format(context));
+                          }
+                        },
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (taskTitleController.text.isEmpty) {
-                        return;
-                      }
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (taskTitleController.text.isEmpty) {
+                      return;
+                    }
 
-                      final dueAt = _combineDateAndTime(
-                        dueDateController.text,
-                        dueTimeController.text,
+                    final dueAt = _combineDateAndTime(
+                      dueDateController.text,
+                      dueTimeController.text,
+                    );
+
+                    try {
+                      await _saveLeadHistoryEntry(
+                        title: taskTitleController.text.trim(),
+                        description: taskNotesController.text.trim(),
+                        statusId: 13,
+                        priority: priority.toLowerCase(),
+                        scheduledAt: dueAt,
+                        meta: {
+                          'activity': 'task',
+                          'due_at': dueAt?.toIso8601String(),
+                        },
                       );
 
-                      try {
-                        await _saveLeadHistoryEntry(
-                          title: taskTitleController.text.trim(),
-                          description: taskNotesController.text.trim(),
-                          statusId: 13,
-                          priority: priority.toLowerCase(),
-                          scheduledAt: dueAt,
-                          meta: {
-                            'activity': 'task',
-                            'due_at': dueAt?.toIso8601String(),
-                          },
-                        );
-
-                        if (!mounted) return;
-                        setState(() {
-                          _tasks.add({
-                            'title': taskTitleController.text.trim(),
-                            'notes': taskNotesController.text.trim(),
-                            'priority': priority,
-                            'dueDate': dueDateController.text,
-                            'dueTime': dueTimeController.text,
-                            'timestamp': DateTime.now(),
-                          });
+                      if (!mounted) return;
+                      setState(() {
+                        _tasks.add({
+                          'title': taskTitleController.text.trim(),
+                          'notes': taskNotesController.text.trim(),
+                          'priority': priority,
+                          'dueDate': dueDateController.text,
+                          'dueTime': dueTimeController.text,
+                          'timestamp': DateTime.now(),
                         });
-                        Navigator.of(this.context).pop();
-                      } catch (_) {
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(this.context).showSnackBar(
-                          const SnackBar(content: Text('Failed to save task')),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _brandBlue,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: const Text('Create Task',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Inter',
-                            fontSize: 14)),
+                      });
+                      Navigator.of(this.context).pop();
+                    } catch (_) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(this.context).showSnackBar(
+                        const SnackBar(content: Text('Failed to save task')),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _brandBlue,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                ],
-              ),
+                  child: const Text('Create Task',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Inter',
+                          fontSize: 14)),
+                ),
+              ],
             ),
           ),
-      ),);
+        ),
+      ),
+    );
   }
 
   Future<void> _loadLeadHistory() async {
@@ -577,14 +577,20 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter',
+                  GestureDetector(
+                    onTap: () => Navigator.pop(dialogContext),
+                    child: const Icon(Icons.arrow_back, color: Colors.black),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Inter',
+                      ),
                     ),
                   ),
                   IconButton(
@@ -614,62 +620,101 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-              TextField(
-                controller: noteController,
-                maxLines: 6,
-                decoration: InputDecoration(
-                  hintText: 'Add your notes here...',
-                  hintStyle: const TextStyle(fontStyle: FontStyle.italic),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  contentPadding: const EdgeInsets.all(12),
-                ),
+            TextField(
+              controller: noteController,
+              maxLines: 6,
+              decoration: InputDecoration(
+                hintText: 'Add your notes here...',
+                hintStyle: const TextStyle(fontStyle: FontStyle.italic),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                contentPadding: const EdgeInsets.all(12),
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (noteController.text.isEmpty) {
-                      return;
-                    }
-
-                    try {
-                      await _saveLeadHistoryEntry(
-                        title: 'Note',
-                        description: noteController.text.trim(),
-                        statusId: 12,
-                        meta: const {'activity': 'note'},
-                      );
-
-                      if (!mounted) return;
-                      setState(() {
-                        _notes.add(noteController.text.trim());
-                      });
-                      Navigator.of(context).pop();
-                    } catch (_) {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Failed to save note')),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _brandBlue,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: const Text('Add Note',
-                      style: TextStyle(
-                          color: Colors.white,
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F9FC),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFDCE4F2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.lightbulb_outline, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Quick Tips',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
                           fontFamily: 'Inter',
-                          fontSize: 14)),
-                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• Track customer preferences and requirements\n• Record important conversation points\n• Note follow-up actions or commitments\n• Document special requests or concerns',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[600],
+                      fontFamily: 'Inter',
+                      height: 1.4,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (noteController.text.isEmpty) {
+                    return;
+                  }
+
+                  try {
+                    await _saveLeadHistoryEntry(
+                      title: 'Note',
+                      description: noteController.text.trim(),
+                      statusId: 12,
+                      meta: const {'activity': 'note'},
+                    );
+
+                    if (!mounted) return;
+                    setState(() {
+                      _notes.add(noteController.text.trim());
+                    });
+                    Navigator.of(context).pop();
+                  } catch (_) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to save note')),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _brandBlue,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('Add Note',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Inter',
+                        fontSize: 14)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -757,11 +802,22 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(activity,
-                                style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Inter')),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => Navigator.pop(context),
+                                  child: const Icon(Icons.arrow_back, color: Colors.black),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(activity,
+                                      style: const TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Inter')),
+                                ),
+                              ],
+                            ),
                             SizedBox(height: headerSpacing),
                             Expanded(
                               child: SingleChildScrollView(
@@ -825,6 +881,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                       const SizedBox(height: 8),
                                       DropdownButtonFormField<String>(
                                         value: selectedLostReason,
+                                        isExpanded: true,
                                         decoration: InputDecoration(
                                           hintText: 'Select reason',
                                           border: OutlineInputBorder(
@@ -1857,120 +1914,130 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                                   height: 112,
                                                   child: Column(
                                                     crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
-                                                    Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Text(
-                                                            task['title'] ?? '',
-                                                            style: const TextStyle(
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontFamily:
-                                                                    'Inter'),
-                                                            maxLines: 1,
-                                                            overflow:
-                                                                TextOverflow.ellipsis,
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal: 8,
-                                                                  vertical: 4),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: task['priority'] ==
-                                                                    'Critical'
-                                                                ? Colors.red[50]
-                                                                : task['priority'] ==
-                                                                        'High'
-                                                                    ? Colors.orange[
-                                                                        50]
-                                                                    : task['priority'] ==
-                                                                            'Low'
-                                                                        ? Colors.green[
-                                                                            50]
-                                                                        : const Color(
-                                                                            0xFFEAF1FF),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        4),
-                                                          ),
-                                                          child: Text(
-                                                            task['priority'] ??
-                                                                '',
-                                                            style: TextStyle(
-                                                                color: task['priority'] ==
-                                                                        'Critical'
-                                                                    ? Colors.red
-                                                                    : task['priority'] ==
-                                                                            'High'
-                                                                        ? Colors
-                                                                            .orange
-                                                                        : task['priority'] ==
-                                                                                'Low'
-                                                                            ? Colors
-                                                                                .green
-                                                                            : _brandBlue,
-                                                                fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontFamily:
-                                                                    'Inter'),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    if (task['notes']
-                                                            ?.isNotEmpty ??
-                                                        false) ...[
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        task['notes'] ?? '',
-                                                        style: const TextStyle(
-                                                            fontSize: 13,
-                                                            color: Colors.grey,
-                                                            fontFamily:
-                                                                'Inter'),
-                                                        maxLines: 2,
-                                                        overflow:
-                                                            TextOverflow.ellipsis,
-                                                      ),
-                                                    ],
-                                                    if (task['dueDate']
-                                                            ?.isNotEmpty ??
-                                                        false) ...[
-                                                      const SizedBox(height: 8),
                                                       Row(
                                                         children: [
-                                                          const Icon(
-                                                              Icons.access_time,
-                                                              size: 14,
-                                                              color:
-                                                                  Colors.grey),
-                                                          const SizedBox(
-                                                              width: 4),
-                                                          Text(
-                                                            '${task['dueDate']} ${task['dueTime'] ?? ''}',
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    fontFamily:
-                                                                        'Inter'),
+                                                          Expanded(
+                                                            child: Text(
+                                                              task['title'] ??
+                                                                  '',
+                                                              style: const TextStyle(
+                                                                  fontSize: 14,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontFamily:
+                                                                      'Inter'),
+                                                              maxLines: 1,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        8,
+                                                                    vertical:
+                                                                        4),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: task['priority'] ==
+                                                                      'Critical'
+                                                                  ? Colors
+                                                                      .red[50]
+                                                                  : task['priority'] ==
+                                                                          'High'
+                                                                      ? Colors.orange[
+                                                                          50]
+                                                                      : task['priority'] ==
+                                                                              'Low'
+                                                                          ? Colors.green[
+                                                                              50]
+                                                                          : const Color(
+                                                                              0xFFEAF1FF),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          4),
+                                                            ),
+                                                            child: Text(
+                                                              task['priority'] ??
+                                                                  '',
+                                                              style: TextStyle(
+                                                                  color: task['priority'] ==
+                                                                          'Critical'
+                                                                      ? Colors
+                                                                          .red
+                                                                      : task['priority'] ==
+                                                                              'High'
+                                                                          ? Colors
+                                                                              .orange
+                                                                          : task['priority'] ==
+                                                                                  'Low'
+                                                                              ? Colors
+                                                                                  .green
+                                                                              : _brandBlue,
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontFamily:
+                                                                      'Inter'),
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
-                                                    ],
+                                                      if (task['notes']
+                                                              ?.isNotEmpty ??
+                                                          false) ...[
+                                                        const SizedBox(
+                                                            height: 8),
+                                                        Text(
+                                                          task['notes'] ?? '',
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 13,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontFamily:
+                                                                      'Inter'),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ],
+                                                      if (task['dueDate']
+                                                              ?.isNotEmpty ??
+                                                          false) ...[
+                                                        const SizedBox(
+                                                            height: 8),
+                                                        Row(
+                                                          children: [
+                                                            const Icon(
+                                                                Icons
+                                                                    .access_time,
+                                                                size: 14,
+                                                                color: Colors
+                                                                    .grey),
+                                                            const SizedBox(
+                                                                width: 4),
+                                                            Text(
+                                                              '${task['dueDate']} ${task['dueTime'] ?? ''}',
+                                                              style: const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  fontFamily:
+                                                                      'Inter'),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
                                                     ],
                                                   ),
                                                 ),
