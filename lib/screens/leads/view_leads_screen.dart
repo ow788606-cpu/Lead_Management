@@ -755,7 +755,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                 (item) => ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(_getActivityIcon(item), size: 22, color: _brandBlue),
+                  leading: Icon(_getActivityIcon(item), size: 22, color: Colors.black),
                   title:
                       Text(item, style: const TextStyle(fontFamily: 'Inter', fontSize: 16)),
                   trailing: const Icon(Icons.chevron_right, size: 18),
@@ -787,7 +787,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
           child: SizedBox(
             width: _dialogWidth,
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -811,6 +811,10 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                             fontFamily: 'Inter',
                           ),
                         ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
                       ),
                     ],
                   ),
@@ -1009,7 +1013,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                 .clamp(360.0, 560.0)
                 .toDouble(),
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1025,13 +1029,17 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                       const SizedBox(width: 12),
                       const Expanded(
                         child: Text(
-                          'Called',
+                          'Call Outcome',
                           style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Inter',
                           ),
                         ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(dialogContext),
                       ),
                     ],
                   ),
@@ -1040,42 +1048,25 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Call Outcome',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Inter')),
-                          const SizedBox(height: 10),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF7F9FC),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: const Color(0xFFDCE4F2)),
-                            ),
-                            child: Column(
-                              children: callOutcomeOptions
-                                  .map(
-                                    (option) => ListTile(
-                                      dense: true,
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(horizontal: 12),
-                                      title: Text(
-                                        option,
-                                        style: const TextStyle(
-                                            fontSize: 16, fontFamily: 'Inter'),
-                                      ),
-                                      trailing: const Icon(Icons.chevron_right, size: 18),
-                                      onTap: () {
-                                        Navigator.pop(dialogContext);
-                                        _showCallOutcomeDetailsDialog(option);
-                                      },
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                          ),
-                        ],
+                        children: callOutcomeOptions
+                            .map(
+                              (option) => ListTile(
+                                dense: true,
+                                contentPadding:
+                                    const EdgeInsets.symmetric(horizontal: 0),
+                                title: Text(
+                                  option,
+                                  style: const TextStyle(
+                                      fontSize: 16, fontFamily: 'Inter'),
+                                ),
+                                trailing: const Icon(Icons.chevron_right, size: 18),
+                                onTap: () {
+                                  Navigator.pop(dialogContext);
+                                  _showCallOutcomeDetailsDialog(option);
+                                },
+                              ),
+                            )
+                            .toList(),
                       ),
                     ),
                   ),
@@ -1131,7 +1122,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                           .clamp(360.0, 560.0)
                           .toDouble(),
                       child: Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1146,9 +1137,13 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                 Expanded(
                                   child: Text(activity,
                                       style: const TextStyle(
-                                          fontSize: 22,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           fontFamily: 'Inter')),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () => Navigator.pop(context),
                                 ),
                               ],
                             ),
