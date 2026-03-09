@@ -644,7 +644,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.lightbulb_outline, size: 16, color: Colors.grey[600]),
+                      Icon(Icons.lightbulb_outline,
+                          size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 6),
                       Text(
                         'Quick Tips',
@@ -806,7 +807,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                               children: [
                                 GestureDetector(
                                   onTap: () => Navigator.pop(context),
-                                  child: const Icon(Icons.arrow_back, color: Colors.black),
+                                  child: const Icon(Icons.arrow_back,
+                                      color: Colors.black),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
