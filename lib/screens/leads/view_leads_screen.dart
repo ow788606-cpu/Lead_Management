@@ -786,10 +786,11 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: SizedBox(
             width: _dialogWidth,
+            height: isInvalidNumber ? 320 : null,
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: isInvalidNumber ? MainAxisSize.max : MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
@@ -1129,7 +1130,10 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                             Row(
                               children: [
                                 GestureDetector(
-                                  onTap: () => Navigator.pop(context),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _showAddActivityDialog();
+                                  },
                                   child: const Icon(Icons.arrow_back,
                                       color: Colors.black),
                                 ),
