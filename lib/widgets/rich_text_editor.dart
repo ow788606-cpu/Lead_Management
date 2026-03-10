@@ -195,43 +195,41 @@ class _RichTextEditorState extends State<RichTextEditor> {
           padding: const EdgeInsets.all(12),
           child: Stack(
             children: [
-              if (_segments.isEmpty && widget.hintText != null)
-                Text(
-                  widget.hintText!,
-                  style: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-                ),
               TextField(
                 controller: widget.controller,
                 focusNode: _focusNode,
                 maxLines: widget.maxLines,
                 style: const TextStyle(color: Colors.transparent),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  hintText: widget.hintText,
+                  hintStyle: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
                 cursorColor: const Color(0xFF0B5CFF),
               ),
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: RichText(
-                    text: TextSpan(
-                      children: _segments.map((segment) {
-                        return TextSpan(
-                          text: segment.text,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontWeight: segment.isBold ? FontWeight.bold : FontWeight.normal,
-                            fontStyle: segment.isItalic ? FontStyle.italic : FontStyle.normal,
-                            decoration: segment.isUnderline ? TextDecoration.underline : TextDecoration.none,
-                          ),
-                        );
-                      }).toList(),
+              if (_segments.isNotEmpty)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: RichText(
+                      text: TextSpan(
+                        children: _segments.map((segment) {
+                          return TextSpan(
+                            text: segment.text,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                              fontWeight: segment.isBold ? FontWeight.bold : FontWeight.normal,
+                              fontStyle: segment.isItalic ? FontStyle.italic : FontStyle.normal,
+                              decoration: segment.isUnderline ? TextDecoration.underline : TextDecoration.none,
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
