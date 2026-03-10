@@ -67,8 +67,9 @@ class _RichTextEditorState extends State<RichTextEditor> {
     if (_segments.isNotEmpty && charCount > text.length) {
       final lastSegment = _segments.last;
       final overflow = charCount - text.length;
+      final newLength = lastSegment.text.length - overflow;
       _segments[_segments.length - 1] = _TextSegment(
-        text: lastSegment.text.substring(0, lastSegment.text.length - overflow),
+        text: lastSegment.text.substring(0, newLength < 0 ? 0 : newLength),
         isBold: lastSegment.isBold,
         isItalic: lastSegment.isItalic,
         isUnderline: lastSegment.isUnderline,
