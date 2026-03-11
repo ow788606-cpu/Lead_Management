@@ -12,97 +12,174 @@ class MarkdownRenderer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildRichText(context);
+    return _buildHtmlText(context);
   }
 
-  Widget _buildRichText(BuildContext context) {
-    final spans = <InlineSpan>[];
-    final lines = text.split('\n');
-    
-    for (int i = 0; i < lines.length; i++) {
-      final line = lines[i];
-      
-      if (line.startsWith('# ')) {
-        spans.add(TextSpan(
-          text: line.substring(2),
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-        ));
-      } else if (line.startsWith('## ')) {
-        spans.add(TextSpan(
-          text: line.substring(3),
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-        ));
-      } else if (line.startsWith('### ')) {
-        spans.add(TextSpan(
-          text: line.substring(4),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
-        ));
-      } else {
-        spans.addAll(_parseInlineMarkdown(line));
-      }
-      
-      if (i < lines.length - 1) {
-        spans.add(const TextSpan(text: '\n'));
-      }
-    }
-
+  Widget _buildHtmlText(BuildContext context) {
+    final spans = _parseHtml(text);
     return RichText(
       text: TextSpan(
-        style: baseStyle ?? const TextStyle(fontSize: 14, color: Colors.black87, fontFamily: 'Inter'),
+        style: baseStyle ??
+            const TextStyle(
+                fontSize: 14, color: Colors.black87, fontFamily: 'Inter'),
         children: spans,
       ),
     );
   }
 
-  List<InlineSpan> _parseInlineMarkdown(String text) {
+  List<InlineSpan> _parseHtml(String html) {
     final spans = <InlineSpan>[];
-    final regex = RegExp(r'\*\*(.+?)\*\*|\*(.+?)\*|<u>(.+?)</u>|\[(.+?)\]\((.+?)\)|•\s|(\d+\.\s)');
-    int lastIndex = 0;
+    int index = 0;
 
-    for (final match in regex.allMatches(text)) {
-      if (match.start > lastIndex) {
-        spans.add(TextSpan(text: text.substring(lastIndex, match.start)));
+    while (index < html.length) {
+      // Check for h1
+      if (html.substring(index).startsWith('<h1>')) {
+        final endIndex = html.indexOf('</h1>', index);
+        if (endIndex != -1) {
+          final content = html.substring(index + 4, endIndex);
+          spans.add(TextSpan(
+            text: content,
+            style: const TextStyle(
+                fontSize: 24, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+          ));
+          index = endIndex + 5;
+          continue;
+        }
       }
 
-      if (match.group(1) != null) {
-        // Bold
-        spans.add(TextSpan(
-          text: match.group(1),
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ));
-      } else if (match.group(2) != null) {
-        // Italic
-        spans.add(TextSpan(
-          text: match.group(2),
-          style: const TextStyle(fontStyle: FontStyle.italic),
-        ));
-      } else if (match.group(3) != null) {
-        // Underline
-        spans.add(TextSpan(
-          text: match.group(3),
-          style: const TextStyle(decoration: TextDecoration.underline),
-        ));
-      } else if (match.group(4) != null && match.group(5) != null) {
-        // Link
-        spans.add(TextSpan(
-          text: match.group(4),
-          style: const TextStyle(
-            color: Color(0xFF0B5CFF),
-            decoration: TextDecoration.underline,
-          ),
-        ));
+      // Check for h2
+      if (html.substring(index).startsWith('<h2>')) {
+        final endIndex = html.indexOf('</h2>', index);
+        if (endIndex != -1) {
+          final content = html.substring(index + 4, endIndex);
+          spans.add(TextSpan(
+            text: content,
+            style: const TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Inter'),
+          ));
+          index = endIndex + 5;
+          continue;
+        }
+      }
+
+      // Check for h3
+      if (html.substring(index).startsWith('<h3>')) {
+        final endIndex = html.indexOf('</h3>', index);
+        if (endIndex != -1) {
+          final content = html.substring(index + 4, endIndex);
+          spans.add(TextSpan(
+            text: content,
+            style: const TextStyle(
+                fontSize: 18, fontWeight: FontWeight.w600, fontFamily: 'Inter'),
+          ));
+          index = endIndex + 5;
+          continue;
+        }
+      }
+
+      // Check for strong
+      if (html.substring(index).startsWith('<strong>')) {
+        final endIndex = html.indexOf('</strong>', index);
+        if (endIndex != -1) {
+          final content = html.substring(index + 8, endIndex);
+          spans.add(TextSpan(
+            text: content,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ));
+          index = endIndex + 9;
+          continue;
+        }
+      }
+
+      // Check for em
+      if (html.substring(index).startsWith('<em>')) {
+        final endIndex = html.indexOf('</em>', index);
+        if (endIndex != -1) {
+          final content = html.substring(index + 4, endIndex);
+          spans.add(TextSpan(
+            text: content,
+            style: const TextStyle(fontStyle: FontStyle.italic),
+          ));
+          index = endIndex + 5;
+          continue;
+        }
+      }
+
+      // Check for u
+      if (html.substring(index).startsWith('<u>')) {
+        final endIndex = html.indexOf('</u>', index);
+        if (endIndex != -1) {
+          final content = html.substring(index + 3, endIndex);
+          spans.add(TextSpan(
+            text: content,
+            style: const TextStyle(decoration: TextDecoration.underline),
+          ));
+          index = endIndex + 4;
+          continue;
+        }
+      }
+
+      // Check for ul/ol lists
+      if (html.substring(index).startsWith('<ul>') ||
+          html.substring(index).startsWith('<ol>')) {
+        final isOrdered = html.substring(index).startsWith('<ol>');
+        final closeTag = isOrdered ? '</ol>' : '</ul>';
+        final endIndex = html.indexOf(closeTag, index);
+        if (endIndex != -1) {
+          final listContent =
+              html.substring(index + (isOrdered ? 4 : 4), endIndex);
+          final items =
+              listContent.split('<li>').where((s) => s.isNotEmpty).toList();
+          for (int i = 0; i < items.length; i++) {
+            final item = items[i].replaceAll('</li>', '').trim();
+            if (item.isNotEmpty) {
+              spans.add(const TextSpan(text: '\n• '));
+              spans.addAll(_parseHtml(item));
+            }
+          }
+          index = endIndex + closeTag.length;
+          continue;
+        }
+      }
+
+      // Check for br
+      if (html.substring(index).startsWith('<br>')) {
+        spans.add(const TextSpan(text: '\n'));
+        index += 4;
+        continue;
+      }
+
+      // Regular text
+      int nextTag = html.length;
+      final tags = [
+        '<h1>',
+        '<h2>',
+        '<h3>',
+        '<strong>',
+        '<em>',
+        '<u>',
+        '<ul>',
+        '<ol>',
+        '<br>'
+      ];
+      for (final tag in tags) {
+        final pos = html.indexOf(tag, index);
+        if (pos != -1 && pos < nextTag) {
+          nextTag = pos;
+        }
+      }
+
+      if (nextTag > index) {
+        final text = html.substring(index, nextTag);
+        if (text.isNotEmpty) {
+          spans.add(TextSpan(text: text));
+        }
+        index = nextTag;
       } else {
-        // Bullet or number
-        spans.add(TextSpan(text: match.group(0)));
+        index++;
       }
-
-      lastIndex = match.end;
     }
 
-    if (lastIndex < text.length) {
-      spans.add(TextSpan(text: text.substring(lastIndex)));
-    }
-
-    return spans.isEmpty ? [TextSpan(text: text)] : spans;
+    return spans.isEmpty ? [const TextSpan(text: '')] : spans;
   }
 }

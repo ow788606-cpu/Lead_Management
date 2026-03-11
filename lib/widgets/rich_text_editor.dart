@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class RichTextEditor extends StatefulWidget {
   final TextEditingController controller;
@@ -17,100 +18,140 @@ class RichTextEditor extends StatefulWidget {
 }
 
 class _RichTextEditorState extends State<RichTextEditor> {
+  late quill.QuillController _quillController;
   final FocusNode _focusNode = FocusNode();
-  final List<_TextSegment> _segments = [];
-  bool _isBold = false;
-  bool _isItalic = false;
-  bool _isUnderline = false;
-  int _lastTextLength = 0;
+  bool _showStyleMenu = false;
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(_handleTextChange);
+    _quillController = quill.QuillController.basic();
+    _quillController.addListener(_onQuillTextChanged);
+  }
+
+  void _onQuillTextChanged() {
+    final html = _quillToHtml(_quillController.document);
+    widget.controller.text = html;
+  }
+
+  String _quillToHtml(quill.Document doc) {
+    final delta = doc.toDelta();
+    final buffer = StringBuffer();
+    String? currentListType;
+    bool inList = false;
+
+    for (var op in delta.toList()) {
+      if (op.data is String) {
+        String text = op.data as String;
+        final attrs = op.attributes;
+
+        // Handle line breaks
+        if (text == '\n') {
+          if (attrs != null) {
+            // Handle headers
+            if (attrs.containsKey('header')) {
+              final level = attrs['header'];
+              if (level != null) {
+                buffer.write('</h$level>');
+                buffer.write('\n');
+                continue;
+              }
+            }
+            // Handle lists
+            if (attrs.containsKey('list')) {
+              buffer.write('</li>');
+              buffer.write('\n');
+              inList = true;
+              continue;
+            }
+          }
+          // Close any open list
+          if (inList && (attrs == null || !attrs.containsKey('list'))) {
+            if (currentListType != null) {
+              buffer.write('</$currentListType>');
+              buffer.write('\n');
+              currentListType = null;
+            }
+            inList = false;
+          }
+          if (!inList) {
+            buffer.write('\n');
+          }
+          continue;
+        }
+
+        // Skip empty text
+        if (text.trim().isEmpty && text != ' ') continue;
+
+        // Handle block-level formatting (headers and lists)
+        bool isBlockLevel = false;
+        if (attrs != null && attrs.containsKey('header')) {
+          final level = attrs['header'];
+          buffer.write('<h$level>');
+          isBlockLevel = true;
+        } else if (attrs != null && attrs.containsKey('list')) {
+          final listType = attrs['list'];
+          if (listType == 'bullet') {
+            if (currentListType != 'ul') {
+              if (currentListType != null) {
+                buffer.write('</$currentListType>');
+                buffer.write('\n');
+              }
+              buffer.write('<ul>');
+              buffer.write('\n');
+              currentListType = 'ul';
+            }
+          } else if (listType == 'ordered') {
+            if (currentListType != 'ol') {
+              if (currentListType != null) {
+                buffer.write('</$currentListType>');
+                buffer.write('\n');
+              }
+              buffer.write('<ol>');
+              buffer.write('\n');
+              currentListType = 'ol';
+            }
+          }
+          buffer.write('<li>');
+          isBlockLevel = true;
+        }
+
+        // Handle inline formatting only if not block-level
+        String formattedText = text;
+        if (attrs != null && !isBlockLevel) {
+          if (attrs['bold'] == true) {
+            formattedText = '<strong>$formattedText</strong>';
+          }
+          if (attrs['italic'] == true) {
+            formattedText = '<em>$formattedText</em>';
+          }
+          if (attrs['underline'] == true) {
+            formattedText = '<u>$formattedText</u>';
+          }
+        }
+
+        buffer.write(formattedText);
+      }
+    }
+
+    // Close any remaining open list
+    if (currentListType != null) {
+      buffer.write('</$currentListType>');
+      buffer.write('\n');
+    }
+
+    return buffer.toString();
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_handleTextChange);
+    _removeOverlay();
+    _quillController.removeListener(_onQuillTextChanged);
+    _quillController.dispose();
     _focusNode.dispose();
     super.dispose();
-  }
-
-  void _handleTextChange() {
-    final text = widget.controller.text;
-    final currentLength = text.length;
-    
-    if (currentLength > _lastTextLength) {
-      final addedText = text.substring(_lastTextLength, currentLength);
-      _segments.add(_TextSegment(
-        text: addedText,
-        isBold: _isBold,
-        isItalic: _isItalic,
-        isUnderline: _isUnderline,
-      ));
-    } else if (currentLength < _lastTextLength) {
-      _rebuildSegments(text);
-    }
-    
-    _lastTextLength = currentLength;
-    setState(() {});
-  }
-
-  void _rebuildSegments(String text) {
-    int charCount = 0;
-    _segments.removeWhere((segment) {
-      charCount += segment.text.length;
-      return charCount > text.length;
-    });
-    
-    if (_segments.isNotEmpty && charCount > text.length) {
-      final lastSegment = _segments.last;
-      final overflow = charCount - text.length;
-      final newLength = lastSegment.text.length - overflow;
-      _segments[_segments.length - 1] = _TextSegment(
-        text: lastSegment.text.substring(0, newLength < 0 ? 0 : newLength),
-        isBold: lastSegment.isBold,
-        isItalic: lastSegment.isItalic,
-        isUnderline: lastSegment.isUnderline,
-      );
-    }
-  }
-
-  void _toggleFormat(String type) {
-    setState(() {
-      if (type == 'bold') _isBold = !_isBold;
-      if (type == 'italic') _isItalic = !_isItalic;
-      if (type == 'underline') _isUnderline = !_isUnderline;
-    });
-    _focusNode.requestFocus();
-  }
-
-  void _insertList(String prefix) {
-    final text = widget.controller.text;
-    final selection = widget.controller.selection;
-    final start = selection.start;
-
-    if (start < 0) return;
-
-    final beforeCursor = text.substring(0, start);
-    final lastNewline = beforeCursor.lastIndexOf('\n');
-    final lineStart = lastNewline == -1 ? 0 : lastNewline + 1;
-    
-    final currentLine = text.substring(lineStart, start);
-    if (currentLine.startsWith(prefix)) {
-      _focusNode.requestFocus();
-      return;
-    }
-    
-    final newText = text.substring(0, lineStart) + prefix + text.substring(lineStart);
-    final newCursorPos = start + prefix.length;
-    
-    widget.controller.value = TextEditingValue(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newCursorPos),
-    );
-    _focusNode.requestFocus();
   }
 
   @override
@@ -123,150 +164,198 @@ class _RichTextEditorState extends State<RichTextEditor> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
             border: Border.all(color: Colors.grey[300]!),
           ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildToolbarButton(
-                  icon: Icons.format_bold,
-                  isActive: _isBold,
-                  onPressed: () => _toggleFormat('bold'),
-                  tooltip: 'Bold',
-                ),
-                _buildToolbarButton(
-                  icon: Icons.format_italic,
-                  isActive: _isItalic,
-                  onPressed: () => _toggleFormat('italic'),
-                  tooltip: 'Italic',
-                ),
-                _buildToolbarButton(
-                  icon: Icons.format_underline,
-                  isActive: _isUnderline,
-                  onPressed: () => _toggleFormat('underline'),
-                  tooltip: 'Underline',
-                ),
-                _buildToolbarButton(
-                  icon: Icons.link,
-                  onPressed: () {},
-                  tooltip: 'Insert Link',
-                ),
-                _buildToolbarButton(
-                  icon: Icons.format_list_bulleted,
-                  onPressed: () => _insertList('• '),
-                  tooltip: 'Bullet List',
-                ),
-                _buildToolbarButton(
-                  icon: Icons.format_list_numbered,
-                  onPressed: () => _insertList('1. '),
-                  tooltip: 'Numbered List',
-                ),
-                _buildToolbarButton(
-                  icon: Icons.text_fields,
-                  onPressed: () {
-                    showMenu(
-                      context: context,
-                      position: const RelativeRect.fromLTRB(0, 50, 0, 0),
-                      items: [
-                        PopupMenuItem(
-                          child: const Text('Heading 1'),
-                          onTap: () => Future.delayed(Duration.zero, () => _insertList('# ')),
-                        ),
-                        PopupMenuItem(
-                          child: const Text('Heading 2'),
-                          onTap: () => Future.delayed(Duration.zero, () => _insertList('## ')),
-                        ),
-                        PopupMenuItem(
-                          child: const Text('Heading 3'),
-                          onTap: () => Future.delayed(Duration.zero, () => _insertList('### ')),
-                        ),
-                      ],
-                    );
-                  },
-                  tooltip: 'Text Format',
-                ),
-              ],
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: CompositedTransformTarget(
+            link: _layerLink,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildStyleDropdown(),
+                  const SizedBox(width: 8),
+                  _buildToolbarButton(
+                    icon: Icons.format_bold,
+                    onPressed: () => _quillController.formatSelection(quill.Attribute.bold),
+                    tooltip: 'Bold',
+                  ),
+                  _buildToolbarButton(
+                    icon: Icons.format_italic,
+                    onPressed: () => _quillController.formatSelection(quill.Attribute.italic),
+                    tooltip: 'Italic',
+                  ),
+                  _buildToolbarButton(
+                    icon: Icons.format_underline,
+                    onPressed: () => _quillController.formatSelection(quill.Attribute.underline),
+                    tooltip: 'Underline',
+                  ),
+                  _buildToolbarButton(
+                    icon: Icons.link,
+                    onPressed: () {},
+                    tooltip: 'Link',
+                  ),
+                  _buildToolbarButton(
+                    icon: Icons.format_list_bulleted,
+                    onPressed: () => _quillController.formatSelection(quill.Attribute.ul),
+                    tooltip: 'Bullet List',
+                  ),
+                  _buildToolbarButton(
+                    icon: Icons.format_list_numbered,
+                    onPressed: () => _quillController.formatSelection(quill.Attribute.ol),
+                    tooltip: 'Numbered List',
+                  ),
+                  _buildToolbarButton(
+                    icon: Icons.format_clear,
+                    onPressed: () => _quillController.formatSelection(quill.Attribute.clone(quill.Attribute.bold, null)),
+                    tooltip: 'Clear Format',
+                  ),
+                ],
+              ),
             ),
           ),
         ),
         Container(
           decoration: BoxDecoration(
             border: Border.all(color: Colors.grey[300]!),
-            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(8)),
+            borderRadius:
+                const BorderRadius.vertical(bottom: Radius.circular(8)),
           ),
           padding: const EdgeInsets.all(12),
-          child: Stack(
-            children: [
-              TextField(
-                controller: widget.controller,
-                focusNode: _focusNode,
-                maxLines: widget.maxLines,
-                style: const TextStyle(color: Colors.transparent),
-                decoration: InputDecoration(
-                  hintText: widget.hintText,
-                  hintStyle: const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-                cursorColor: const Color(0xFF0B5CFF),
-              ),
-              if (_segments.isNotEmpty)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: RichText(
-                      text: TextSpan(
-                        children: _segments.map((segment) {
-                          return TextSpan(
-                            text: segment.text,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontWeight: segment.isBold ? FontWeight.bold : FontWeight.normal,
-                              fontStyle: segment.isItalic ? FontStyle.italic : FontStyle.normal,
-                              decoration: segment.isUnderline ? TextDecoration.underline : TextDecoration.none,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
+          constraints: BoxConstraints(
+            minHeight: (widget.maxLines ?? 6) * 20.0,
+            maxHeight: (widget.maxLines ?? 6) * 24.0,
+          ),
+          child: quill.QuillEditor.basic(
+            controller: _quillController,
+            focusNode: _focusNode,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildToolbarButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-    bool isActive = false,
-    String? tooltip,
-  }) {
-    return Tooltip(
-      message: tooltip ?? '',
-      child: IconButton(
-        icon: Icon(icon, size: 20),
-        color: isActive ? const Color(0xFF0B5CFF) : Colors.black87,
-        onPressed: onPressed,
-        padding: const EdgeInsets.all(8),
-        constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+  Widget _buildStyleDropdown() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _showStyleMenu = !_showStyleMenu;
+        });
+        if (_showStyleMenu) {
+          _showOverlay();
+        } else {
+          _removeOverlay();
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _getCurrentStyleName(),
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(width: 8),
+            Icon(Icons.arrow_drop_down, size: 20, color: Colors.grey[700]),
+          ],
+        ),
       ),
     );
   }
-}
 
-class _TextSegment {
-  final String text;
-  final bool isBold;
-  final bool isItalic;
-  final bool isUnderline;
+  String _getCurrentStyleName() {
+    final attrs = _quillController.getSelectionStyle().attributes;
+    if (attrs.containsKey('header')) {
+      final level = attrs['header']?.value;
+      if (level == 1) return 'Heading 1';
+      if (level == 2) return 'Heading 2';
+      if (level == 3) return 'Heading 3';
+    }
+    return 'Normal';
+  }
 
-  _TextSegment({
-    required this.text,
-    required this.isBold,
-    required this.isItalic,
-    required this.isUnderline,
-  });
+  void _showOverlay() {
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: 200,
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          targetAnchor: Alignment.bottomLeft,
+          followerAnchor: Alignment.topLeft,
+          offset: const Offset(0, 8),
+          child: Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(8),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildStyleOption('Heading 1', quill.Attribute.h1, 24, FontWeight.bold),
+                  _buildStyleOption('Heading 2', quill.Attribute.h2, 20, FontWeight.bold),
+                  _buildStyleOption('Heading 3', quill.Attribute.h3, 18, FontWeight.w600),
+                  _buildStyleOption('Normal', quill.Attribute.header, 14, FontWeight.normal, isNormal: true),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    _showStyleMenu = false;
+  }
+
+  Widget _buildStyleOption(String label, quill.Attribute attribute, double fontSize, FontWeight fontWeight, {bool isNormal = false}) {
+    return InkWell(
+      onTap: () {
+        if (isNormal) {
+          _quillController.formatSelection(quill.Attribute.clone(quill.Attribute.header, null));
+        } else {
+          _quillController.formatSelection(attribute);
+        }
+        _removeOverlay();
+        setState(() {});
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+            color: label == 'Normal' ? const Color(0xFF0B5CFF) : Colors.black87,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToolbarButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    String? tooltip,
+  }) {
+    return IconButton(
+      icon: Icon(icon, size: 20),
+      color: Colors.black87,
+      onPressed: onPressed,
+      tooltip: tooltip,
+      padding: const EdgeInsets.all(8),
+      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+    );
+  }
 }

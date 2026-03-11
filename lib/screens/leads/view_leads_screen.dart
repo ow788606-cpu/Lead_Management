@@ -11,7 +11,7 @@ import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/rich_text_editor.dart';
-import '../../widgets/markdown_renderer.dart';
+import '../../widgets/html_renderer.dart';
 import 'detail_lead_screen.dart';
 
 class ViewLeadsScreen extends StatefulWidget {
@@ -306,20 +306,27 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
             DateTime.tryParse((row['scheduled_at'] ?? '').toString());
         final dueAt = DateTime.tryParse((row['due_at'] ?? '').toString());
         final schedule = dueAt ?? scheduledAt;
-        final description = _stripHtml((row['description'] ?? '').toString());
-        final resultNotes = _stripHtml((row['result_notes'] ?? '').toString());
-        final effectiveText =
-            resultNotes.isNotEmpty ? resultNotes : description;
 
         final isNote = activityType == 'note' || statusId == 12;
-        final isTask = activityType == 'task' || statusId == 13;
 
         if (isNote) {
+          final description = (row['description'] ?? '').toString();
+          final resultNotes = (row['result_notes'] ?? '').toString();
+          final effectiveText =
+              resultNotes.isNotEmpty ? resultNotes : description;
           if (effectiveText.isNotEmpty) {
             notes.add(effectiveText);
           }
           continue;
         }
+
+        // It's not a note, so strip HTML
+        final description = _stripHtml((row['description'] ?? '').toString());
+        final resultNotes = _stripHtml((row['result_notes'] ?? '').toString());
+        final effectiveText =
+            resultNotes.isNotEmpty ? resultNotes : description;
+
+        final isTask = activityType == 'task' || statusId == 13;
 
         if (isTask) {
           tasks.add({
@@ -2188,8 +2195,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.all(12),
-                                                child: MarkdownRenderer(
-                                                  text: _notes[index],
+                                                child: HtmlRenderer(
+                                                  htmlContent: _notes[index],
                                                 ),
                                               ),
                                             );
