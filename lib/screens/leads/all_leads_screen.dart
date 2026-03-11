@@ -5,6 +5,7 @@ import '../../managers/lead_manager.dart';
 import '../../models/lead.dart';
 import '../tags/tag_api.dart';
 import '../../widgets/app_drawer.dart';
+import 'detail_lead_screen.dart';
 
 class AllLeadsScreen extends StatefulWidget {
   const AllLeadsScreen({super.key});
@@ -249,169 +250,185 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(lead.contactName,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600)),
-                ),
-                if (lead.phone != null)
-                  IconButton(
-                    icon: const Icon(Icons.phone, size: 20),
-                    onPressed: () => launchUrl(Uri.parse('tel:${lead.phone}')),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(
-                    Icons.comment,
-                    size: 20,
-                  ),
-                  onPressed: () {},
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-                const SizedBox(width: 8),
-                if (lead.email != null)
-                  IconButton(
-                    icon: const Icon(Icons.email, size: 20),
-                    onPressed: () =>
-                        launchUrl(Uri.parse('mailto:${lead.email}')),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-              ],
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailLeadScreen(
+                lead: lead,
+                startInEditMode: false,
+              ),
             ),
-            const SizedBox(height: 4),
-            if (lead.service != null)
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Row(
                 children: [
-                  const Icon(Icons.design_services,
-                      size: 16, color: Colors.grey),
-                  const SizedBox(width: 6),
-                  Text('${lead.service}',
-                      style:
-                          const TextStyle(fontSize: 14, color: Colors.black87)),
-                ],
-              ),
-            if (lead.notes != null) ...[
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(Icons.note_outlined, size: 16, color: Colors.grey),
-                  const SizedBox(width: 6),
                   Expanded(
-                    child: Text('${lead.notes}',
-                        style:
-                            const TextStyle(fontSize: 13, color: Colors.grey),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis),
+                    child: Text(lead.contactName,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
+                  if (lead.phone != null)
+                    IconButton(
+                      icon: const Icon(Icons.phone, size: 20),
+                      onPressed: () =>
+                          launchUrl(Uri.parse('tel:${lead.phone}')),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.comment,
+                      size: 20,
+                    ),
+                    onPressed: () {},
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  const SizedBox(width: 8),
+                  if (lead.email != null)
+                    IconButton(
+                      icon: const Icon(Icons.email, size: 20),
+                      onPressed: () =>
+                          launchUrl(Uri.parse('mailto:${lead.email}')),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
                 ],
               ),
-            ],
-            if (lead.tags != null && lead.tags!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                children: lead.tags!.split(',').map((tag) {
-                  final trimmedTag = tag.trim();
-                  if (trimmedTag.isEmpty) return const SizedBox.shrink();
+              const SizedBox(height: 4),
+              if (lead.service != null)
+                Row(
+                  children: [
+                    const Icon(Icons.design_services,
+                        size: 16, color: Colors.grey),
+                    const SizedBox(width: 6),
+                    Text('${lead.service}',
+                        style: const TextStyle(
+                            fontSize: 14, color: Colors.black87)),
+                  ],
+                ),
+              if (lead.notes != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    const Icon(Icons.note_outlined,
+                        size: 16, color: Colors.grey),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text('${lead.notes}',
+                          style:
+                              const TextStyle(fontSize: 13, color: Colors.grey),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                ),
+              ],
+              if (lead.tags != null && lead.tags!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: lead.tags!.split(',').map((tag) {
+                    final trimmedTag = tag.trim();
+                    if (trimmedTag.isEmpty) return const SizedBox.shrink();
 
-                  // Map invalid tags to valid database tags
-                  String mappedTag = trimmedTag;
-                  if (trimmedTag == 'bh') {
-                    mappedTag = '15'; // Map 'bh' to 'Office' tag
-                  }
+                    // Map invalid tags to valid database tags
+                    String mappedTag = trimmedTag;
+                    if (trimmedTag == 'bh') {
+                      mappedTag = '15'; // Map 'bh' to 'Office' tag
+                    }
 
-                  // Try to find matching tag color (by ID first, then by name)
-                  Color? tagColor;
-                  String? tagName;
+                    // Try to find matching tag color (by ID first, then by name)
+                    Color? tagColor;
+                    String? tagName;
 
-                  // First try to match by ID
-                  if (_tagColors.containsKey(mappedTag)) {
-                    tagColor = _tagColors[mappedTag];
-                    // Find the tag name for this ID
-                    final matchingTag = _tags.firstWhere(
-                      (t) => t.id.toString() == mappedTag,
-                      orElse: () => TagItem(
-                          id: 0,
-                          name: mappedTag,
-                          description: '',
-                          colorHex: ''),
-                    );
-                    tagName = matchingTag.name.isNotEmpty
-                        ? matchingTag.name
-                        : mappedTag;
-                  } else {
-                    // Try to match by name (case insensitive)
-                    for (final entry in _tagColors.entries) {
-                      if (entry.key.toLowerCase() == mappedTag.toLowerCase()) {
-                        tagColor = entry.value;
-                        tagName = mappedTag;
-                        break;
+                    // First try to match by ID
+                    if (_tagColors.containsKey(mappedTag)) {
+                      tagColor = _tagColors[mappedTag];
+                      // Find the tag name for this ID
+                      final matchingTag = _tags.firstWhere(
+                        (t) => t.id.toString() == mappedTag,
+                        orElse: () => TagItem(
+                            id: 0,
+                            name: mappedTag,
+                            description: '',
+                            colorHex: ''),
+                      );
+                      tagName = matchingTag.name.isNotEmpty
+                          ? matchingTag.name
+                          : mappedTag;
+                    } else {
+                      // Try to match by name (case insensitive)
+                      for (final entry in _tagColors.entries) {
+                        if (entry.key.toLowerCase() ==
+                            mappedTag.toLowerCase()) {
+                          tagColor = entry.value;
+                          tagName = mappedTag;
+                          break;
+                        }
                       }
                     }
-                  }
 
-                  // Use default color for tags not in database
-                  if (tagColor == null) {
-                    tagColor = const Color(0xFF9CA3AF);
-                    tagName = trimmedTag;
-                  }
+                    // Use default color for tags not in database
+                    if (tagColor == null) {
+                      tagColor = const Color(0xFF9CA3AF);
+                      tagName = trimmedTag;
+                    }
 
-                  return Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: tagColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      tagName ?? trimmedTag,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: tagColor,
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      child: Text(
+                        tagName ?? trimmedTag,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+              const Divider(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (lead.followUpDate != null)
+                    Text(
+                        'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year}',
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.black54)),
+                  if (statusTag.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4)),
+                      child: Text(statusTag,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: statusColor,
+                              fontWeight: FontWeight.w500)),
                     ),
-                  );
-                }).toList(),
+                ],
               ),
             ],
-            const Divider(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (lead.followUpDate != null)
-                  Text(
-                      'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year}',
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.black54)),
-                if (statusTag.isNotEmpty)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4)),
-                    child: Text(statusTag,
-                        style: TextStyle(
-                            fontSize: 11,
-                            color: statusColor,
-                            fontWeight: FontWeight.w500)),
-                  ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
