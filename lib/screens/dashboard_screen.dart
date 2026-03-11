@@ -105,9 +105,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Expanded(
-                  child: _StatCard(freshLeads.toString(), 'Fresh Leads',
-                      Icons.phone_in_talk_outlined, const Color(0xFF0B5CFF),
-                      onTap: () {
+                  child: _StatCard(
+                      freshLeads.toString(),
+                      'Fresh Leads',
+                      Icons.phone_in_talk_outlined,
+                      const Color(0xFF0B5CFF), onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const FreshLeadsScreen()),
@@ -122,8 +124,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const Color(0xFF0B5CFF), onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (_) => const AppointmentsScreen()),
+                  MaterialPageRoute(builder: (_) => const AppointmentsScreen()),
                 );
               })),
             ],
@@ -132,9 +133,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Expanded(
-                  child: _StatCard(followUpLeads.toString(), 'Followup Leads',
-                      Icons.access_time_outlined, const Color(0xFF0B5CFF),
-                      onTap: () {
+                  child: _StatCard(
+                      followUpLeads.toString(),
+                      'Followup Leads',
+                      Icons.access_time_outlined,
+                      const Color(0xFF0B5CFF), onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const FollowUpsScreen()),
@@ -142,9 +145,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               })),
               const SizedBox(width: 16),
               Expanded(
-                  child: _StatCard(overdueLeads.toString(), 'Overdue Leads',
-                      Icons.warning_amber_outlined, const Color(0xFF0B5CFF),
-                      onTap: () {
+                  child: _StatCard(
+                      overdueLeads.toString(),
+                      'Overdue Leads',
+                      Icons.warning_amber_outlined,
+                      const Color(0xFF0B5CFF), onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const OverdueScreen()),
@@ -279,13 +284,14 @@ class _TaskManagementCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Task Management',
+                    const Text('Task Management',
                         style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                        'From ${DateTime.now().subtract(Duration(days: 90)).day} ${_getMonthName(DateTime.now().subtract(Duration(days: 90)).month)} - ${DateTime.now().day} ${_getMonthName(DateTime.now().month)} ${DateTime.now().year}',
-                        style: TextStyle(color: Colors.grey, fontSize: 10)),
+                        'From ${DateTime.now().subtract(const Duration(days: 90)).day} ${_getMonthName(DateTime.now().subtract(const Duration(days: 90)).month)} - ${DateTime.now().day} ${_getMonthName(DateTime.now().month)} ${DateTime.now().year}',
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 10)),
                   ],
                 ),
               ),
@@ -517,7 +523,7 @@ class _MonthlyReportCard extends StatelessWidget {
                     height: 12,
                     child: DecoratedBox(
                         decoration: BoxDecoration(
-                            color: const Color(0xFF0B5CFF), shape: BoxShape.circle))),
+                            color: Color(0xFF0B5CFF), shape: BoxShape.circle))),
                 const SizedBox(width: 6),
                 Text('Won ($wonLeads)', style: const TextStyle(fontSize: 11))
               ]),

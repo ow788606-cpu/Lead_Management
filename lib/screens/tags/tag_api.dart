@@ -19,7 +19,7 @@ class TagItem {
   });
 
   factory TagItem.fromJson(Map<String, dynamic> json) {
-    final rawColor = (json['color_hex'] ?? '').toString().trim();
+    final rawColor = (json['color_hex'] ?? json['tag_class'] ?? '').toString().trim();
     return TagItem(
       id: int.tryParse(json['id'].toString()) ?? 0,
       name: (json['name'] ?? '').toString(),

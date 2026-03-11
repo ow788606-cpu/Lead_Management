@@ -10,8 +10,6 @@ import '../../services/api_config.dart';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
-import '../../widgets/rich_text_editor.dart';
-import '../../widgets/html_renderer.dart';
 import 'detail_lead_screen.dart';
 
 class ViewLeadsScreen extends StatefulWidget {
@@ -306,27 +304,20 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
             DateTime.tryParse((row['scheduled_at'] ?? '').toString());
         final dueAt = DateTime.tryParse((row['due_at'] ?? '').toString());
         final schedule = dueAt ?? scheduledAt;
-
-        final isNote = activityType == 'note' || statusId == 12;
-
-        if (isNote) {
-          final description = (row['description'] ?? '').toString();
-          final resultNotes = (row['result_notes'] ?? '').toString();
-          final effectiveText =
-              resultNotes.isNotEmpty ? resultNotes : description;
-          if (effectiveText.isNotEmpty) {
-            notes.add(effectiveText);
-          }
-          continue;
-        }
-
-        // It's not a note, so strip HTML
         final description = _stripHtml((row['description'] ?? '').toString());
         final resultNotes = _stripHtml((row['result_notes'] ?? '').toString());
         final effectiveText =
             resultNotes.isNotEmpty ? resultNotes : description;
 
+        final isNote = activityType == 'note' || statusId == 12;
         final isTask = activityType == 'task' || statusId == 13;
+
+        if (isNote) {
+          if (effectiveText.isNotEmpty) {
+            notes.add(effectiveText);
+          }
+          continue;
+        }
 
         if (isTask) {
           tasks.add({
@@ -553,23 +544,6 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     return activity[0].toUpperCase() + activity.substring(1);
   }
 
-  IconData _getActivityIcon(String activity) {
-    switch (activity) {
-      case 'Called':
-        return Icons.phone;
-      case 'SMS Sent':
-        return Icons.sms;
-      case 'Email Sent':
-        return Icons.email;
-      case 'Lead Cost':
-        return Icons.money_off;
-      case 'Lead Converted':
-        return Icons.check_circle;
-      default:
-        return Icons.circle;
-    }
-  }
-
   String _formatDate(DateTime dt) {
     return '${dt.day}/${dt.month}/${dt.year}';
   }
@@ -639,141 +613,108 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
 
     showDialog(
       context: context,
-      builder: (dialogContext) => Dialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: _dialogWidth,
-            maxHeight: MediaQuery.of(dialogContext).size.height * 0.7,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(dialogContext),
-                      child: const Icon(Icons.arrow_back, color: Colors.black),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'Add Notes',
+      builder: (dialogContext) => _buildLeadDialog(
+        dialogContext: dialogContext,
+        title: 'Add Notes',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: noteController,
+              maxLines: 6,
+              decoration: InputDecoration(
+                hintText: 'Add your notes here...',
+                hintStyle: const TextStyle(fontStyle: FontStyle.italic),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                contentPadding: const EdgeInsets.all(12),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F9FC),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFDCE4F2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.lightbulb_outline,
+                          size: 18, color: Colors.grey[600]),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Quick Tips',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
                           fontFamily: 'Inter',
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(dialogContext),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        RichTextEditor(
-                          controller: noteController,
-                          hintText: 'Add your notes here...',
-                          maxLines: 5,
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF7F9FC),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFDCE4F2)),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.lightbulb_outline,
-                                      size: 14, color: Colors.grey[600]),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Quick Tips',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.grey[700],
-                                      fontFamily: 'Inter',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                '• Track customer preferences\n• Record conversation points\n• Note follow-up actions',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey[600],
-                                  fontFamily: 'Inter',
-                                  height: 1.3,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• Track customer preferences and requirements\n• Record important conversation points\n• Note follow-up actions or commitments\n• Document special requests or concerns',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[600],
+                      fontFamily: 'Inter',
+                      height: 1.4,
                     ),
                   ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (noteController.text.isEmpty) {
+                    return;
+                  }
+
+                  try {
+                    await _saveLeadHistoryEntry(
+                      title: 'Note',
+                      description: noteController.text.trim(),
+                      statusId: 12,
+                      meta: const {'activity': 'note'},
+                    );
+
+                    if (!mounted) return;
+                    setState(() {
+                      _notes.add(noteController.text.trim());
+                    });
+                    Navigator.of(context).pop();
+                  } catch (_) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to save note')),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _brandBlue,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (noteController.text.isEmpty) return;
-                      try {
-                        await _saveLeadHistoryEntry(
-                          title: 'Note',
-                          description: noteController.text.trim(),
-                          statusId: 12,
-                          meta: const {'activity': 'note'},
-                        );
-                        if (!mounted) return;
-                        setState(() => _notes.add(noteController.text.trim()));
-                        Navigator.of(context).pop();
-                      } catch (_) {
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Failed to save note')),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _brandBlue,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Add Note',
-                      style: TextStyle(
+                child: const Text('Add Note',
+                    style: TextStyle(
                         color: Colors.white,
                         fontFamily: 'Inter',
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                        fontSize: 14)),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -797,9 +738,8 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                 (item) => ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(_getActivityIcon(item), size: 22, color: Colors.black),
                   title:
-                      Text(item, style: const TextStyle(fontFamily: 'Inter', fontSize: 16)),
+                      Text(item, style: const TextStyle(fontFamily: 'Inter')),
                   trailing: const Icon(Icons.chevron_right, size: 18),
                   onTap: () {
                     Navigator.pop(dialogContext);
@@ -814,313 +754,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
     );
   }
 
-  void _showCallOutcomeDetailsDialog(String callOutcome) {
-    final dateController = TextEditingController();
-    final timeController = TextEditingController();
-    final remarkController = TextEditingController();
-    final isInvalidNumber = callOutcome == 'Invalid Number';
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: SizedBox(
-            width: _dialogWidth,
-            height: isInvalidNumber ? 320 : null,
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: isInvalidNumber ? MainAxisSize.max : MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                          _showActivityEntrySheet('Called');
-                        },
-                        child: const Icon(Icons.arrow_back, color: Colors.black),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          callOutcome,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Inter',
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  if (!isInvalidNumber) ...[
-                    const Text('Date',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Inter')),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: dateController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        hintText: 'Select date',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 16),
-                        suffixIcon: const Icon(Icons.calendar_today),
-                      ),
-                      onTap: () async {
-                        final date = await showDatePicker(
-                          context: dialogContext,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                          initialDate: DateTime.now(),
-                        );
-                        if (date != null) {
-                          setDialogState(() {
-                            dateController.text =
-                                '${date.day}/${date.month}/${date.year}';
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    const Text('Time',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Inter')),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: timeController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        hintText: 'Select time',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 16),
-                        suffixIcon: const Icon(Icons.access_time),
-                      ),
-                      onTap: () async {
-                        final time = await showTimePicker(
-                          context: dialogContext,
-                          initialTime: TimeOfDay.now(),
-                        );
-                        if (time != null) {
-                          setDialogState(() {
-                            timeController.text = _formatTimeOfDay(time);
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                  const Text('Remark *',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Inter')),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: remarkController,
-                    minLines: 3,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      hintText: 'Enter remark...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      contentPadding: const EdgeInsets.all(16),
-                      alignLabelWithHint: true,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (remarkController.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please enter a remark'),
-                            ),
-                          );
-                          return;
-                        }
-
-                        final scheduledAt = isInvalidNumber
-                            ? null
-                            : _combineDateAndTime(
-                                dateController.text.trim(),
-                                timeController.text.trim(),
-                              );
-
-                        try {
-                          await _saveLeadHistoryEntry(
-                            title: 'Called',
-                            description: remarkController.text.trim(),
-                            statusId: 0,
-                            scheduledAt: scheduledAt,
-                            meta: {
-                              'activity': 'called',
-                              'result': callOutcome,
-                            },
-                          );
-
-                          if (!mounted) return;
-                          setState(() {
-                            _activities.add({
-                              'activity': 'Called',
-                              'callOutcome': callOutcome,
-                              'remark': remarkController.text.trim(),
-                              'date': isInvalidNumber ? '' : dateController.text.trim(),
-                              'time': isInvalidNumber ? '' : timeController.text.trim(),
-                              'lostReason': '',
-                              'dealAmount': '',
-                              'timestamp': DateTime.now(),
-                            });
-                          });
-                          Navigator.of(this.context).pop();
-                          ScaffoldMessenger.of(this.context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Activity added successfully!'),
-                            ),
-                          );
-                        } catch (_) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(this.context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Failed to save activity'),
-                            ),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _brandBlue,
-                        minimumSize: const Size(0, 48),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Update',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Inter',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   void _showActivityEntrySheet(String activity) {
-    if (activity == 'Called') {
-      final callOutcomeOptions = <String>[
-        ..._defaultCallOutcomeOptions,
-        ..._callOutcomeOptions
-            .where((item) => !_defaultCallOutcomeOptions.contains(item)),
-      ];
-      
-      showDialog(
-        context: context,
-        builder: (dialogContext) => Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: SizedBox(
-            width: _dialogWidth,
-            height: (MediaQuery.of(dialogContext).size.height * _dialogHeightFactor)
-                .clamp(360.0, 560.0)
-                .toDouble(),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pop(dialogContext);
-                          _showAddActivityDialog();
-                        },
-                        child: const Icon(Icons.arrow_back, color: Colors.black),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Call Outcome',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Inter',
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(dialogContext),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: callOutcomeOptions
-                            .map(
-                              (option) => ListTile(
-                                dense: true,
-                                contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 0),
-                                title: Text(
-                                  option,
-                                  style: const TextStyle(
-                                      fontSize: 16, fontFamily: 'Inter'),
-                                ),
-                                trailing: const Icon(Icons.chevron_right, size: 18),
-                                onTap: () {
-                                  Navigator.pop(dialogContext);
-                                  _showCallOutcomeDetailsDialog(option);
-                                },
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-      return;
-    }
     final callOutcomeOptions = <String>[
       ..._defaultCallOutcomeOptions,
       ..._callOutcomeOptions
@@ -1165,17 +799,14 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                           .clamp(360.0, 560.0)
                           .toDouble(),
                       child: Padding(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
                                 GestureDetector(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    _showAddActivityDialog();
-                                  },
+                                  onTap: () => Navigator.pop(context),
                                   child: const Icon(Icons.arrow_back,
                                       color: Colors.black),
                                 ),
@@ -1183,13 +814,9 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                 Expanded(
                                   child: Text(activity,
                                       style: const TextStyle(
-                                          fontSize: 18,
+                                          fontSize: 22,
                                           fontWeight: FontWeight.bold,
                                           fontFamily: 'Inter')),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () => Navigator.pop(context),
                                 ),
                               ],
                             ),
@@ -1199,11 +826,58 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-
+                                    if (activity == 'Called ') ...[
+                                      // const Text('Call Outcome',
+                                      //     style: TextStyle(
+                                      //         fontSize: 14,
+                                      //         fontWeight: FontWeight.w700,
+                                      //         fontFamily: 'Inter')),
+                                      const SizedBox(height: 10),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF7F9FC),
+                                          borderRadius:
+                                              BorderRadius.circular(14),
+                                          border: Border.all(
+                                              color: const Color(0xFFDCE4F2)),
+                                        ),
+                                        child: Column(
+                                          children: callOutcomeOptions
+                                              .map(
+                                                (option) =>
+                                                    RadioListTile<String>(
+                                                  value: option,
+                                                  groupValue:
+                                                      selectedCallOutcome,
+                                                  activeColor: _brandBlue,
+                                                  contentPadding:
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 12),
+                                                  dense: true,
+                                                  title: Text(
+                                                    option,
+                                                    style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontFamily: 'Inter'),
+                                                  ),
+                                                  onChanged: (value) {
+                                                    setSheetState(() {
+                                                      selectedCallOutcome =
+                                                          value;
+                                                    });
+                                                  },
+                                                ),
+                                              )
+                                              .toList(),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 18),
+                                    ],
                                     if (isLeadCost) ...[
                                       const Text('Lost Reason',
                                           style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                               fontFamily: 'Inter')),
                                       const SizedBox(height: 8),
@@ -1242,7 +916,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                       const SizedBox(height: 16),
                                       const Text('Remark',
                                           style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                               fontFamily: 'Inter')),
                                       const SizedBox(height: 8),
@@ -1264,7 +938,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                     ] else if (isLeadConverted) ...[
                                       const Text('Deal Amount',
                                           style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                               fontFamily: 'Inter')),
                                       const SizedBox(height: 8),
@@ -1286,7 +960,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                     ] else ...[
                                       const Text('Date',
                                           style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.w600,
                                               fontFamily: 'Inter')),
                                       const SizedBox(height: 8),
@@ -2195,8 +1869,11 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.all(12),
-                                                child: HtmlRenderer(
-                                                  htmlContent: _notes[index],
+                                                child: Text(
+                                                  _notes[index],
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontFamily: 'Inter'),
                                                 ),
                                               ),
                                             );
