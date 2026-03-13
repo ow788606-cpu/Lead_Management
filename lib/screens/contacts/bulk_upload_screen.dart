@@ -92,7 +92,7 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop'),
+        title: const Text('Bulk Import Contact Profiles'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -100,15 +100,6 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Bulk Import Contact Profiles',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Inter',
-                ),
-              ),
-              const SizedBox(height: 16),
               // Header Section
               Container(
                 padding: const EdgeInsets.all(20),
