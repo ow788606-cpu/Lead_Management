@@ -31,7 +31,7 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop'),
+        title: const Text('Lead Reports'),
       ),
       body: SafeArea(
         child: Padding(
@@ -39,12 +39,6 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Lead Reports',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 16),
               Expanded(
                 child: leads.isEmpty
                     ? const Center(

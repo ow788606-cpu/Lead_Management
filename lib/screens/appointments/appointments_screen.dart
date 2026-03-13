@@ -52,7 +52,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(title: const Text('Scheduled Appointments')),
+      appBar: AppBar(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null

@@ -56,7 +56,7 @@ class AppDrawer extends StatelessWidget {
                 children: [
                   Image.asset('assets/images/logo-md.webp', height: 32),
                   const SizedBox(width: 12),
-                  const Text('Cloop',
+                  const Text('Lead Management',
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ],

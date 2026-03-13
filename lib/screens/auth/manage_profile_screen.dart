@@ -166,7 +166,7 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop'),
+        title: const Text('Manage Profile'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -176,15 +176,6 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('Manage Profile',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter')),
-                    ),
-                    const SizedBox(height: 16),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),

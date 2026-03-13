@@ -43,10 +43,11 @@ class CloopApp extends StatelessWidget {
           elevation: 0,
           scrolledUnderElevation: 0,
           centerTitle: true,
-          iconTheme: IconThemeData(color: Colors.black),
+          toolbarHeight: 32,
+          iconTheme: IconThemeData(color: Colors.black, size: 18),
           titleTextStyle: TextStyle(
             color: Colors.black,
-            fontSize: 20,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
             fontFamily: 'Inter',
           ),
@@ -257,6 +258,8 @@ class _MainScreenState extends State<MainScreen> {
 
   String _getAppBarTitle() {
     switch (_selectedIndex) {
+      case 2:
+        return 'Appointments Schedule';
       case 5:
         return 'All Services';
       case 6:
