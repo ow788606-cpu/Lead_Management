@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/task.dart';
-import '../screens/tasks/task_api.dart';
+import '../services/api_config.dart';
+import 'auth_manager.dart';
 
 class TaskManager extends ChangeNotifier {
   static final TaskManager _instance = TaskManager._internal();
@@ -16,30 +19,105 @@ class TaskManager extends ChangeNotifier {
       _tasks.where((task) => task.isCompleted).toList();
 
   Future<void> addTask(Task task) async {
-    await TaskApi.addTask(task);
-    await loadTasks(forceRefresh: true);
-    notifyListeners();
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/tasks.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        ...task.toJson(),
+        'user_id': userId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success'] == true) {
+        await loadTasks(forceRefresh: true);
+        notifyListeners();
+      }
+    }
   }
 
   Future<void> completeTask(String id) async {
-    await TaskApi.completeTask(id);
-    await loadTasks(forceRefresh: true);
-    notifyListeners();
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.put(
+      Uri.parse('${ApiConfig.baseUrl}/tasks.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'id': id,
+        'user_id': userId,
+        'is_completed': true,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success'] == true) {
+        await loadTasks(forceRefresh: true);
+        notifyListeners();
+      }
+    }
   }
 
   Future<void> deleteTask(String id) async {
-    await TaskApi.deleteTask(id);
-    await loadTasks(forceRefresh: true);
-    notifyListeners();
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.delete(
+      Uri.parse('${ApiConfig.baseUrl}/tasks.php?id=$id&user_id=$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success'] == true) {
+        await loadTasks(forceRefresh: true);
+        notifyListeners();
+      }
+    }
   }
 
   Future<void> loadTasks({bool forceRefresh = false}) async {
     if (_isLoaded && !forceRefresh) return;
-    final fetched = await TaskApi.fetchTasks();
-    _tasks
-      ..clear()
-      ..addAll(fetched);
-    _isLoaded = true;
-    notifyListeners();
+    try {
+      final userId = await AuthManager().getUserId() ?? 0;
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/tasks.php?user_id=$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['data'] != null) {
+          final tasks = (data['data'] as List)
+              .map((item) => Task.fromJson(item as Map<String, dynamic>))
+              .toList();
+          _tasks
+            ..clear()
+            ..addAll(tasks);
+          _isLoaded = true;
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading tasks: $e');
+    }
+  }
+
+  Future<List<Task>> getTasksByLeadId(String leadId) async {
+    try {
+      final userId = await AuthManager().getUserId() ?? 0;
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/tasks.php?lead_id=$leadId&user_id=$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['data'] != null) {
+          return (data['data'] as List)
+              .map((item) => Task.fromJson(item as Map<String, dynamic>))
+              .toList();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading tasks by lead ID: $e');
+    }
+    return [];
   }
 }

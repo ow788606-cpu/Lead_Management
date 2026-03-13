@@ -1,5 +1,6 @@
 class Task {
   final String id;
+  final String? leadId;
   final String title;
   final String description;
   final String priority;
@@ -10,6 +11,7 @@ class Task {
 
   Task({
     required this.id,
+    this.leadId,
     required this.title,
     required this.description,
     required this.priority,
@@ -22,6 +24,7 @@ class Task {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'lead_id': leadId,
       'title': title,
       'description': description,
       'priority': priority,
@@ -34,16 +37,25 @@ class Task {
 
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: (json['description'] as String?) ?? '',
-      priority: json['priority'] as String,
-      dueDate: DateTime.parse(json['dueDate'] as String),
-      dueTime: json['dueTime'] as String,
-      isCompleted: (json['isCompleted'] as bool?) ?? false,
+      id: (json['id'] ?? '').toString(),
+      leadId: json['lead_id']?.toString(),
+      title: (json['title'] ?? '').toString(),
+      description: (json['description'] ?? '').toString(),
+      priority: (json['priority'] ?? 'Medium').toString(),
+      dueDate: json['dueDate'] != null 
+          ? DateTime.parse(json['dueDate'].toString())
+          : json['due_at'] != null
+              ? DateTime.parse(json['due_at'].toString())
+              : DateTime.now(),
+      dueTime: (json['dueTime'] ?? json['due_time'] ?? '12:00 PM').toString(),
+      isCompleted: json['isCompleted'] == true || 
+                   json['is_completed'] == true ||
+                   json['status'] == 'completed',
       completedDate: json['completedDate'] != null
-          ? DateTime.parse(json['completedDate'] as String)
-          : null,
+          ? DateTime.parse(json['completedDate'].toString())
+          : json['completed_at'] != null
+              ? DateTime.parse(json['completed_at'].toString())
+              : null,
     );
   }
 }

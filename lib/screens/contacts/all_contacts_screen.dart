@@ -63,10 +63,10 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop'),
+        title: const Text('All Contacts'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list, color: Color(0xFF0B5CFF)),
+            icon: const Icon(Icons.filter_list, color: Colors.black),
             onPressed: () {},
           ),
         ],
@@ -76,11 +76,6 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('All Contacts',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Inter')),
             const SizedBox(height: 16),
             TextField(
               onChanged: (value) => setState(() => _searchQuery = value),
@@ -156,10 +151,9 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,
                                                 fontFamily: 'Inter')),
-                                        const SizedBox(height: 8),
+                                        const SizedBox(height: 12),
                                         Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 12),
+                                          padding: const EdgeInsets.only(left: 8),
                                           child: Row(
                                             children: [
                                               const Icon(Icons.phone_outlined,
@@ -167,45 +161,42 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                               const SizedBox(width: 8),
                                               Expanded(
                                                 child: Text(
-                                                    'Phone: ${contact.phone}',
+                                                    contact.phone,
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         fontFamily: 'Inter',
-                                                        color: Colors.grey)),
+                                                        color: Colors.black87)),
                                               ),
                                             ],
                                           ),
                                         ),
                                         if (contact.phone2 != null) ...[
-                                          const SizedBox(height: 6),
+                                          const SizedBox(height: 8),
                                           Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 12),
+                                            padding: const EdgeInsets.only(left: 8),
                                             child: Row(
                                               children: [
                                                 const Icon(
-                                                    Icons
-                                                        .phone_forwarded_outlined,
+                                                    Icons.phone_forwarded_outlined,
                                                     size: 16,
                                                     color: Colors.grey),
                                                 const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Text(
-                                                      'Phone 2: ${contact.phone2}',
+                                                      contact.phone2!,
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           fontFamily: 'Inter',
-                                                          color: Colors.grey)),
+                                                          color: Colors.black87)),
                                                 ),
                                               ],
                                             ),
                                           ),
                                         ],
                                         if (contact.email != null) ...[
-                                          const SizedBox(height: 6),
+                                          const SizedBox(height: 8),
                                           Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 12),
+                                            padding: const EdgeInsets.only(left: 8),
                                             child: Row(
                                               children: [
                                                 const Icon(
@@ -215,11 +206,11 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                                 const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Text(
-                                                      'Email: ${contact.email}',
+                                                      contact.email!,
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           fontFamily: 'Inter',
-                                                          color: Colors.grey)),
+                                                          color: Colors.black87)),
                                                 ),
                                               ],
                                             ),
@@ -227,23 +218,26 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                         ],
                                         if (contact.city != null ||
                                             contact.state != null) ...[
-                                          const SizedBox(height: 6),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                  Icons.location_on_outlined,
-                                                  size: 16,
-                                                  color: Colors.grey),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Text(
-                                                    'Location: ${contact.city ?? ''}${contact.city != null && contact.state != null ? ', ' : ''}${contact.state ?? ''}',
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontFamily: 'Inter',
-                                                        color: Colors.grey)),
-                                              ),
-                                            ],
+                                          const SizedBox(height: 8),
+                                          Padding(
+                                            padding: const EdgeInsets.only(left: 8),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                    Icons.location_on_outlined,
+                                                    size: 16,
+                                                    color: Colors.grey),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                      '${contact.city ?? ''}${contact.city != null && contact.state != null ? ', ' : ''}${contact.state ?? ''}',
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontFamily: 'Inter',
+                                                          color: Colors.black87)),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ],

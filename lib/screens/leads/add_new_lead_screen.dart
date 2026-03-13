@@ -80,7 +80,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop'),
+        title: const Text('New Lead'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -130,12 +130,6 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('New Lead',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter')),
-                      const SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
@@ -152,14 +146,6 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 4),
-                            const Text(
-                                'Create a new lead and attach to an existing or new contact.',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 13,
-                                    fontFamily: 'Inter')),
-                            const SizedBox(height: 24),
                             RichText(
                               text: const TextSpan(
                                 text: 'Contact ',
@@ -175,7 +161,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 16),
                             DropdownButtonFormField<String>(
                               initialValue: _selectedContact,
                               style: const TextStyle(
@@ -233,14 +219,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                               },
                             ),
                             if (_showContactForm) ...[
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               const Text('Name',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 16),
                               TextField(
                                 controller: _nameController,
                                 style: const TextStyle(
@@ -267,14 +253,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       horizontal: 16, vertical: 14),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               const Text('Email',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 16),
                               TextField(
                                 controller: _emailController,
                                 style: const TextStyle(
@@ -301,14 +287,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       horizontal: 16, vertical: 14),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               const Text('Contact Number',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 16),
                               TextField(
                                 controller: _contactNumber1Controller,
                                 keyboardType: TextInputType.phone,
@@ -336,14 +322,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       horizontal: 16, vertical: 14),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               const Text('Contact Number 2',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 16),
                               TextField(
                                 controller: _contactNumber2Controller,
                                 keyboardType: TextInputType.phone,
@@ -371,14 +357,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       horizontal: 16, vertical: 14),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               const Text('Address',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 16),
                               TextField(
                                 controller: _addressController,
                                 maxLines: 3,
@@ -407,14 +393,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                   contentPadding: const EdgeInsets.all(16),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               const Text('Country',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 16),
                               DropdownButtonFormField<String>(
                                 decoration: InputDecoration(
                                   hintText: 'Select Country',
@@ -465,14 +451,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 onChanged: (value) =>
                                     setState(() => _selectedCountry = value),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               const Text('State',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 16),
                               TextField(
                                 controller: _stateController,
                                 style: const TextStyle(
@@ -499,14 +485,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       horizontal: 16, vertical: 14),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               const Text('City',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 16),
                               TextField(
                                 controller: _cityController,
                                 style: const TextStyle(
@@ -534,14 +520,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       horizontal: 16, vertical: 14),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               const Text('Zip',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 16),
                               TextField(
                                 controller: _zipController,
                                 style: const TextStyle(
@@ -569,14 +555,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 ),
                               ),
                             ],
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 24),
                             const Text('Service Interested in',
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 16),
                             Autocomplete<String>(
                               optionsBuilder: (textEditingValue) {
                                 if (textEditingValue.text.isEmpty) {
@@ -622,14 +608,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 );
                               },
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 24),
                             const Text('Tags',
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 16),
                             TextField(
                               controller: _tagsController,
                               style: const TextStyle(
@@ -654,14 +640,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                     horizontal: 16, vertical: 14),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 24),
                             const Text('Notes',
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 16),
                             TextField(
                               controller: _notesController,
                               maxLines: 4,
@@ -686,14 +672,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 contentPadding: const EdgeInsets.all(16),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 24),
                             const Text('Follow-up Date',
                                 style: TextStyle(
-                                    color: const Color(0xFF0B5CFF),
+                                    color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 16),
                             InkWell(
                               onTap: () async {
                                 final date = await showDatePicker(
@@ -728,14 +714,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 24),
                             const Text('Follow-up Time',
                                 style: TextStyle(
-                                    color: const Color(0xFF0B5CFF),
+                                    color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 16),
                             InkWell(
                               onTap: () async {
                                 final time = await showTimePicker(

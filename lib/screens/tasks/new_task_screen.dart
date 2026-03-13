@@ -39,7 +39,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop'),
+        title: const Text('New Task'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -47,12 +47,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('New Task',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -69,12 +63,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Create a new task to track work or follow-ups.',
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 13,
-                            fontFamily: 'Inter')),
-                    const SizedBox(height: 24),
                     RichText(
                       text: const TextSpan(
                         text: 'Task Title ',

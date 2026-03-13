@@ -6,6 +6,7 @@ import '../../models/lead.dart';
 import '../tags/tag_api.dart';
 import '../../widgets/app_drawer.dart';
 import 'detail_lead_screen.dart';
+import 'add_new_lead_screen.dart';
 
 class AllLeadsScreen extends StatefulWidget {
   const AllLeadsScreen({super.key});
@@ -139,24 +140,6 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
         title: const Text('All Leads',
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0B5CFF),
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                elevation: 0,
-              ),
-              child: const Text('Add Lead',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-            ),
-          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Colors.black),
             onPressed: () {},
@@ -169,65 +152,119 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
+          // White section with search and tabs
+          Container(
+            color: Colors.white,
+            child: Column(
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (_) => setState(() {}),
-                    decoration: InputDecoration(
-                      hintText: 'Search leads...',
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide.none),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 12),
+                          child: Icon(Icons.search, color: Colors.grey, size: 20),
+                        ),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            onChanged: (_) => setState(() {}),
+                            decoration: const InputDecoration(
+                              hintText: 'Search',
+                              hintStyle: TextStyle(color: Colors.grey),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: IconButton(
+                            icon: const Icon(Icons.tune, color: Colors.grey, size: 20),
+                            onPressed: () {},
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 32,
+                              minHeight: 32,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8)),
-                  child: IconButton(
-                    icon: const Icon(Icons.filter_list, color: Colors.black),
-                    onPressed: () {},
-                  ),
+                TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
+                  labelColor: const Color(0xFF0B5CFF),
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: const Color(0xFF0B5CFF),
+                  tabs: const [
+                    Tab(text: 'All Leads'),
+                    Tab(text: 'Fresh Leads'),
+                    Tab(text: 'Follow-ups'),
+                    Tab(text: 'Overdue'),
+                    Tab(text: 'Completed'),
+                  ],
                 ),
               ],
             ),
           ),
-          TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelColor: const Color(0xFF0B5CFF),
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: const Color(0xFF0B5CFF),
-            tabs: const [
-              Tab(text: 'All Leads'),
-              Tab(text: 'Fresh Leads'),
-              Tab(text: 'Follow-ups'),
-              Tab(text: 'Overdue'),
-              Tab(text: 'Completed'),
-            ],
-          ),
+          // Gray section with rounded top corners containing the lead cards
           Expanded(
-            child: filteredLeads.isEmpty
-                ? const Center(child: Text('No leads found'))
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredLeads.length,
-                    itemBuilder: (context, index) =>
-                        _buildLeadCard(filteredLeads[index]),
-                  ),
+            child: Container(
+              margin: const EdgeInsets.only(top: 16),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF4F6FA),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: filteredLeads.isEmpty
+                  ? const Center(child: Text('No leads found'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: filteredLeads.length,
+                      itemBuilder: (context, index) =>
+                          _buildLeadCard(filteredLeads[index]),
+                    ),
+            ),
           ),
         ],
+      ),
+      floatingActionButton: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: const Color(0xFF0B5CFF),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddNewLeadScreen(),
+              ),
+            ).then((result) {
+              if (result == true) {
+                _loadLeads();
+              }
+            });
+          },
+          icon: const Icon(Icons.add, color: Colors.white, size: 24),
+          padding: EdgeInsets.zero,
+        ),
       ),
     );
   }
@@ -249,8 +286,11 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
       child: InkWell(
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           Navigator.push(
             context,
@@ -272,60 +312,58 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   Expanded(
                     child: Text(lead.contactName,
                         style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600)),
+                            fontSize: 18, 
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black)),
                   ),
-                  if (lead.phone != null)
-                    IconButton(
-                      icon: const Icon(Icons.phone, size: 20),
-                      onPressed: () =>
-                          launchUrl(Uri.parse('tel:${lead.phone}')),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.comment,
-                      size: 20,
-                    ),
-                    onPressed: () {},
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
+                    child: Icon(Icons.phone, size: 20, color: Colors.grey[600]),
                   ),
                   const SizedBox(width: 8),
-                  if (lead.email != null)
-                    IconButton(
-                      icon: const Icon(Icons.email, size: 20),
-                      onPressed: () =>
-                          launchUrl(Uri.parse('mailto:${lead.email}')),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.email_outlined, size: 20, color: Colors.grey[600]),
+                  ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               if (lead.service != null)
                 Row(
                   children: [
-                    const Icon(Icons.design_services,
-                        size: 16, color: Colors.grey),
+                    Icon(Icons.design_services, size: 16, color: Colors.grey[600]),
                     const SizedBox(width: 6),
                     Text('${lead.service}',
-                        style: const TextStyle(
-                            fontSize: 14, color: Colors.black87)),
+                        style: TextStyle(
+                            fontSize: 14, color: Colors.grey[700])),
                   ],
                 ),
               if (lead.notes != null) ...[
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.note_outlined,
-                        size: 16, color: Colors.grey),
+                    Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[400]),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text('${lead.notes}',
-                          style:
-                              const TextStyle(fontSize: 13, color: Colors.grey),
+                          style: TextStyle(fontSize: 13, color: Colors.grey[500]),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis),
                     ),
@@ -333,10 +371,10 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                 ),
               ],
               if (lead.tags != null && lead.tags!.isNotEmpty) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
+                  spacing: 8,
+                  runSpacing: 6,
                   children: lead.tags!.split(',').map((tag) {
                     final trimmedTag = tag.trim();
                     if (trimmedTag.isEmpty) return const SizedBox.shrink();
@@ -379,23 +417,30 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                     }
 
                     // Use default color for tags not in database
+                    Color textColor;
+                    Color backgroundColor;
+                    
                     if (tagColor == null) {
-                      tagColor = const Color(0xFF9CA3AF);
+                      textColor = const Color(0xFF6B46C1); // Purple for unknown tags
+                      backgroundColor = const Color(0xFF6B46C1).withOpacity(0.1);
                       tagName = trimmedTag;
+                    } else {
+                      textColor = tagColor;
+                      backgroundColor = tagColor.withOpacity(0.1);
                     }
 
                     return Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: tagColor,
-                        borderRadius: BorderRadius.circular(12),
+                        color: backgroundColor,
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         tagName ?? trimmedTag,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.white,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: textColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -403,22 +448,22 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   }).toList(),
                 ),
               ],
-              const Divider(height: 20),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (lead.followUpDate != null)
                     Text(
-                        'Follow-up: ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year}',
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.black54)),
+                        'Follow-up : ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} 10:00 AM',
+                        style: TextStyle(
+                            fontSize: 12, color: Colors.grey[600])),
                   if (statusTag.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(4)),
+                          color: statusColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12)),
                       child: Text(statusTag,
                           style: TextStyle(
                               fontSize: 11,
