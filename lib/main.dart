@@ -224,7 +224,7 @@ class _MainScreenState extends State<MainScreen> {
           },
           child: const Text(
             'Add Service',
-            style: TextStyle(color: Color(0xFF0B5CFF)),
+            style: TextStyle(color: Colors.black),
           ),
         ),
       ];
@@ -247,12 +247,23 @@ class _MainScreenState extends State<MainScreen> {
           },
           child: const Text(
             'Add Tag',
-            style: TextStyle(color: Color(0xFF0B5CFF)),
+            style: TextStyle(color: Colors.black),
           ),
         ),
       ];
     }
     return const [];
+  }
+
+  String _getAppBarTitle() {
+    switch (_selectedIndex) {
+      case 5:
+        return 'All Services';
+      case 6:
+        return 'All Tags';
+      default:
+        return 'Cloop';
+    }
   }
 
   @override
@@ -272,8 +283,8 @@ class _MainScreenState extends State<MainScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop',
-            style: TextStyle(
+        title: Text(_getAppBarTitle(),
+            style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 20)),
