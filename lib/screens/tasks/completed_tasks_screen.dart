@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../managers/task_manager.dart';
 import '../../widgets/app_drawer.dart';
 import 'view_tasks_screen.dart';
+import 'edit_task_screen.dart';
+import 'new_task_screen.dart';
 
 class CompletedTasksScreen extends StatefulWidget {
   const CompletedTasksScreen({super.key});
@@ -30,6 +32,29 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
 
   void _onTasksChanged() {
     setState(() {});
+  }
+
+  void _deleteTask(String taskId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Task'),
+        content: const Text('Are you sure you want to delete this task?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await taskManager.deleteTask(taskId);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -142,6 +167,23 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                                               color: Colors.green,
                                               fontFamily: 'Inter')),
                                     ),
+                                    const SizedBox(width: 8),
+                                    InkWell(
+                                      onTap: () async {
+                                        await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => EditTaskScreen(task: task),
+                                          ),
+                                        );
+                                      },
+                                      child: const Icon(Icons.edit, size: 18, color: Colors.blue),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    InkWell(
+                                      onTap: () => _deleteTask(task.id),
+                                      child: const Icon(Icons.delete, size: 18, color: Colors.red),
+                                    ),
                                   ],
                                 ),
                                 if (task.description.isNotEmpty) ...[
@@ -195,6 +237,18 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NewTaskScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

@@ -285,6 +285,19 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                           );
                           return;
                         }
+                        
+                        // Combine date and time to check if task is overdue
+                        final dueDateTime = DateTime(
+                          _selectedDate!.year,
+                          _selectedDate!.month,
+                          _selectedDate!.day,
+                          _selectedTime!.hour,
+                          _selectedTime!.minute,
+                        );
+                        
+                        final now = DateTime.now();
+                        final isOverdue = dueDateTime.isBefore(now);
+                        
                         final task = Task(
                           id: DateTime.now().millisecondsSinceEpoch.toString(),
                           title: _titleController.text,
@@ -292,13 +305,24 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                           priority: _selectedPriority!,
                           dueDate: _selectedDate!,
                           dueTime: _selectedTime!.format(context),
+                          isCompleted: isOverdue,
+                          completedDate: isOverdue ? now : null,
                         );
+                        
                         await TaskManager().addTask(task);
                         if (!context.mounted) return;
                         Navigator.pop(context);
+                        
+                        // Show appropriate message based on task status
+                        final message = isOverdue 
+                            ? 'Task created and marked as completed (was overdue)'
+                            : 'Task created successfully';
+                        
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Task created successfully')),
+                          SnackBar(
+                            content: Text(message),
+                            backgroundColor: isOverdue ? Colors.orange : Colors.green,
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(

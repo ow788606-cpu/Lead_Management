@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../managers/contact_manager.dart';
 import '../../widgets/app_drawer.dart';
 import 'view_contact_screen.dart';
+import 'add_contact_screen.dart';
 
 class AllContactsScreen extends StatefulWidget {
   const AllContactsScreen({super.key});
@@ -52,6 +53,16 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Add New Contact',
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddContactScreen()),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
       drawer: AppDrawer(
         selectedIndex: 3,
         onItemSelected: (_) => Navigator.pop(context),

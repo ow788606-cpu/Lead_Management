@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -117,6 +117,112 @@ if ($method === 'POST') {
             'id' => $newId,
         ],
     ]);
+    exit;
+}
+
+if ($method === 'PUT') {
+    $payload = json_decode(file_get_contents('php://input'), true);
+    $id = (int)($payload['id'] ?? 0);
+    $userId = (int)($payload['user_id'] ?? 0);
+    
+    if ($id <= 0 || $userId <= 0) {
+        http_response_code(422);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Invalid task update payload',
+        ]);
+        exit;
+    }
+    
+    // Check if this is a completion request
+    if (isset($payload['is_completed']) && $payload['is_completed'] === true) {
+        $stmt = $conn->prepare(
+            "UPDATE tasks
+             SET status = 'completed', completed_at = NOW(), updated_at = NOW()
+             WHERE id = ? AND owner_user_id = ? AND deleted_at IS NULL"
+        );
+        if (!$stmt) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Prepare failed',
+            ]);
+            exit;
+        }
+        $stmt->bind_param('ii', $id, $userId);
+        $ok = $stmt->execute();
+        $stmt->close();
+
+        if (!$ok) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Failed to complete task',
+            ]);
+            exit;
+        }
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    // Handle regular task updates
+    $title = trim((string)($payload['title'] ?? ''));
+    $description = trim((string)($payload['description'] ?? ''));
+    $priority = strtolower(trim((string)($payload['priority'] ?? 'normal')));
+    $dueAt = trim((string)($payload['due_at'] ?? ''));
+    
+    $allowedPriorities = ['low', 'normal', 'high', 'critical'];
+    if (!in_array($priority, $allowedPriorities, true)) {
+        $priority = 'normal';
+    }
+    
+    if ($title === '') {
+        http_response_code(422);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Task title is required',
+        ]);
+        exit;
+    }
+    
+    $dueAtValue = null;
+    if ($dueAt !== '') {
+        $dt = date_create($dueAt);
+        if ($dt !== false) {
+            $dueAtValue = $dt->format('Y-m-d H:i:s');
+        }
+    }
+    
+    $stmt = $conn->prepare(
+        "UPDATE tasks 
+         SET title = ?, description = ?, priority = ?, due_at = ?, updated_at = NOW()
+         WHERE id = ? AND owner_user_id = ? AND deleted_at IS NULL"
+    );
+    
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Prepare failed',
+        ]);
+        exit;
+    }
+    
+    $stmt->bind_param('ssssii', $title, $description, $priority, $dueAtValue, $id, $userId);
+    $ok = $stmt->execute();
+    $stmt->close();
+    
+    if (!$ok) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to update task',
+        ]);
+        exit;
+    }
+    
+    echo json_encode(['success' => true]);
     exit;
 }
 

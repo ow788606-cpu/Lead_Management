@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../managers/task_manager.dart';
 import '../../widgets/app_drawer.dart';
-import 'view_tasks_screen.dart';
+import 'edit_task_screen.dart';
+import 'new_task_screen.dart';
 
 class PendingTasksScreen extends StatefulWidget {
   const PendingTasksScreen({super.key});
@@ -30,6 +31,83 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
 
   void _onTasksChanged() {
     setState(() {});
+  }
+
+  void _deleteTask(String taskId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Task'),
+        content: const Text('Are you sure you want to delete this task?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await taskManager.deleteTask(taskId);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _markAsComplete(String taskId) async {
+    try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              SizedBox(width: 12),
+              Text('Marking task as completed...'),
+            ],
+          ),
+          duration: Duration(seconds: 1),
+        ),
+      );
+
+      await taskManager.completeTask(taskId);
+
+      if (mounted) {
+        // Clear any existing snackbars
+        ScaffoldMessenger.of(context).clearSnackBars();
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task marked as completed!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        // Clear any existing snackbars
+        ScaffoldMessenger.of(context).clearSnackBars();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to complete task: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -95,100 +173,147 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                       itemCount: filteredTasks.length,
                       itemBuilder: (context, index) {
                         final task = filteredTasks[index];
-                        return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ViewTasksScreen(task: task),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.task_alt_outlined,
-                                        size: 18, color: Color(0xFF0B5CFF)),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(task.title,
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Inter')),
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  // const Icon(Icons.task_alt_outlined,
+                                  //     size: 18, color: Color(0xFF0B5CFF)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(task.title,
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Inter')),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: _getPriorityColor(task.priority)
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: _getPriorityColor(task.priority)
-                                            .withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(task.priority,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: _getPriorityColor(
-                                                  task.priority),
-                                              fontFamily: 'Inter')),
-                                    ),
-                                  ],
-                                ),
-                                if (task.description.isNotEmpty) ...[
-                                  const SizedBox(height: 10),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 12),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Icon(Icons.notes_outlined,
-                                            size: 16, color: Colors.grey),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(task.description,
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontFamily: 'Inter',
-                                                  color: Colors.grey)),
+                                    child: Text(task.priority,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: _getPriorityColor(
+                                                task.priority),
+                                            fontFamily: 'Inter')),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  PopupMenuButton<String>(
+                                    onSelected: (value) {
+                                      switch (value) {
+                                        case 'edit':
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditTaskScreen(task: task),
+                                            ),
+                                          );
+                                          break;
+                                        case 'delete':
+                                          _deleteTask(task.id);
+                                          break;
+                                        case 'complete':
+                                          _markAsComplete(task.id);
+                                          break;
+                                      }
+                                    },
+                                    itemBuilder: (context) => [
+                                      const PopupMenuItem(
+                                        value: 'edit',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.edit,
+                                                size: 16, color: Colors.blue),
+                                            SizedBox(width: 8),
+                                            Text('Edit'),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'complete',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.check_circle,
+                                                size: 16, color: Colors.green),
+                                            SizedBox(width: 8),
+                                            Text('Mark as Complete'),
+                                          ],
+                                        ),
+                                      ),
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.delete,
+                                                size: 16, color: Colors.red),
+                                            SizedBox(width: 8),
+                                            Text('Delete'),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                    child:
+                                        const Icon(Icons.more_vert, size: 18),
                                   ),
                                 ],
+                              ),
+                              if (task.description.isNotEmpty) ...[
                                 const SizedBox(height: 10),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 12),
                                   child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.schedule_outlined,
-                                          size: 16, color: Color(0xFF0B5CFF)),
+                                      const Icon(Icons.notes_outlined,
+                                          size: 16, color: Colors.grey),
                                       const SizedBox(width: 8),
                                       Expanded(
-                                        child: Text(
-                                            'Due: ${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year} ${task.dueTime}',
+                                        child: Text(task.description,
                                             style: const TextStyle(
                                                 fontSize: 14,
                                                 fontFamily: 'Inter',
-                                                color: Color(0xFF0B5CFF))),
+                                                color: Colors.grey)),
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
-                            ),
+                              const SizedBox(height: 10),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 12),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.schedule_outlined,
+                                        size: 16, color: Color(0xFF0B5CFF)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                          'Due: ${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year} ${task.dueTime}',
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontFamily: 'Inter',
+                                              color: Color(0xFF0B5CFF))),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -197,6 +322,18 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NewTaskScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 

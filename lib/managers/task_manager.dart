@@ -59,6 +59,26 @@ class TaskManager extends ChangeNotifier {
     }
   }
 
+  Future<void> updateTask(Task task) async {
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.put(
+      Uri.parse('${ApiConfig.baseUrl}/tasks.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        ...task.toJson(),
+        'user_id': userId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data['success'] == true) {
+        await loadTasks(forceRefresh: true);
+        notifyListeners();
+      }
+    }
+  }
+
   Future<void> deleteTask(String id) async {
     final userId = await AuthManager().getUserId() ?? 0;
     final response = await http.delete(

@@ -4,6 +4,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/leads/all_leads_screen.dart';
 import 'screens/appointments/appointments_screen.dart';
 import 'screens/contacts/contacts_screen.dart';
+import 'screens/contacts/add_contact_screen.dart';
 import 'services/services_screen.dart';
 import 'services/add_services.dart';
 import 'services/service_manager.dart';
@@ -186,6 +187,41 @@ class _MainScreenState extends State<MainScreen> {
   final _serviceManager = ServiceManager();
   int _tagsScreenVersion = 0;
 
+  Widget? _buildFloatingActionButton() {
+    switch (_selectedIndex) {
+      case 3: // Contacts screen
+        return FloatingActionButton(
+          tooltip: 'Add New Contact',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddContactScreen()),
+            );
+          },
+          child: const Icon(Icons.add),
+        );
+      case 5: // Services screen
+        return FloatingActionButton(
+          tooltip: 'Add Service',
+          onPressed: () async {
+            final result = await Navigator.push<String>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddServicesScreen(),
+              ),
+            );
+            if (result != null && result.trim().isNotEmpty) {
+              await _serviceManager.addService(result.trim());
+              if (mounted) setState(() {});
+            }
+          },
+          child: const Icon(Icons.add),
+        );
+      default:
+        return null;
+    }
+  }
+
   Widget _buildSelectedScreen() {
     switch (_selectedIndex) {
       case 0:
@@ -297,6 +333,7 @@ class _MainScreenState extends State<MainScreen> {
         selectedIndex: _selectedIndex,
         onItemSelected: _select,
       ),
+      floatingActionButton: _buildFloatingActionButton(),
       body: _buildSelectedScreen(),
     );
   }

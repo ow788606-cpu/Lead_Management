@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/task.dart';
 import '../../widgets/app_drawer.dart';
+import '../../managers/task_manager.dart';
+import 'edit_task_screen.dart';
 
 class ViewTasksScreen extends StatelessWidget {
   final Task task;
@@ -23,6 +25,23 @@ class ViewTasksScreen extends StatelessWidget {
           ),
         ),
         title: const Text('Cloop'),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditTaskScreen(task: task),
+                ),
+              );
+            },
+            icon: const Icon(Icons.edit),
+          ),
+          IconButton(
+            onPressed: () => _deleteTask(context),
+            icon: const Icon(Icons.delete, color: Colors.red),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -110,6 +129,30 @@ class ViewTasksScreen extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+
+  void _deleteTask(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Task'),
+        content: const Text('Are you sure you want to delete this task?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context); // Close dialog
+              Navigator.pop(context); // Go back to previous screen
+              await TaskManager().deleteTask(task.id);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 }
 
