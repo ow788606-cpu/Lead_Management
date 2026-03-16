@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'tag_api.dart';
 
 class TagsScreen extends StatefulWidget {
@@ -179,7 +180,115 @@ class _TagsScreenState extends State<TagsScreen> {
                                       color: const Color(0xFF0B5CFF),
                                       padding: const EdgeInsets.all(4),
                                       constraints: const BoxConstraints(),
-                                      onPressed: () {},
+                                      onPressed: () async {
+                                        if (!mounted) return;
+                                        final messenger = ScaffoldMessenger.of(context);
+                                        final nameController = TextEditingController(text: tag.name);
+                                        final descController = TextEditingController(text: tag.description);
+                                        Color selectedColor = _parseColor(tag.colorHex);
+                                        
+                                        final result = await showDialog<Map<String, dynamic>>(
+                                          context: context,
+                                          builder: (context) => StatefulBuilder(
+                                            builder: (context, setState) => AlertDialog(
+                                              title: const Text('Edit Tag'),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  TextField(
+                                                    controller: nameController,
+                                                    decoration: const InputDecoration(
+                                                      labelText: 'Name',
+                                                      border: OutlineInputBorder(),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  TextField(
+                                                    controller: descController,
+                                                    decoration: const InputDecoration(
+                                                      labelText: 'Description',
+                                                      border: OutlineInputBorder(),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (context) => AlertDialog(
+                                                          title: const Text('Pick Color'),
+                                                          content: BlockPicker(
+                                                            pickerColor: selectedColor,
+                                                            onColorChanged: (color) {
+                                                              selectedColor = color;
+                                                              setState(() {});
+                                                            },
+                                                          ),
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () => Navigator.pop(context),
+                                                              child: const Text('Done'),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                    child: Row(
+                                                      children: [
+                                                        Container(
+                                                          width: 30,
+                                                          height: 30,
+                                                          decoration: BoxDecoration(
+                                                            color: selectedColor,
+                                                            borderRadius: BorderRadius.circular(4),
+                                                            border: Border.all(color: Colors.grey),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 8),
+                                                        Text('#${selectedColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}'),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, {
+                                                    'name': nameController.text,
+                                                    'description': descController.text,
+                                                    'color': '#${selectedColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+                                                  }),
+                                                  child: const Text('Save'),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                        
+                                        if (result != null && result['name']?.trim().isNotEmpty == true) {
+                                          if (!mounted) return;
+                                          try {
+                                            await TagApi.updateTag(
+                                              id: tag.id,
+                                              name: result['name'],
+                                              description: result['description'] ?? '',
+                                              colorHex: result['color'],
+                                            );
+                                            await _loadTags();
+                                          } catch (e) {
+                                            if (!mounted) return;
+                                            messenger.showSnackBar(
+                                              const SnackBar(content: Text('Update failed')),
+                                            );
+                                          }
+                                        }
+                                        nameController.dispose();
+                                        descController.dispose();
+                                      },
                                     ),
                                     IconButton(
                                       icon: const Icon(

@@ -82,6 +82,10 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                       controller: _titleController,
                       style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
                       decoration: InputDecoration(
+                        hintText: 'Enter task title',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.task_outlined,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -107,6 +111,13 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                       maxLines: 4,
                       style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
                       decoration: InputDecoration(
+                        hintText: 'Enter task description',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.only(bottom: 60),
+                          child: Icon(Icons.description_outlined,
+                              size: 20, color: Colors.grey[400]),
+                        ),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -142,10 +153,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                           fontSize: 14),
                       decoration: InputDecoration(
                         hintText: 'Select Priority',
-                        hintStyle: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 14,
-                            color: Colors.grey),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.priority_high_outlined,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -204,12 +214,16 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                             Text(
                               _selectedDate != null
                                   ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                                  : '',
-                              style: const TextStyle(
-                                  fontSize: 14, fontFamily: 'Inter'),
+                                  : 'Select due date',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'Inter',
+                                  color: _selectedDate != null
+                                      ? Colors.black
+                                      : Colors.grey[400]),
                             ),
-                            const Icon(Icons.calendar_today,
-                                size: 16, color: Colors.grey),
+                            Icon(Icons.calendar_today,
+                                size: 16, color: Colors.grey[400]),
                           ],
                         ),
                       ),
@@ -252,19 +266,21 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                             Text(
                               _selectedTime != null
                                   ? _selectedTime!.format(context)
-                                  : '--:--',
-                              style: const TextStyle(
+                                  : 'Select due time',
+                              style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  color: _selectedTime != null
+                                      ? Colors.black
+                                      : Colors.grey[400],
                                   fontFamily: 'Inter'),
                             ),
-                            const Row(
+                            Row(
                               children: [
                                 Icon(Icons.access_time,
-                                    size: 16, color: Colors.grey),
-                                SizedBox(width: 8),
+                                    size: 16, color: Colors.grey[400]),
+                                const SizedBox(width: 8),
                                 Icon(Icons.more_time,
-                                    size: 16, color: Colors.grey),
+                                    size: 16, color: Colors.grey[400]),
                               ],
                             ),
                           ],
@@ -285,7 +301,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                           );
                           return;
                         }
-                        
+
                         // Combine date and time to check if task is overdue
                         final dueDateTime = DateTime(
                           _selectedDate!.year,
@@ -294,10 +310,10 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                           _selectedTime!.hour,
                           _selectedTime!.minute,
                         );
-                        
+
                         final now = DateTime.now();
                         final isOverdue = dueDateTime.isBefore(now);
-                        
+
                         final task = Task(
                           id: DateTime.now().millisecondsSinceEpoch.toString(),
                           title: _titleController.text,
@@ -308,20 +324,21 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                           isCompleted: isOverdue,
                           completedDate: isOverdue ? now : null,
                         );
-                        
+
                         await TaskManager().addTask(task);
                         if (!context.mounted) return;
                         Navigator.pop(context);
-                        
+
                         // Show appropriate message based on task status
-                        final message = isOverdue 
+                        final message = isOverdue
                             ? 'Task created and marked as completed (was overdue)'
                             : 'Task created successfully';
-                        
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(message),
-                            backgroundColor: isOverdue ? Colors.orange : Colors.green,
+                            backgroundColor:
+                                isOverdue ? Colors.orange : Colors.green,
                           ),
                         );
                       },

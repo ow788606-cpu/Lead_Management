@@ -112,6 +112,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   controller: _currentPasswordController,
                   obscureText: true,
                   decoration: InputDecoration(
+                    hintText: 'Enter current password',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[400]),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
                       borderSide: BorderSide(color: Colors.grey[300]!),
@@ -141,6 +144,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   controller: _newPasswordController,
                   obscureText: true,
                   decoration: InputDecoration(
+                    hintText: 'Enter new password',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[400]),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
                       borderSide: BorderSide(color: Colors.grey[300]!),
@@ -179,6 +185,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   controller: _confirmPasswordController,
                   obscureText: true,
                   decoration: InputDecoration(
+                    hintText: 'Confirm new password',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[400]),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(4),
                       borderSide: BorderSide(color: Colors.grey[300]!),

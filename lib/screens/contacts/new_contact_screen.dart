@@ -144,7 +144,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       controller: _nameController,
                       decoration: InputDecoration(
                         hintText: 'Full Name',
-                        prefixIcon: const Icon(Icons.person_outline, size: 20),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.person_outline,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -168,7 +170,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'Email',
-                        prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.email_outlined,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -201,7 +205,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       controller: _contactNumber1Controller,
                       decoration: InputDecoration(
                         hintText: 'Primary Contact Number',
-                        prefixIcon: const Icon(Icons.phone_outlined, size: 20),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.phone_outlined,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -225,7 +231,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       controller: _contactNumber2Controller,
                       decoration: InputDecoration(
                         hintText: 'Alternate Contact Number',
-                        prefixIcon: const Icon(Icons.phone_outlined, size: 20),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.phone_outlined,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -259,9 +267,11 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       maxLines: 3,
                       decoration: InputDecoration(
                         hintText: 'Address',
-                        prefixIcon: const Padding(
-                          padding: EdgeInsets.only(bottom: 40),
-                          child: Icon(Icons.location_on_outlined, size: 20),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.only(bottom: 40),
+                          child: Icon(Icons.location_on_outlined,
+                              size: 20, color: Colors.grey[400]),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -284,6 +294,7 @@ class _NewContactScreenState extends State<NewContactScreen> {
                     DropdownButtonFormField<String>(
                       decoration: InputDecoration(
                         hintText: 'Select Country',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -321,7 +332,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       controller: _stateController,
                       decoration: InputDecoration(
                         hintText: 'State',
-                        prefixIcon: const Icon(Icons.map_outlined, size: 20),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.map_outlined,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -345,8 +358,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       controller: _cityController,
                       decoration: InputDecoration(
                         hintText: 'City',
-                        prefixIcon:
-                            const Icon(Icons.location_city_outlined, size: 20),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.location_city_outlined,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -370,7 +384,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       controller: _zipController,
                       decoration: InputDecoration(
                         hintText: 'Zip Code',
-                        prefixIcon: const Icon(Icons.pin_outlined, size: 20),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.pin_outlined,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -394,7 +410,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       controller: _leadSourceController,
                       decoration: InputDecoration(
                         hintText: 'Lead Source (eg. Google, Referral)',
-                        prefixIcon: const Icon(Icons.source_outlined, size: 20),
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        prefixIcon: Icon(Icons.source_outlined,
+                            size: 20, color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -419,10 +437,12 @@ class _NewContactScreenState extends State<NewContactScreen> {
                       maxLines: 3,
                       decoration: InputDecoration(
                         hintText: 'Remark',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
                         alignLabelWithHint: true,
-                        prefixIcon: const Padding(
-                          padding: EdgeInsets.only(bottom: 50),
-                          child: Icon(Icons.note_outlined, size: 20),
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.only(bottom: 50),
+                          child: Icon(Icons.note_outlined,
+                              size: 20, color: Colors.grey[400]),
                         ),
                         filled: true,
                         fillColor: Colors.white,

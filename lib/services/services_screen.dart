@@ -135,7 +135,44 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                     icon: const Icon(Icons.edit,
                                         size: 18,
                                         color: const Color(0xFF0B5CFF)),
-                                    onPressed: () {},
+                                    onPressed: () async {
+                                      final controller = TextEditingController(
+                                          text: filteredServices[index]);
+                                      final result = await showDialog<String>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Edit Service'),
+                                          content: TextField(
+                                            controller: controller,
+                                            decoration: const InputDecoration(
+                                              hintText: 'Service name',
+                                              border: OutlineInputBorder(),
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(
+                                                  context, controller.text),
+                                              child: const Text('Save'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (result != null && result.trim().isNotEmpty) {
+                                        final originalIndex = _serviceManager
+                                            .services
+                                            .indexOf(filteredServices[index]);
+                                        if (originalIndex != -1) {
+                                          await _serviceManager.updateService(
+                                              originalIndex, result.trim());
+                                        }
+                                      }
+                                      controller.dispose();
+                                    },
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete,

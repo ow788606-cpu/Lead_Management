@@ -217,6 +217,24 @@ class _MainScreenState extends State<MainScreen> {
           },
           child: const Icon(Icons.add),
         );
+      case 6: // Tags screen
+        return FloatingActionButton(
+          tooltip: 'Add Tag',
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AddTagsScreen(),
+              ),
+            );
+            if (mounted) {
+              setState(() {
+                _tagsScreenVersion++;
+              });
+            }
+          },
+          child: const Icon(Icons.add),
+        );
       default:
         return null;
     }
@@ -244,51 +262,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> _buildAppBarActions() {
-    if (_selectedIndex == 5) {
-      return [
-        TextButton(
-          onPressed: () async {
-            final result = await Navigator.push<String>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AddServicesScreen(),
-              ),
-            );
-            if (result != null && result.trim().isNotEmpty) {
-              await _serviceManager.addService(result.trim());
-              if (mounted) setState(() {});
-            }
-          },
-          child: const Text(
-            'Add Service',
-            style: TextStyle(color: Colors.black),
-          ),
-        ),
-      ];
-    }
-    if (_selectedIndex == 6) {
-      return [
-        TextButton(
-          onPressed: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AddTagsScreen(),
-              ),
-            );
-            if (mounted) {
-              setState(() {
-                _tagsScreenVersion++;
-              });
-            }
-          },
-          child: const Text(
-            'Add Tag',
-            style: TextStyle(color: Colors.black),
-          ),
-        ),
-      ];
-    }
     return const [];
   }
 
@@ -326,7 +299,7 @@ class _MainScreenState extends State<MainScreen> {
             style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
-                fontSize: 20)),
+                fontSize: 14)),
         actions: _buildAppBarActions(),
       ),
       drawer: AppDrawer(

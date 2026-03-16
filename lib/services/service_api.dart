@@ -70,6 +70,26 @@ class ServiceApi {
     }
   }
 
+  static Future<void> updateService({
+    required int serviceId,
+    required String serviceName,
+  }) async {
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.put(
+      _servicesUri(),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'user_id': userId,
+        'service_id': serviceId,
+        'service_name': serviceName,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update service');
+    }
+  }
+
   static Future<void> deleteService(int id) async {
     final userId = await AuthManager().getUserId() ?? 0;
     final response = await http.delete(

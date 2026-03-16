@@ -28,6 +28,18 @@ class ServiceManager extends ChangeNotifier {
     await refreshServices();
   }
 
+  Future<void> updateService(int index, String newName) async {
+    if (index >= 0 && index < _items.length) {
+      final normalized = newName.trim();
+      if (normalized.isEmpty) return;
+      await ServiceApi.updateService(
+        serviceId: _items[index].id,
+        serviceName: normalized,
+      );
+      await refreshServices();
+    }
+  }
+
   Future<void> removeService(int index) async {
     if (index >= 0 && index < _items.length) {
       await ServiceApi.deleteService(_items[index].id);

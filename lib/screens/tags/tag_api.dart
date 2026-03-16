@@ -79,6 +79,30 @@ class TagApi {
     }
   }
 
+  static Future<void> updateTag({
+    required int id,
+    required String name,
+    required String description,
+    required String colorHex,
+  }) async {
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.put(
+      _tagsUri(),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'user_id': userId,
+        'id': id,
+        'name': name,
+        'description': description,
+        'color_hex': colorHex,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update tag');
+    }
+  }
+
   static Future<void> deleteTag(int id) async {
     final userId = await AuthManager().getUserId() ?? 0;
     final response = await http.delete(

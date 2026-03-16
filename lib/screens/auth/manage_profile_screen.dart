@@ -299,7 +299,9 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
         TextFormField(
           controller: controller,
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: Colors.grey),
+            hintText: 'Enter $label',
+            hintStyle: TextStyle(color: Colors.grey[400]),
+            prefixIcon: Icon(icon, color: Colors.grey[400]),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
               borderSide: BorderSide(color: Colors.grey[300]!),
