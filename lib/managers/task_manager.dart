@@ -20,16 +20,21 @@ class TaskManager extends ChangeNotifier {
 
   Future<void> addTask(Task task) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final taskData = task.toJson();
+    taskData['user_id'] = userId;
+    
+    // Ensure lead_id is included if available
+    if (task.leadId != null && task.leadId!.isNotEmpty) {
+      taskData['lead_id'] = int.tryParse(task.leadId!) ?? 0;
+    }
+    
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/tasks.php'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        ...task.toJson(),
-        'user_id': userId,
-      }),
+      body: jsonEncode(taskData),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final data = jsonDecode(response.body);
       if (data['success'] == true) {
         await loadTasks(forceRefresh: true);

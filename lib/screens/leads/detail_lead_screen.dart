@@ -5,7 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
 import '../../managers/task_manager.dart';
-import '../../services/service_manager.dart';
+
 import '../../widgets/app_drawer.dart';
 
 class DetailLeadScreen extends StatefulWidget {
@@ -27,7 +27,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   late TabController _tabController;
   final _leadManager = LeadManager();
   final _taskManager = TaskManager();
-  
+
   List<Map<String, dynamic>> _activities = [];
   List<Map<String, dynamic>> _notes = [];
   List<Map<String, dynamic>> _tasks = [];
@@ -51,14 +51,16 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     try {
       // Load tasks from database
       final tasks = await _taskManager.getTasksByLeadId(widget.lead.id);
-      _tasks = tasks.map((task) => {
-        'title': task.title,
-        'description': task.description,
-        'priority': task.priority,
-        'dueDate': task.dueDate,
-        'isCompleted': task.isCompleted,
-      }).toList();
-      
+      _tasks = tasks
+          .map((task) => {
+                'title': task.title,
+                'description': task.description,
+                'priority': task.priority,
+                'dueDate': task.dueDate,
+                'isCompleted': task.isCompleted,
+              })
+          .toList();
+
       // Load activities (mock data for now)
       _activities = [
         {
@@ -70,12 +72,13 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         if (widget.lead.followUpDate != null)
           {
             'title': 'Follow-up Scheduled',
-            'description': 'Follow-up scheduled for ${widget.lead.followUpDate!.day}/${widget.lead.followUpDate!.month}/${widget.lead.followUpDate!.year}',
+            'description':
+                'Follow-up scheduled for ${widget.lead.followUpDate!.day}/${widget.lead.followUpDate!.month}/${widget.lead.followUpDate!.year}',
             'date': widget.lead.followUpDate!,
             'icon': Icons.schedule,
           },
       ];
-      
+
       // Load notes (mock data for now)
       _notes = [
         if (widget.lead.notes != null && widget.lead.notes!.isNotEmpty)
@@ -85,7 +88,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           }
       ];
     } catch (e) {
-      print('Error loading data: $e');
       // Fallback to mock data
       _activities = [
         {
@@ -98,28 +100,28 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       _notes = [];
       _tasks = [];
     }
-    
+
     setState(() => _isLoading = false);
   }
 
   void _showAddActivityDialog() {
     final remarksController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-        title: Row(
+        title: const Row(
           children: [
-            const SizedBox(width: 32), // Space equivalent to back button
+            SizedBox(width: 32), // Space equivalent to back button
             Expanded(
               child: Text(
                 'Lead Activity',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(width: 32), // Balance the spacing
+            SizedBox(width: 32), // Balance the spacing
           ],
         ),
         content: SizedBox(
@@ -133,16 +135,24 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               // Activity Options
               Expanded(
                 child: ListView(
-                  children: ['Called', 'SMS Sent', 'Email Sent', 'Lead Lost', 'Lead Converted']
+                  children: [
+                    'Called',
+                    'SMS Sent',
+                    'Email Sent',
+                    'Lead Lost',
+                    'Lead Converted'
+                  ]
                       .map((activity) => ListTile(
-                            title: Text(activity, style: const TextStyle(fontSize: 14)),
+                            title: Text(activity,
+                                style: const TextStyle(fontSize: 14)),
                             onTap: () {
                               if (activity == 'Called') {
                                 Navigator.pop(context);
                                 _showCallOutcomeDialog(remarksController);
                               } else {
                                 Navigator.pop(context);
-                                _showActivityDetailsDialog(activity, remarksController);
+                                _showActivityDetailsDialog(
+                                    activity, remarksController);
                               }
                             },
                             contentPadding: EdgeInsets.zero,
@@ -164,12 +174,13 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     );
   }
 
-  void _showActivityDetailsDialog(String activity, TextEditingController remarksController) {
+  void _showActivityDetailsDialog(
+      String activity, TextEditingController remarksController) {
     DateTime? selectedDate;
     TimeOfDay? selectedTime;
     String? selectedLostReason;
     final dealAmountController = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
@@ -182,14 +193,16 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   Navigator.pop(dialogContext);
                   _showAddActivityDialog();
                 },
-                icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
+                icon:
+                    const Icon(Icons.arrow_back, size: 20, color: Colors.black),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
               Expanded(
                 child: Text(
                   activity,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -209,7 +222,10 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     // Date Field
                     const Text(
                       'Date',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87),
                     ),
                     const SizedBox(height: 8),
                     GestureDetector(
@@ -240,17 +256,21 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 style: const TextStyle(fontSize: 14),
                               ),
                             ),
-                            const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
+                            const Icon(Icons.calendar_today,
+                                size: 20, color: Colors.grey),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Time Field
                     const Text(
                       'Time',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87),
                     ),
                     const SizedBox(height: 8),
                     GestureDetector(
@@ -279,24 +299,29 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 style: const TextStyle(fontSize: 14),
                               ),
                             ),
-                            const Icon(Icons.access_time, size: 20, color: Colors.grey),
+                            const Icon(Icons.access_time,
+                                size: 20, color: Colors.grey),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 12),
                   ],
-                  
+
                   // Lost Reason dropdown for Lead Lost
                   if (activity == 'Lead Lost') ...[
                     const Text(
                       'Lost Reason *',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87),
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
-                      value: selectedLostReason,
-                      hint: const Text('Select reason', style: TextStyle(fontSize: 14)),
+                      initialValue: selectedLostReason,
+                      hint: const Text('Select reason',
+                          style: TextStyle(fontSize: 14)),
                       style: const TextStyle(fontSize: 14, color: Colors.black),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -309,19 +334,26 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         'Postponed / Will decide later',
                         'No Response',
                         'Bought service from someone else'
-                      ].map((reason) => 
-                        DropdownMenuItem(value: reason, child: Text(reason, overflow: TextOverflow.ellipsis))
-                      ).toList(),
-                      onChanged: (value) => setDialogState(() => selectedLostReason = value),
+                      ]
+                          .map((reason) => DropdownMenuItem(
+                              value: reason,
+                              child: Text(reason,
+                                  overflow: TextOverflow.ellipsis)))
+                          .toList(),
+                      onChanged: (value) =>
+                          setDialogState(() => selectedLostReason = value),
                     ),
                     const SizedBox(height: 12),
                   ],
-                  
+
                   // Deal Amount field for Lead Converted
                   if (activity == 'Lead Converted') ...[
                     const Text(
                       'Deal Amount',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87),
                     ),
                     const SizedBox(height: 8),
                     TextField(
@@ -337,17 +369,25 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     ),
                     const SizedBox(height: 12),
                   ],
-                  
+
                   // Remarks Section
                   const Text(
                     'Remark *',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87),
                   ),
                   const SizedBox(height: 8),
                   SizedBox(
-                    height: activity == 'Lead Lost' ? 80 : 
-                           activity == 'Lead Converted' ? 80 :
-                           (activity == 'SMS Sent' || activity == 'Email Sent') ? 60 : 120,
+                    height: activity == 'Lead Lost'
+                        ? 80
+                        : activity == 'Lead Converted'
+                            ? 80
+                            : (activity == 'SMS Sent' ||
+                                    activity == 'Email Sent')
+                                ? 60
+                                : 120,
                     child: TextField(
                       controller: remarksController,
                       maxLines: null,
@@ -379,26 +419,30 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 if (activity == 'Lead Lost') {
                   isValid = isValid && selectedLostReason != null;
                 }
-                
+
                 if (isValid) {
                   String description = remarksController.text;
-                  
+
                   // Add date and time info for SMS Sent and Email Sent
-                  if ((activity == 'SMS Sent' || activity == 'Email Sent') && 
-                      selectedDate != null && selectedTime != null) {
-                    description += '\nSent on: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedTime!.format(dialogContext)}';
+                  if ((activity == 'SMS Sent' || activity == 'Email Sent') &&
+                      selectedDate != null &&
+                      selectedTime != null) {
+                    description +=
+                        '\nSent on: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedTime!.format(dialogContext)}';
                   }
-                  
+
                   // Add lost reason for Lead Lost
                   if (activity == 'Lead Lost' && selectedLostReason != null) {
                     description += '\nReason: $selectedLostReason';
                   }
-                  
+
                   // Add deal amount for Lead Converted
-                  if (activity == 'Lead Converted' && dealAmountController.text.isNotEmpty) {
-                    description += '\nDeal Amount: ₹${dealAmountController.text}';
+                  if (activity == 'Lead Converted' &&
+                      dealAmountController.text.isNotEmpty) {
+                    description +=
+                        '\nDeal Amount: ₹${dealAmountController.text}';
                   }
-                  
+
                   setState(() {
                     _activities.add({
                       'title': activity,
@@ -409,12 +453,14 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   });
                   Navigator.pop(dialogContext);
                   ScaffoldMessenger.of(this.context).showSnackBar(
-                    const SnackBar(content: Text('Activity added successfully')),
+                    const SnackBar(
+                        content: Text('Activity added successfully')),
                   );
                 } else {
                   String errorMessage = 'Please enter remarks';
                   if (activity == 'Lead Lost' && selectedLostReason == null) {
-                    errorMessage = 'Please select a lost reason and enter remarks';
+                    errorMessage =
+                        'Please select a lost reason and enter remarks';
                   }
                   ScaffoldMessenger.of(this.context).showSnackBar(
                     SnackBar(content: Text(errorMessage)),
@@ -424,7 +470,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0b5cff),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
               child: const Text('Save', style: TextStyle(fontSize: 14)),
             ),
@@ -450,10 +497,10 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
-            Expanded(
+            const Expanded(
               child: Text(
                 'Call Outcome',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -477,15 +524,18 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     'Busy',
                     'Switched Off / Unavailable',
                     'Invalid Number'
-                  ].map((outcome) => ListTile(
-                        title: Text(outcome, style: const TextStyle(fontSize: 14)),
-                        onTap: () {
-                          Navigator.pop(context);
-                          _showOutcomeDetailsDialog(outcome, remarksController);
-                        },
-                        contentPadding: EdgeInsets.zero,
-                        dense: true,
-                      ))
+                  ]
+                      .map((outcome) => ListTile(
+                            title: Text(outcome,
+                                style: const TextStyle(fontSize: 14)),
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showOutcomeDetailsDialog(
+                                  outcome, remarksController);
+                            },
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                          ))
                       .toList(),
                 ),
               ),
@@ -505,10 +555,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     );
   }
 
-  void _showOutcomeDetailsDialog(String outcome, TextEditingController remarksController) {
+  void _showOutcomeDetailsDialog(
+      String outcome, TextEditingController remarksController) {
     DateTime? selectedDate;
     TimeOfDay? selectedTime;
-    
+
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
@@ -521,14 +572,16 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   Navigator.pop(dialogContext);
                   _showCallOutcomeDialog(remarksController);
                 },
-                icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
+                icon:
+                    const Icon(Icons.arrow_back, size: 20, color: Colors.black),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
               Expanded(
                 child: Text(
                   outcome,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -545,7 +598,10 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 // Date Field
                 const Text(
                   'Date',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87),
                 ),
                 const SizedBox(height: 8),
                 GestureDetector(
@@ -576,17 +632,21 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                             style: const TextStyle(fontSize: 14),
                           ),
                         ),
-                        const Icon(Icons.calendar_today, size: 20, color: Colors.grey),
+                        const Icon(Icons.calendar_today,
+                            size: 20, color: Colors.grey),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Time Field
                 const Text(
                   'Time',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87),
                 ),
                 const SizedBox(height: 8),
                 GestureDetector(
@@ -615,17 +675,21 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                             style: const TextStyle(fontSize: 14),
                           ),
                         ),
-                        const Icon(Icons.access_time, size: 20, color: Colors.grey),
+                        const Icon(Icons.access_time,
+                            size: 20, color: Colors.grey),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Remarks Section
                 const Text(
                   'Remark *',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87),
                 ),
                 const SizedBox(height: 8),
                 Expanded(
@@ -658,11 +722,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 if (remarksController.text.isNotEmpty) {
                   String activityTitle = 'Called - $outcome';
                   String description = remarksController.text;
-                  
+
                   if (selectedDate != null && selectedTime != null) {
-                    description += '\n${_getDateTimeLabel(outcome)}: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedTime!.format(dialogContext)}';
+                    description +=
+                        '\n${_getDateTimeLabel(outcome)}: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedTime!.format(dialogContext)}';
                   }
-                  
+
                   setState(() {
                     _activities.add({
                       'title': activityTitle,
@@ -673,7 +738,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   });
                   Navigator.pop(dialogContext);
                   ScaffoldMessenger.of(this.context).showSnackBar(
-                    const SnackBar(content: Text('Call activity added successfully')),
+                    const SnackBar(
+                        content: Text('Call activity added successfully')),
                   );
                 } else {
                   ScaffoldMessenger.of(this.context).showSnackBar(
@@ -684,7 +750,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0b5cff),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
               child: const Text('Save', style: TextStyle(fontSize: 14)),
             ),
@@ -736,23 +803,23 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     String priority = 'Medium';
     DateTime? selectedDate;
     TimeOfDay? selectedTime;
-    
+
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          title: Row(
+          title: const Row(
             children: [
-              const SizedBox(width: 32), // Space equivalent to back button
+              SizedBox(width: 32), // Space equivalent to back button
               Expanded(
                 child: Text(
                   'Create Task',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(width: 32), // Balance the spacing
+              SizedBox(width: 32), // Balance the spacing
             ],
           ),
           content: SizedBox(
@@ -763,7 +830,10 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               children: [
                 const Text(
                   'Task Title *',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87),
                 ),
                 const SizedBox(height: 4),
                 SizedBox(
@@ -774,29 +844,35 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: 'Enter task title...',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     ),
                   ),
                 ),
                 const SizedBox(height: 6),
                 const Text(
                   'Priority',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87),
                 ),
                 const SizedBox(height: 4),
                 SizedBox(
                   height: 36,
                   child: DropdownButtonFormField<String>(
-                    value: priority,
+                    initialValue: priority,
                     style: const TextStyle(fontSize: 14, color: Colors.black),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     ),
-                    items: ['Low', 'Medium', 'High'].map((p) => 
-                      DropdownMenuItem(value: p, child: Text(p))
-                    ).toList(),
-                    onChanged: (value) => setDialogState(() => priority = value!),
+                    items: ['Low', 'Medium', 'High']
+                        .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                        .toList(),
+                    onChanged: (value) =>
+                        setDialogState(() => priority = value!),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -808,7 +884,10 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         children: [
                           const Text(
                             'Due Date',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87),
                           ),
                           const SizedBox(height: 4),
                           SizedBox(
@@ -817,7 +896,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                               onTap: () async {
                                 final date = await showDatePicker(
                                   context: dialogContext,
-                                  initialDate: selectedDate ?? DateTime.now().add(const Duration(days: 1)),
+                                  initialDate: selectedDate ??
+                                      DateTime.now()
+                                          .add(const Duration(days: 1)),
                                   firstDate: DateTime.now(),
                                   lastDate: DateTime(2100),
                                 );
@@ -826,9 +907,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 }
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 6),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade300),
+                                  border:
+                                      Border.all(color: Colors.grey.shade300),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Row(
@@ -841,7 +924,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                         style: const TextStyle(fontSize: 14),
                                       ),
                                     ),
-                                    const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                                    const Icon(Icons.calendar_today,
+                                        size: 16, color: Colors.grey),
                                   ],
                                 ),
                               ),
@@ -857,7 +941,10 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         children: [
                           const Text(
                             'Due Time',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87),
                           ),
                           const SizedBox(height: 4),
                           SizedBox(
@@ -873,9 +960,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 }
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 6),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade300),
+                                  border:
+                                      Border.all(color: Colors.grey.shade300),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Row(
@@ -883,12 +972,14 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                     Expanded(
                                       child: Text(
                                         selectedTime != null
-                                            ? selectedTime!.format(dialogContext)
+                                            ? selectedTime!
+                                                .format(dialogContext)
                                             : 'Select time',
                                         style: const TextStyle(fontSize: 14),
                                       ),
                                     ),
-                                    const Icon(Icons.access_time, size: 16, color: Colors.grey),
+                                    const Icon(Icons.access_time,
+                                        size: 16, color: Colors.grey),
                                   ],
                                 ),
                               ),
@@ -902,7 +993,10 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 const SizedBox(height: 6),
                 const Text(
                   'Description',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87),
                 ),
                 const SizedBox(height: 4),
                 Expanded(
@@ -929,7 +1023,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             ElevatedButton(
               onPressed: () {
                 if (titleController.text.isNotEmpty) {
-                  DateTime dueDate = selectedDate ?? DateTime.now().add(const Duration(days: 1));
+                  DateTime dueDate = selectedDate ??
+                      DateTime.now().add(const Duration(days: 1));
                   if (selectedTime != null) {
                     dueDate = DateTime(
                       dueDate.year,
@@ -939,7 +1034,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       selectedTime!.minute,
                     );
                   }
-                  
+
                   setState(() {
                     _tasks.add({
                       'title': titleController.text,
@@ -962,7 +1057,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0b5cff),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
               child: const Text('Create', style: TextStyle(fontSize: 14)),
             ),
@@ -978,23 +1074,23 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     bool isItalic = false;
     bool isUnderline = false;
     String textStyle = 'Normal';
-    
+
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          title: Row(
+          title: const Row(
             children: [
-              const SizedBox(width: 32), // Space equivalent to back button
+              SizedBox(width: 32), // Space equivalent to back button
               Expanded(
                 child: Text(
                   'Add Notes',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
-              const SizedBox(width: 32), // Balance the spacing
+              SizedBox(width: 32), // Balance the spacing
             ],
           ),
           content: SizedBox(
@@ -1007,7 +1103,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 // Formatting Toolbar - Scrollable
                 Container(
                   height: 50,
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(4),
@@ -1018,22 +1115,29 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     child: Row(
                       children: [
                         // Text Style Dropdown
-                        Container(
+                        SizedBox(
                           width: 90,
                           child: DropdownButton<String>(
                             value: textStyle,
                             underline: const SizedBox(),
-                            style: const TextStyle(fontSize: 11, color: Colors.black),
+                            style: const TextStyle(
+                                fontSize: 11, color: Colors.black),
                             isExpanded: true,
                             items: ['Normal', 'H1', 'H2', 'H3']
                                 .map((style) => DropdownMenuItem(
-                                      value: style == 'H1' ? 'Heading 1' :
-                                             style == 'H2' ? 'Heading 2' :
-                                             style == 'H3' ? 'Heading 3' : style,
-                                      child: Text(style, style: const TextStyle(fontSize: 11)),
+                                      value: style == 'H1'
+                                          ? 'Heading 1'
+                                          : style == 'H2'
+                                              ? 'Heading 2'
+                                              : style == 'H3'
+                                                  ? 'Heading 3'
+                                                  : style,
+                                      child: Text(style,
+                                          style: const TextStyle(fontSize: 11)),
                                     ))
                                 .toList(),
-                            onChanged: (value) => setDialogState(() => textStyle = value!),
+                            onChanged: (value) =>
+                                setDialogState(() => textStyle = value!),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -1047,41 +1151,54 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         GestureDetector(
                           onTap: () => setDialogState(() => isBold = !isBold),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: isBold ? const Color(0xFF0b5cff) : Colors.transparent,
+                              color: isBold
+                                  ? const Color(0xFF0b5cff)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
                               'B',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12),
                             ),
                           ),
                         ),
                         const SizedBox(width: 4),
                         // Italic Button
                         GestureDetector(
-                          onTap: () => setDialogState(() => isItalic = !isItalic),
+                          onTap: () =>
+                              setDialogState(() => isItalic = !isItalic),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: isItalic ? const Color(0xFF0b5cff) : Colors.transparent,
+                              color: isItalic
+                                  ? const Color(0xFF0b5cff)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
                               'I',
-                              style: TextStyle(fontStyle: FontStyle.italic, fontSize: 12),
+                              style: TextStyle(
+                                  fontStyle: FontStyle.italic, fontSize: 12),
                             ),
                           ),
                         ),
                         const SizedBox(width: 4),
                         // Underline Button
                         GestureDetector(
-                          onTap: () => setDialogState(() => isUnderline = !isUnderline),
+                          onTap: () =>
+                              setDialogState(() => isUnderline = !isUnderline),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: isUnderline ? const Color(0xFF0b5cff) : Colors.transparent,
+                              color: isUnderline
+                                  ? const Color(0xFF0b5cff)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
@@ -1118,7 +1235,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           },
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            child: const Icon(Icons.format_list_bulleted, size: 14),
+                            child: const Icon(Icons.format_list_bulleted,
+                                size: 14),
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -1129,7 +1247,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           },
                           child: Container(
                             padding: const EdgeInsets.all(4),
-                            child: const Icon(Icons.format_list_numbered, size: 14),
+                            child: const Icon(Icons.format_list_numbered,
+                                size: 14),
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -1155,12 +1274,18 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     maxLines: null,
                     expands: true,
                     style: TextStyle(
-                      fontSize: textStyle == 'Heading 1' ? 18 :
-                               textStyle == 'Heading 2' ? 16 :
-                               textStyle == 'Heading 3' ? 15 : 14,
+                      fontSize: textStyle == 'Heading 1'
+                          ? 18
+                          : textStyle == 'Heading 2'
+                              ? 16
+                              : textStyle == 'Heading 3'
+                                  ? 15
+                                  : 14,
                       fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
                       fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
-                      decoration: isUnderline ? TextDecoration.underline : TextDecoration.none,
+                      decoration: isUnderline
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
                     ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
@@ -1184,16 +1309,17 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   // Create formatted note content
                   String formattedContent = noteController.text;
                   List<String> formatTags = [];
-                  
+
                   if (textStyle != 'Normal') formatTags.add(textStyle);
                   if (isBold) formatTags.add('Bold');
                   if (isItalic) formatTags.add('Italic');
                   if (isUnderline) formatTags.add('Underline');
-                  
+
                   if (formatTags.isNotEmpty) {
-                    formattedContent += '\n[Formatting: ${formatTags.join(', ')}]';
+                    formattedContent +=
+                        '\n[Formatting: ${formatTags.join(', ')}]';
                   }
-                  
+
                   setState(() {
                     _notes.add({
                       'content': formattedContent,
@@ -1209,7 +1335,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0b5cff),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
               child: const Text('Add', style: TextStyle(fontSize: 14)),
             ),
@@ -1222,30 +1349,32 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   void _insertBulletPoint(TextEditingController controller) {
     final text = controller.text;
     final selection = controller.selection;
-    
+
     if (selection.isValid) {
       final cursorPosition = selection.baseOffset;
-      
+
       // Find the start of the current line
       int lineStart = text.lastIndexOf('\n', cursorPosition - 1) + 1;
       if (lineStart < 0) lineStart = 0;
-      
+
       // Check if we're at the beginning of a line or if the line is empty
       final currentLine = text.substring(lineStart, cursorPosition);
-      
+
       String newText;
       int newCursorPosition;
-      
+
       if (currentLine.trim().isEmpty) {
         // Insert bullet at current position
-        newText = text.substring(0, lineStart) + '• ' + text.substring(cursorPosition);
+        newText =
+            '${text.substring(0, lineStart)}• ${text.substring(cursorPosition)}';
         newCursorPosition = lineStart + 2;
       } else {
         // Insert bullet on new line
-        newText = text.substring(0, cursorPosition) + '\n• ' + text.substring(cursorPosition);
+        newText =
+            '${text.substring(0, cursorPosition)}\n• ${text.substring(cursorPosition)}';
         newCursorPosition = cursorPosition + 3;
       }
-      
+
       controller.text = newText;
       controller.selection = TextSelection.collapsed(offset: newCursorPosition);
     }
@@ -1254,14 +1383,14 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   void _insertNumberedPoint(TextEditingController controller) {
     final text = controller.text;
     final selection = controller.selection;
-    
+
     if (selection.isValid) {
       final cursorPosition = selection.baseOffset;
-      
+
       // Find the start of the current line
       int lineStart = text.lastIndexOf('\n', cursorPosition - 1) + 1;
       if (lineStart < 0) lineStart = 0;
-      
+
       // Count existing numbered items to determine next number
       final lines = text.substring(0, cursorPosition).split('\n');
       int nextNumber = 1;
@@ -1277,23 +1406,25 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           }
         }
       }
-      
+
       // Check if we're at the beginning of a line or if the line is empty
       final currentLine = text.substring(lineStart, cursorPosition);
-      
+
       String newText;
       int newCursorPosition;
-      
+
       if (currentLine.trim().isEmpty) {
         // Insert numbered point at current position
-        newText = text.substring(0, lineStart) + '$nextNumber. ' + text.substring(cursorPosition);
+        newText =
+            '${text.substring(0, lineStart)}$nextNumber. ${text.substring(cursorPosition)}';
         newCursorPosition = lineStart + '$nextNumber. '.length;
       } else {
         // Insert numbered point on new line
-        newText = text.substring(0, cursorPosition) + '\n$nextNumber. ' + text.substring(cursorPosition);
+        newText =
+            '${text.substring(0, cursorPosition)}\n$nextNumber. ${text.substring(cursorPosition)}';
         newCursorPosition = cursorPosition + '\n$nextNumber. '.length;
       }
-      
+
       controller.text = newText;
       controller.selection = TextSelection.collapsed(offset: newCursorPosition);
     }
@@ -1350,7 +1481,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                             ),
                             child: Center(
                               child: Text(
-                                widget.lead.contactName.isNotEmpty 
+                                widget.lead.contactName.isNotEmpty
                                     ? widget.lead.contactName[0].toUpperCase()
                                     : 'U',
                                 style: const TextStyle(
@@ -1376,7 +1507,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                               if (widget.lead.service != null) ...[
                                 const SizedBox(width: 8),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: Colors.green,
                                     borderRadius: BorderRadius.circular(12),
@@ -1414,19 +1546,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     ),
                     const SizedBox(height: 16),
                     // Address
-                    if (widget.lead.address != null && widget.lead.address!.isNotEmpty)
+                    if (widget.lead.address != null &&
+                        widget.lead.address!.isNotEmpty)
                       _buildPersonalDetailItem(
                         Icons.location_on_outlined,
                         widget.lead.address!,
                       ),
                     // Email
-                    if (widget.lead.email != null && widget.lead.email!.isNotEmpty)
+                    if (widget.lead.email != null &&
+                        widget.lead.email!.isNotEmpty)
                       _buildPersonalDetailItem(
                         Icons.email_outlined,
                         widget.lead.email!,
                       ),
                     // Phone (if different from header or additional numbers)
-                    if (widget.lead.phone != null && widget.lead.phone!.isNotEmpty)
+                    if (widget.lead.phone != null &&
+                        widget.lead.phone!.isNotEmpty)
                       _buildPersonalDetailItem(
                         Icons.phone_outlined,
                         widget.lead.phone!,
@@ -1437,19 +1572,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       'Joined on ${_formatDate(widget.lead.createdAt)}',
                     ),
                     // Service
-                    if (widget.lead.service != null && widget.lead.service!.isNotEmpty)
+                    if (widget.lead.service != null &&
+                        widget.lead.service!.isNotEmpty)
                       _buildPersonalDetailItem(
                         Icons.work_outline,
                         widget.lead.service!,
                       ),
                     // Tags
-                    if (widget.lead.tags != null && widget.lead.tags!.isNotEmpty)
+                    if (widget.lead.tags != null &&
+                        widget.lead.tags!.isNotEmpty)
                       _buildPersonalDetailItem(
                         Icons.label_outline,
                         widget.lead.tags!,
                       ),
                     // Notes
-                    if (widget.lead.notes != null && widget.lead.notes!.isNotEmpty)
+                    if (widget.lead.notes != null &&
+                        widget.lead.notes!.isNotEmpty)
                       _buildPersonalDetailItem(
                         Icons.note_outlined,
                         widget.lead.notes!,
@@ -1497,19 +1635,32 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
 
   String _formatDate(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   void _showEditDialog() {
     final nameController = TextEditingController(text: widget.lead.contactName);
-    final emailController = TextEditingController(text: widget.lead.email ?? '');
-    final phoneController = TextEditingController(text: widget.lead.phone ?? '');
-    final notesController = TextEditingController(text: widget.lead.notes ?? '');
+    final emailController =
+        TextEditingController(text: widget.lead.email ?? '');
+    final phoneController =
+        TextEditingController(text: widget.lead.phone ?? '');
+    final notesController =
+        TextEditingController(text: widget.lead.notes ?? '');
     final tagsController = TextEditingController(text: widget.lead.tags ?? '');
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1586,26 +1737,17 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 16),
-          ),
-        ],
+  Widget _buildCircleIcon(IconData icon, VoidCallback? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: const BoxDecoration(
+          color: Color(0xFFF8F9FA),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 20, color: const Color(0xFF374151)),
       ),
     );
   }
@@ -1613,14 +1755,50 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   Widget _buildActivityItem(Map<String, dynamic> activity) {
     return Card(
       color: Colors.white,
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(activity['icon'], color: const Color(0xFF0b5cff)),
-        title: Text(activity['title']),
-        subtitle: Text(activity['description']),
-        trailing: Text(
-          '${activity['date'].day}/${activity['date'].month}/${activity['date'].year}',
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFF0b5cff).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Icon(activity['icon'], color: const Color(0xFF0b5cff), size: 24),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    activity['title'],
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    activity['description'],
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${activity['date'].day}/${activity['date'].month}/${activity['date'].year}',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
         ),
       ),
     );
@@ -1656,7 +1834,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: Icon(
-          task['isCompleted'] ? Icons.check_circle : Icons.radio_button_unchecked,
+          task['isCompleted']
+              ? Icons.check_circle
+              : Icons.radio_button_unchecked,
           color: task['isCompleted'] ? Colors.green : Colors.grey,
         ),
         title: Text(task['title']),
@@ -1668,20 +1848,25 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: task['priority'] == 'High' ? Colors.red.withOpacity(0.1) :
-                           task['priority'] == 'Medium' ? Colors.orange.withOpacity(0.1) :
-                           Colors.green.withOpacity(0.1),
+                    color: task['priority'] == 'High'
+                        ? Colors.red.withValues(alpha: 0.1)
+                        : task['priority'] == 'Medium'
+                            ? Colors.orange.withValues(alpha: 0.1)
+                            : Colors.green.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     task['priority'],
                     style: TextStyle(
                       fontSize: 10,
-                      color: task['priority'] == 'High' ? Colors.red :
-                             task['priority'] == 'Medium' ? Colors.orange :
-                             Colors.green,
+                      color: task['priority'] == 'High'
+                          ? Colors.red
+                          : task['priority'] == 'Medium'
+                              ? Colors.orange
+                              : Colors.green,
                     ),
                   ),
                 ),
@@ -1720,7 +1905,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Lead Details', style: TextStyle(color: Colors.black)),
+        title:
+            const Text('Lead Details', style: TextStyle(color: Colors.black)),
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.black),
@@ -1735,7 +1921,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   context: context,
                   builder: (dialogContext) => AlertDialog(
                     title: const Text('Mark as Completed'),
-                    content: const Text('Are you sure you want to mark this lead as completed?'),
+                    content: const Text(
+                        'Are you sure you want to mark this lead as completed?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(dialogContext, false),
@@ -1743,7 +1930,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(dialogContext, true),
-                        child: const Text('Mark as Completed', style: TextStyle(color: Colors.green)),
+                        child: const Text('Mark as Completed',
+                            style: TextStyle(color: Colors.green)),
                       ),
                     ],
                   ),
@@ -1755,12 +1943,16 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     if (!context.mounted) return;
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Lead marked as completed successfully')),
+                      const SnackBar(
+                          content:
+                              Text('Lead marked as completed successfully')),
                     );
                   } catch (e) {
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Failed to mark lead as completed: $e')),
+                      SnackBar(
+                          content:
+                              Text('Failed to mark lead as completed: $e')),
                     );
                   }
                 }
@@ -1769,7 +1961,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   context: context,
                   builder: (dialogContext) => AlertDialog(
                     title: const Text('Delete Lead'),
-                    content: const Text('Are you sure you want to delete this lead?'),
+                    content: const Text(
+                        'Are you sure you want to delete this lead?'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(dialogContext, false),
@@ -1777,7 +1970,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(dialogContext, true),
-                        child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                        child: const Text('Delete',
+                            style: TextStyle(color: Colors.red)),
                       ),
                     ],
                   ),
@@ -1819,7 +2013,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   children: [
                     Icon(Icons.check_circle, size: 20, color: Colors.green),
                     SizedBox(width: 8),
-                    Text('Mark as Completed', style: TextStyle(color: Colors.green)),
+                    Text('Mark as Completed',
+                        style: TextStyle(color: Colors.green)),
                   ],
                 ),
               ),
@@ -1841,305 +2036,378 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         child: Column(
           children: [
             // Lead Header Section (attached to app bar)
-          Container(
-            width: double.infinity,
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+            Container(
+              width: double.infinity,
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(widget.lead.contactName,
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold)),
+                      ),
+                      if (widget.lead.phone != null)
+                        _buildCircleIcon(Icons.phone, () => launchUrl(Uri.parse('tel:${widget.lead.phone}'))),
+                      const SizedBox(width: 8),
+                      _buildCircleIcon(
+                        Icons.chat_bubble,
+                        widget.lead.phone != null
+                            ? () => launchUrl(Uri.parse('sms:${widget.lead.phone}'))
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      if (widget.lead.email != null)
+                        _buildCircleIcon(Icons.email_rounded, () => launchUrl(Uri.parse('mailto:${widget.lead.email}'))),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  if (widget.lead.service != null)
+                    Row(
+                      children: [
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Text(
+                            widget.lead.service!,
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.black87),
+                          ),
+                        ),
+                      ],
+                    ),
+                  if (widget.lead.followUpDate != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Text(
+                            'Follow-up: ${widget.lead.followUpDate!.day}/${widget.lead.followUpDate!.month}/${widget.lead.followUpDate!.year} ${widget.lead.followUpTime ?? "10:00 AM"}',
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.black87),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (widget.lead.notes != null &&
+                      widget.lead.notes!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Text(
+                            widget.lead.notes!,
+                            style: const TextStyle(
+                                fontSize: 13, color: Colors.grey),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (widget.lead.tags != null &&
+                      widget.lead.tags!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            children: widget.lead.tags!.split(',').map((tag) {
+                              final trimmedTag = tag.trim();
+                              if (trimmedTag.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  trimmedTag,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            // Gap before tabs
+            const SizedBox(height: 8),
+            // Tab Bar with border radius
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                border:
+                    Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                labelColor: const Color(0xFF0b5cff),
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: const Color(0xFF0b5cff),
+                tabs: const [
+                  Tab(text: 'Activity'),
+                  Tab(text: 'Notes'),
+                  Tab(text: 'Tasks'),
+                ],
+              ),
+            ),
+            // Tab Content
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                color: Colors.white,
+                child: TabBarView(
+                  controller: _tabController,
                   children: [
-                    Expanded(
-                      child: Text(widget.lead.contactName,
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                    ),
-                    if (widget.lead.phone != null)
-                      IconButton(
-                        icon: const Icon(Icons.phone, size: 24, color: Color(0xFF6B7280)),
-                        onPressed: () => launchUrl(Uri.parse('tel:${widget.lead.phone}')),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.comment,
-                        size: 24,
-                        color: Color(0xFF6B7280),
-                      ),
-                      onPressed: widget.lead.phone != null
-                          ? () => launchUrl(Uri.parse('sms:${widget.lead.phone}'))
-                          : null,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 8),
-                    if (widget.lead.email != null)
-                      IconButton(
-                        icon: const Icon(Icons.email, size: 24, color: Color(0xFF6B7280)),
-                        onPressed: () => launchUrl(Uri.parse('mailto:${widget.lead.email}')),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
+                    // Activity Tab
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(8),
+                            itemCount: _activities.length,
+                            itemBuilder: (context, index) =>
+                                _buildActivityItem(_activities[index]),
+                          ),
+                    // Notes Tab
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _notes.isEmpty
+                            ? const Center(child: Text('No notes available'))
+                            : ListView.builder(
+                                padding: const EdgeInsets.all(8),
+                                itemCount: _notes.length,
+                                itemBuilder: (context, index) =>
+                                    _buildNoteItem(_notes[index]),
+                              ),
+                    // Tasks Tab
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _tasks.isEmpty
+                            ? const Center(child: Text('No tasks available'))
+                            : ListView.builder(
+                                padding: const EdgeInsets.all(8),
+                                itemCount: _tasks.length,
+                                itemBuilder: (context, index) =>
+                                    _buildTaskItem(_tasks[index]),
+                              ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                if (widget.lead.service != null)
-                  Row(
-                    children: [
-                      const SizedBox(width: 24),
-                Expanded(
-                  child: Text(
-                    widget.lead.service!,
-                    style: const TextStyle(
-                      fontSize: 14, 
-                      color: Colors.black87
-                    ),
-                  ),
-                ),
-                    ],
-                  ),
-                if (widget.lead.followUpDate != null) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const SizedBox(width: 24),
-                Expanded(
-                  child: Text(
-                    'Follow-up: ${widget.lead.followUpDate!.day}/${widget.lead.followUpDate!.month}/${widget.lead.followUpDate!.year} ${widget.lead.followUpTime ?? "10:00 AM"}',
-                    style: const TextStyle(
-                      fontSize: 14, 
-                      color: Colors.black87
-                    ),
-                  ),
-                ),
-                    ],
-                  ),
-                ],
-                if (widget.lead.notes != null && widget.lead.notes!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const SizedBox(width: 24),
-                Expanded(
-                  child: Text(
-                    widget.lead.notes!,
-                    style: const TextStyle(
-                      fontSize: 13, 
-                      color: Colors.grey
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                    ],
-                  ),
-                ],
-                if (widget.lead.tags != null && widget.lead.tags!.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: widget.lead.tags!.split(',').map((tag) {
-                            final trimmedTag = tag.trim();
-                            if (trimmedTag.isEmpty) return const SizedBox.shrink();
-                            
-                            return Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                trimmedTag,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          // Gap before tabs
-          const SizedBox(height: 8),
-          // Tab Bar with border radius
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
               ),
-              border: Border(bottom: BorderSide(color: Colors.grey, width: 0.2)),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              labelColor: const Color(0xFF0b5cff),
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: const Color(0xFF0b5cff),
-              tabs: const [
-                Tab(text: 'Activity'),
-                Tab(text: 'Notes'),
-                Tab(text: 'Tasks'),
-              ],
-            ),
-          ),
-          // Tab Content
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              color: Colors.white,
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // Activity Tab
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(8),
-                          itemCount: _activities.length,
-                          itemBuilder: (context, index) => _buildActivityItem(_activities[index]),
-                        ),
-                  // Notes Tab
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _notes.isEmpty
-                          ? const Center(child: Text('No notes available'))
-                          : ListView.builder(
-                              padding: const EdgeInsets.all(8),
-                              itemCount: _notes.length,
-                              itemBuilder: (context, index) => _buildNoteItem(_notes[index]),
-                            ),
-                  // Tasks Tab
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _tasks.isEmpty
-                          ? const Center(child: Text('No tasks available'))
-                          : ListView.builder(
-                              padding: const EdgeInsets.all(8),
-                              itemCount: _tasks.length,
-                              itemBuilder: (context, index) => _buildTaskItem(_tasks[index]),
-                            ),
-                ],
-              ),
-            ),
             ),
           ],
         ),
       ),
       floatingActionButton: null,
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.grey, width: 0.2)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: widget.lead.phone != null
-                    ? () => launchUrl(Uri.parse('sms:${widget.lead.phone}'))
-                    : widget.lead.email != null
-                        ? () => launchUrl(Uri.parse('mailto:${widget.lead.email}'))
-                        : null,
-                icon: const Icon(Icons.message, color: Colors.grey, size: 18),
-                label: const Text('Send Message', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  side: const BorderSide(color: Colors.grey),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            border: Border(top: BorderSide(color: Colors.grey, width: 0.2)),
+          ),
+          child: Row(
+            children: [
+              // Send Message button with dropdown
+              Container(
+                height: 44,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: widget.lead.phone != null
-                    ? () => launchUrl(Uri.parse('tel:${widget.lead.phone}'))
-                    : null,
-                icon: const Icon(Icons.phone, color: Colors.white, size: 18),
-                label: const Text('Make a Call', style: TextStyle(color: Colors.white, fontSize: 14)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0b5cff),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFF0b5cff),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (context) => Container(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ListTile(
-                            leading: const Icon(Icons.timeline),
-                            title: const Text('Add Activity'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _showAddActivityDialog();
-                            },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 10),
+                    const Icon(Icons.message, size: 16, color: Colors.black87),
+                    const SizedBox(width: 6),
+                    const Text('Send Message',
+                        style: TextStyle(fontSize: 13, color: Colors.black87)),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) => Container(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  leading: const Icon(Icons.sms),
+                                  title: const Text('SMS'),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    if (widget.lead.phone != null) {
+                                      launchUrl(Uri.parse('sms:${widget.lead.phone}'));
+                                    }
+                                  },
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.email),
+                                  title: const Text('Email'),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    if (widget.lead.email != null) {
+                                      launchUrl(Uri.parse('mailto:${widget.lead.email}'));
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
-                          ListTile(
-                            leading: const Icon(Icons.task),
-                            title: const Text('Create Task'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _showAddTaskDialog();
-                            },
-                          ),
-                          ListTile(
-                            leading: const Icon(Icons.note),
-                            title: const Text('Add Note'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _showAddNoteDialog();
-                            },
-                          ),
-                        ],
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+                        decoration: BoxDecoration(
+                          border: Border(left: BorderSide(color: Colors.grey.shade300)),
+                        ),
+                        child: const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.black54),
                       ),
                     ),
-                  );
-                },
-                icon: const Icon(Icons.add, color: Colors.white, size: 24),
-                padding: EdgeInsets.zero,
+                  ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: 8),
+              // Make a Call button
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+                  child: ElevatedButton.icon(
+                    onPressed: widget.lead.phone != null
+                        ? () => launchUrl(Uri.parse('tel:${widget.lead.phone}'))
+                        : null,
+                    icon: const Icon(Icons.phone, color: Colors.white, size: 16),
+                    label: const Text('Make a Call',
+                        style: TextStyle(color: Colors.white, fontSize: 13)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0b5cff),
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // + button
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0b5cff),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => Container(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.timeline),
+                              title: const Text('Add Activity'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _showAddActivityDialog();
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.task),
+                              title: const Text('Create Task'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _showAddTaskDialog();
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.note),
+                              title: const Text('Add Note'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _showAddNoteDialog();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add, color: Colors.white, size: 22),
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class NewWidget extends StatelessWidget {
+  const NewWidget({
+    super.key,
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
       ),
     );
   }

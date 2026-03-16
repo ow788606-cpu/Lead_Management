@@ -28,7 +28,7 @@ class Task {
       'title': title,
       'description': description,
       'priority': priority,
-      'dueDate': dueDate.toIso8601String(),
+      'due_at': dueDate.toIso8601String(),
       'dueTime': dueTime,
       'isCompleted': isCompleted,
       'completedDate': completedDate?.toIso8601String(),

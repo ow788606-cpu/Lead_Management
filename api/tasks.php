@@ -17,17 +17,32 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     $userId = isset($_GET['user_id']) ? (int)$_GET['user_id'] : 0;
+    $leadId = isset($_GET['lead_id']) ? (int)$_GET['lead_id'] : 0;
+    
     if ($userId <= 0) {
         echo json_encode(['success' => true, 'data' => []]);
         exit;
     }
 
-    $sql = "SELECT id, owner_user_id, created_by, assigned_to, lead_id, contact_id, title, description, status, priority,
-                   due_at, completed_at, created_at, updated_at
-            FROM tasks
-            WHERE deleted_at IS NULL
-              AND owner_user_id = $userId
-            ORDER BY id DESC";
+    // If lead_id is provided, filter by both user_id and lead_id
+    if ($leadId > 0) {
+        $sql = "SELECT id, owner_user_id, created_by, assigned_to, lead_id, contact_id, title, description, status, priority,
+                       due_at, completed_at, created_at, updated_at
+                FROM tasks
+                WHERE deleted_at IS NULL
+                  AND owner_user_id = $userId
+                  AND lead_id = $leadId
+                ORDER BY id DESC";
+    } else {
+        // Otherwise, get all tasks for the user
+        $sql = "SELECT id, owner_user_id, created_by, assigned_to, lead_id, contact_id, title, description, status, priority,
+                       due_at, completed_at, created_at, updated_at
+                FROM tasks
+                WHERE deleted_at IS NULL
+                  AND owner_user_id = $userId
+                ORDER BY id DESC";
+    }
+    
     $result = $conn->query($sql);
 
     if (!$result) {
@@ -55,6 +70,7 @@ if ($method === 'POST') {
     $payload = json_decode(file_get_contents('php://input'), true);
 
     $userId = (int)($payload['user_id'] ?? 1);
+    $leadId = isset($payload['lead_id']) ? (int)$payload['lead_id'] : null;
     $title = trim((string)($payload['title'] ?? ''));
     $description = trim((string)($payload['description'] ?? ''));
     $priority = strtolower(trim((string)($payload['priority'] ?? 'normal')));
@@ -83,8 +99,8 @@ if ($method === 'POST') {
     }
 
     $stmt = $conn->prepare(
-        "INSERT INTO tasks (owner_user_id, created_by, assigned_to, title, description, status, priority, due_at, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, NOW(), NOW())"
+        "INSERT INTO tasks (owner_user_id, created_by, assigned_to, lead_id, title, description, status, priority, due_at, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, NOW(), NOW())"
     );
 
     if (!$stmt) {
@@ -96,7 +112,7 @@ if ($method === 'POST') {
         exit;
     }
 
-    $stmt->bind_param('iiissss', $userId, $userId, $userId, $title, $description, $priority, $dueAtValue);
+    $stmt->bind_param('iiiissss', $userId, $userId, $userId, $leadId, $title, $description, $priority, $dueAtValue);
     $ok = $stmt->execute();
     $newId = $conn->insert_id;
     $stmt->close();
