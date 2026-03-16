@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../managers/task_manager.dart';
 import '../../widgets/app_drawer.dart';
-import 'view_tasks_screen.dart';
 import 'edit_task_screen.dart';
 import 'new_task_screen.dart';
 
@@ -126,115 +125,106 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                       itemCount: filteredTasks.length,
                       itemBuilder: (context, index) {
                         final task = filteredTasks[index];
-                        return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ViewTasksScreen(task: task),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    // const Icon(Icons.check_circle_outline,
-                                    //     size: 18, color: Colors.green),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(task.title,
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Inter')),
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  // const Icon(Icons.check_circle_outline,
+                                  //     size: 18, color: Colors.green),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(task.title,
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Inter')),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[50],
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green[50],
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: const Text('Completed',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.green,
-                                              fontFamily: 'Inter')),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    InkWell(
-                                      onTap: () async {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => EditTaskScreen(task: task),
-                                          ),
-                                        );
-                                      },
-                                      child: const Icon(Icons.edit, size: 18, color: Colors.blue),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    InkWell(
-                                      onTap: () => _deleteTask(task.id),
-                                      child: const Icon(Icons.delete, size: 18, color: Colors.red),
-                                    ),
-                                  ],
-                                ),
-                                if (task.description.isNotEmpty) ...[
-                                  const SizedBox(height: 10),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 12),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Icon(Icons.notes_outlined,
-                                            size: 16, color: Colors.grey),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(task.description,
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontFamily: 'Inter',
-                                                  color: Colors.grey)),
+                                    child: const Text('Completed',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.green,
+                                            fontFamily: 'Inter')),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  InkWell(
+                                    onTap: () async {
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditTaskScreen(task: task),
                                         ),
-                                      ],
-                                    ),
+                                      );
+                                    },
+                                    child: const Icon(Icons.edit,
+                                        size: 18, color: Colors.blue),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  InkWell(
+                                    onTap: () => _deleteTask(task.id),
+                                    child: const Icon(Icons.delete,
+                                        size: 18, color: Colors.red),
                                   ),
                                 ],
+                              ),
+                              if (task.description.isNotEmpty) ...[
                                 const SizedBox(height: 10),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 12),
                                   child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.event_available_outlined,
-                                          size: 16, color: Color(0xFF0B5CFF)),
+                                      const Icon(Icons.notes_outlined,
+                                          size: 16, color: Colors.grey),
                                       const SizedBox(width: 8),
                                       Expanded(
-                                        child: Text(
-                                            'Completed: ${task.completedDate!.day}/${task.completedDate!.month}/${task.completedDate!.year}',
+                                        child: Text(task.description,
                                             style: const TextStyle(
                                                 fontSize: 14,
                                                 fontFamily: 'Inter',
-                                                color: Color(0xFF0B5CFF))),
+                                                color: Colors.grey)),
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
-                            ),
+                              const SizedBox(height: 10),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 12),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.event_available_outlined,
+                                        size: 16, color: Color(0xFF0B5CFF)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                          'Completed: ${task.completedDate!.day}/${task.completedDate!.month}/${task.completedDate!.year}',
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontFamily: 'Inter',
+                                              color: Color(0xFF0B5CFF))),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },

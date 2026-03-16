@@ -263,7 +263,7 @@ class _MainScreenState extends State<MainScreen> {
 
   List<Widget> _buildAppBarActions() {
     // Add notification icon for specific screens
-    if (_selectedIndex == 2 || _selectedIndex == 6) { // Appointments or Tags
+    if (_selectedIndex == 2 || _selectedIndex == 5 || _selectedIndex == 6) { // Appointments, Services, or Tags
       return [
         IconButton(
           icon: const Icon(Icons.notifications_outlined),
