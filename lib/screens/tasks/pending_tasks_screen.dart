@@ -135,6 +135,12 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
           ),
         ),
         title: const Text('Pending Task'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

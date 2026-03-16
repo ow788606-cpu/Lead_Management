@@ -77,7 +77,7 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
         title: const Text('All Contacts'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.black),
+            icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
           ),
         ],

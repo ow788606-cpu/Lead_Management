@@ -82,6 +82,12 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
           ),
         ),
         title: const Text('Complete Task'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

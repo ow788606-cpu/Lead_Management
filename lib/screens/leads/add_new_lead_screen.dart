@@ -81,6 +81,12 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
           ),
         ),
         title: const Text('New Lead'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

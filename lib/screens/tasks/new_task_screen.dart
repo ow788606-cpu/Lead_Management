@@ -40,6 +40,12 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
           ),
         ),
         title: const Text('New Task'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

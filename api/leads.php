@@ -64,6 +64,66 @@ if ($method === 'GET') {
 
 if ($method === 'POST') {
     $payload = json_decode(file_get_contents('php://input'), true);
+    
+    // Check if this is an update request
+    if (isset($payload['action']) && $payload['action'] === 'update_status') {
+        $leadId = (int)($payload['lead_id'] ?? 0);
+        $userId = (int)($payload['user_id'] ?? 0);
+        $statusId = (int)($payload['status_id'] ?? 1);
+        
+        if ($leadId <= 0 || $userId <= 0) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => 'Invalid update payload']);
+            exit;
+        }
+        
+        // Verify the lead belongs to the user
+        $verifyStmt = $conn->prepare(
+            "SELECT id FROM leads WHERE id = ? AND owner_user_id = ? AND deleted_at IS NULL LIMIT 1"
+        );
+        if (!$verifyStmt) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Prepare failed']);
+            exit;
+        }
+        $verifyStmt->bind_param('ii', $leadId, $userId);
+        $verifyStmt->execute();
+        $lead = $verifyStmt->get_result()->fetch_assoc();
+        $verifyStmt->close();
+        
+        if (!$lead) {
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => 'Lead not found']);
+            exit;
+        }
+        
+        // Update the lead status
+        $updateStmt = $conn->prepare(
+            "UPDATE leads SET status = ?, updated_at = NOW() WHERE id = ? AND owner_user_id = ?"
+        );
+        if (!$updateStmt) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Prepare failed']);
+            exit;
+        }
+        $updateStmt->bind_param('iii', $statusId, $leadId, $userId);
+        $ok = $updateStmt->execute();
+        $updateStmt->close();
+        
+        if (!$ok) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to update lead status']);
+            exit;
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Lead status updated successfully',
+        ]);
+        exit;
+    }
+    
+    // Original create lead logic
     $userId = (int)($payload['user_id'] ?? 0);
     $contactId = (int)($payload['contact_id'] ?? 0);
     $serviceName = trim((string)($payload['service_name'] ?? ''));

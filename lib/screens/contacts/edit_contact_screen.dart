@@ -90,7 +90,13 @@ class _EditContactScreenState extends State<EditContactScreen> {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop'),
+        title: const Text('Edit Contact'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -98,12 +104,6 @@ class _EditContactScreenState extends State<EditContactScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Edit Contact',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -120,9 +120,6 @@ class _EditContactScreenState extends State<EditContactScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                const Text('Edit contact profile.',
-                    style: TextStyle(color: Colors.grey, fontSize: 13)),
-                const SizedBox(height: 24),
                 RichText(
                   text: const TextSpan(
                     text: 'Name ',
@@ -141,7 +138,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   controller: _nameController,
                   decoration: InputDecoration(
                     hintText: 'Full Name',
-                    prefixIcon: const Icon(Icons.person_outline, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.person_outline, size: 20, color: Colors.grey[400]),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -165,7 +163,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     hintText: 'Email',
-                    prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.email_outlined, size: 20, color: Colors.grey[400]),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -197,7 +196,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   controller: _contactNumber1Controller,
                   decoration: InputDecoration(
                     hintText: 'Primary Contact Number',
-                    prefixIcon: const Icon(Icons.phone_outlined, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.phone_outlined, size: 20, color: Colors.grey[400]),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -221,7 +221,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   controller: _contactNumber2Controller,
                   decoration: InputDecoration(
                     hintText: 'Alternate Contact Number',
-                    prefixIcon: const Icon(Icons.phone_outlined, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.phone_outlined, size: 20, color: Colors.grey[400]),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -254,9 +255,10 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: 'Address',
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.only(bottom: 40),
-                      child: Icon(Icons.location_on_outlined, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.only(bottom: 40),
+                      child: Icon(Icons.location_on_outlined, size: 20, color: Colors.grey[400]),
                     ),
                     filled: true,
                     fillColor: Colors.white,
@@ -280,7 +282,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   controller: _stateController,
                   decoration: InputDecoration(
                     hintText: 'State',
-                    prefixIcon: const Icon(Icons.map_outlined, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.map_outlined, size: 20, color: Colors.grey[400]),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -304,8 +307,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   controller: _cityController,
                   decoration: InputDecoration(
                     hintText: 'City',
-                    prefixIcon:
-                        const Icon(Icons.location_city_outlined, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.location_city_outlined, size: 20, color: Colors.grey[400]),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -329,7 +332,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   controller: _zipController,
                   decoration: InputDecoration(
                     hintText: 'Zip Code',
-                    prefixIcon: const Icon(Icons.pin_outlined, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.pin_outlined, size: 20, color: Colors.grey[400]),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -353,7 +357,8 @@ class _EditContactScreenState extends State<EditContactScreen> {
                   controller: _leadSourceController,
                   decoration: InputDecoration(
                     hintText: 'Lead Source (eg. Google, Referral)',
-                    prefixIcon: const Icon(Icons.source_outlined, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Icon(Icons.source_outlined, size: 20, color: Colors.grey[400]),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -375,11 +380,13 @@ class _EditContactScreenState extends State<EditContactScreen> {
                 const SizedBox(height: 8),
                 TextField(
                   controller: _remarkController,
+                  maxLines: 2,
                   decoration: InputDecoration(
                     hintText: 'Remark',
-                    prefixIcon: const Padding(
-                      padding: EdgeInsets.only(bottom: 40),
-                      child: Icon(Icons.note_outlined, size: 20),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Icon(Icons.note_outlined, size: 20, color: Colors.grey[400]),
                     ),
                     filled: true,
                     fillColor: Colors.white,
@@ -389,7 +396,7 @@ class _EditContactScreenState extends State<EditContactScreen> {
                     enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(color: Colors.grey[300]!)),
-                    contentPadding: const EdgeInsets.all(16),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
                 const SizedBox(height: 32),

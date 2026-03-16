@@ -19,7 +19,13 @@ class BillingScreen extends StatelessWidget {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop'),
+        title: const Text('Billing Details'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -44,13 +50,8 @@ class BillingScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Billing Details',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Inter')),
                       ElevatedButton(
                         onPressed: () => Navigator.pop(context),
                         style: ElevatedButton.styleFrom(

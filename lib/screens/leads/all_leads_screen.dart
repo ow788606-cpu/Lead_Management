@@ -97,10 +97,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
         leads = _leadManager.freshLeads;
         break;
       case 2:
-        leads = _leadManager.allLeads
-            .where(
-                (l) => l.followUpDate != null && !l.isCompleted && !l.isOverdue)
-            .toList();
+        leads = _leadManager.followUpLeads;
         break;
       case 3:
         leads = _leadManager.overdueLeads;
@@ -322,7 +319,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.phone, size: 20, color: Colors.grey[600]),
+                    child: Icon(Icons.phone, size: 20, color: const Color(0xFF6B7280)),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -331,7 +328,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.chat_bubble_outline, size: 20, color: Colors.grey[600]),
+                    child: Icon(Icons.comment, size: 20, color: const Color(0xFF6B7280)),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -340,7 +337,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.email_outlined, size: 20, color: Colors.grey[600]),
+                    child: Icon(Icons.email, size: 20, color: const Color(0xFF6B7280)),
                   ),
                 ],
               ),

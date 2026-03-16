@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
 import 'view_leads_screen.dart';
+import 'add_new_lead_screen.dart';
 
 class FollowUpsScreen extends StatefulWidget {
   const FollowUpsScreen({super.key});
@@ -66,6 +67,12 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
           ),
         ),
         title: const Text('Follow Up Leads'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -269,6 +276,17 @@ class _FollowUpsScreenState extends State<FollowUpsScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddNewLeadScreen(),
+            ),
+          ).then((_) => _loadLeads());
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

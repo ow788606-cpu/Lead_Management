@@ -1730,6 +1730,40 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 _showEditDialog();
               } else if (value == 'personal') {
                 _showPersonalDetails();
+              } else if (value == 'mark_completed') {
+                final shouldMarkCompleted = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: const Text('Mark as Completed'),
+                    content: const Text('Are you sure you want to mark this lead as completed?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext, true),
+                        child: const Text('Mark as Completed', style: TextStyle(color: Colors.green)),
+                      ),
+                    ],
+                  ),
+                );
+                if (!context.mounted) return;
+                if (shouldMarkCompleted == true) {
+                  try {
+                    await _leadManager.markAsCompleted(widget.lead.id);
+                    if (!context.mounted) return;
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Lead marked as completed successfully')),
+                    );
+                  } catch (e) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to mark lead as completed: $e')),
+                    );
+                  }
+                }
               } else if (value == 'delete') {
                 final shouldDelete = await showDialog<bool>(
                   context: context,
@@ -1758,8 +1792,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 }
               }
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem<String>(
+            itemBuilder: (context) => [
+              const PopupMenuItem<String>(
                 value: 'edit',
                 child: Row(
                   children: [
@@ -1769,7 +1803,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   ],
                 ),
               ),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'personal',
                 child: Row(
                   children: [
@@ -1779,7 +1813,17 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   ],
                 ),
               ),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
+                value: 'mark_completed',
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, size: 20, color: Colors.green),
+                    SizedBox(width: 8),
+                    Text('Mark as Completed', style: TextStyle(color: Colors.green)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
                 value: 'delete',
                 child: Row(
                   children: [

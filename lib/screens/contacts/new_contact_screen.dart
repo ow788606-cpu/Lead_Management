@@ -88,13 +88,9 @@ class _NewContactScreenState extends State<NewContactScreen> {
         ),
         title: const Text('New Contact'),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: TextButton(
-              onPressed: () {},
-              child: const Text('All contacts',
-                  style: TextStyle(fontSize: 14, color: Colors.black)),
-            ),
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
           ),
         ],
       ),

@@ -32,6 +32,12 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
           ),
         ),
         title: const Text('Lead Reports'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(

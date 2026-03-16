@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
 import 'view_leads_screen.dart';
+import 'add_new_lead_screen.dart';
 
 class FreshLeadsScreen extends StatefulWidget {
   const FreshLeadsScreen({super.key});
@@ -65,6 +66,12 @@ class _FreshLeadsScreenState extends State<FreshLeadsScreen> {
           ),
         ),
         title: const Text('Fresh Leads'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -271,6 +278,17 @@ class _FreshLeadsScreenState extends State<FreshLeadsScreen> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddNewLeadScreen(),
+            ),
+          ).then((_) => _loadLeads());
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

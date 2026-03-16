@@ -31,7 +31,13 @@ class ViewContactScreen extends StatelessWidget {
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('Cloop'),
+        title: const Text('Client Profile'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -39,12 +45,6 @@ class ViewContactScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Client Profile',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Inter')),
-              const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -61,19 +61,6 @@ class ViewContactScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // const Text('Client Profile',
-                    //     style: TextStyle(
-                    //         fontSize: 20,
-                    //         fontWeight: FontWeight.bold,
-                    //         fontFamily: 'Inter')),
-                    const SizedBox(height: 8),
-                    const Text(
-                        'Everything you need to know about this client, all in one place.',
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 13,
-                            fontFamily: 'Inter')),
-                    const SizedBox(height: 24),
                     Row(
                       children: [
                         Stack(

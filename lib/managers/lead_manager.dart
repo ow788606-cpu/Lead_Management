@@ -21,6 +21,14 @@ class LeadManager {
     return list;
   }
 
+  List<Lead> get followUpLeads {
+    final list = _leads
+        .where((lead) => lead.followUpDate != null)
+        .toList();
+    list.sort((a, b) => a.followUpDate!.compareTo(b.followUpDate!));
+    return list;
+  }
+
   List<Lead> get overdueLeads {
     final now = DateTime.now();
     final list = _leads
@@ -113,7 +121,29 @@ class LeadManager {
     _leads.removeWhere((lead) => lead.id == id);
   }
 
-  void markAsCompleted(String id) {
+  Future<void> markAsCompleted(String id) async {
+    final userId = await AuthManager().getUserId() ?? 0;
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/leads.php'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'action': 'update_status',
+        'lead_id': int.tryParse(id) ?? 0,
+        'user_id': userId,
+        'status_id': 4, // 4 = completed status
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark lead as completed');
+    }
+
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
+      throw Exception('Failed to update lead status');
+    }
+
+    // Update local data
     final index = _leads.indexWhere((lead) => lead.id == id);
     if (index != -1) {
       _leads[index].isCompleted = true;
