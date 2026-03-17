@@ -913,6 +913,30 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     }
   }
 
+  IconData _getIconFromCodePoint(int codePoint) {
+    // Map common icon code points to their IconData
+    switch (codePoint) {
+      case 0xe0b0: // Icons.phone
+        return Icons.phone;
+      case 0xe0be: // Icons.sms
+        return Icons.sms;
+      case 0xe0be: // Icons.email
+        return Icons.email;
+      case 0xe5c9: // Icons.cancel
+        return Icons.cancel;
+      case 0xe5ca: // Icons.check_circle
+        return Icons.check_circle;
+      case 0xe878: // Icons.person_add
+        return Icons.person_add;
+      case 0xe8b5: // Icons.schedule
+        return Icons.schedule;
+      case 0xe878: // Icons.event
+        return Icons.event;
+      default:
+        return Icons.event; // Default fallback icon
+    }
+  }
+
   void _showAddTaskDialog() {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -2238,7 +2262,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           'title': activity['title'],
           'description': activity['description'],
           'date': DateTime.parse(activity['date']),
-          'icon': IconData(activity['icon'], fontFamily: 'MaterialIcons'),
+          'icon': _getIconFromCodePoint(activity['icon']),
           'user_id': activity['user_id'] ?? userId,
         }).toList();
         
