@@ -62,10 +62,17 @@ class LeadManager {
       throw Exception('Invalid leads response');
     }
 
-    final rows = (decoded['data'] as List<dynamic>? ?? [])
-        .map((item) => item as Map<String, dynamic>)
-        .map(_leadFromApi)
-        .toList();
+    final rows = <Lead>[];
+    final data = decoded['data'] as List<dynamic>? ?? [];
+    for (final item in data) {
+      if (item is Map) {
+        final map = <String, dynamic>{};
+        item.forEach((key, value) {
+          map[key.toString()] = value;
+        });
+        rows.add(_leadFromApi(map));
+      }
+    }
     _leads.clear();
     _leads.addAll(rows);
     _isLoaded = true;
@@ -151,29 +158,33 @@ class LeadManager {
   }
 
   Lead _leadFromApi(Map<String, dynamic> json) {
-    final followUp =
-        DateTime.tryParse((json['next_followup_at'] ?? '').toString());
-    final createdAt =
-        DateTime.tryParse((json['created_at'] ?? '').toString()) ??
-            DateTime.now();
-    final statusId = int.tryParse((json['status'] ?? '0').toString()) ?? 0;
-    final followUpTime = followUp == null
-        ? null
-        : '${((followUp.hour % 12 == 0) ? 12 : followUp.hour % 12)}:${followUp.minute.toString().padLeft(2, '0')} ${followUp.hour >= 12 ? 'PM' : 'AM'}';
+    try {
+      final followUp =
+          DateTime.tryParse((json['next_followup_at'] ?? '').toString());
+      final createdAt =
+          DateTime.tryParse((json['created_at'] ?? '').toString()) ??
+              DateTime.now();
+      final statusId = int.tryParse((json['status'] ?? '0').toString()) ?? 0;
+      final followUpTime = followUp == null
+          ? null
+          : '${((followUp.hour % 12 == 0) ? 12 : followUp.hour % 12)}:${followUp.minute.toString().padLeft(2, '0')} ${followUp.hour >= 12 ? 'PM' : 'AM'}';
 
-    return Lead(
-      id: (json['id'] ?? '').toString(),
-      contactName: (json['contact_name'] ?? '').toString(),
-      email: _nullableString(json['email']),
-      phone: _nullableString(json['phone']),
-      service: _nullableString(json['service_name']),
-      tags: _nullableString(json['tags']),
-      notes: _nullableString(json['description']),
-      followUpDate: followUp,
-      followUpTime: followUpTime,
-      createdAt: createdAt,
-      isCompleted: statusId == 4,
-    );
+      return Lead(
+        id: (json['id'] ?? '').toString(),
+        contactName: (json['contact_name'] ?? '').toString(),
+        email: _nullableString(json['email']),
+        phone: _nullableString(json['phone']),
+        service: _nullableString(json['service_name']),
+        tags: _nullableString(json['tags']),
+        notes: _nullableString(json['description']),
+        followUpDate: followUp,
+        followUpTime: followUpTime,
+        createdAt: createdAt,
+        isCompleted: statusId == 4,
+      );
+    } catch (e) {
+      throw Exception('Error parsing lead: $e');
+    }
   }
 
   String? _nullableString(dynamic value) {

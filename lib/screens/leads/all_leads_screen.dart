@@ -5,6 +5,7 @@ import '../../managers/lead_manager.dart';
 import '../../models/lead.dart';
 import '../tags/tag_api.dart';
 import '../../widgets/app_drawer.dart';
+import '../../services/notification_service.dart';
 import 'detail_lead_screen.dart';
 import 'add_new_lead_screen.dart';
 
@@ -21,11 +22,13 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
     with SingleTickerProviderStateMixin {
   final _leadManager = LeadManager();
   final _searchController = TextEditingController();
+  final _notificationService = NotificationService();
   late TabController _tabController;
   int _selectedTab = 0;
   List<TagItem> _tags = [];
   Map<String, Color> _tagColors = {};
   Timer? _refreshTimer;
+  final Set<String> _notifiedLeadIds = {};
 
   @override
   void initState() {
@@ -38,6 +41,8 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
     _loadLeads();
     _loadTags();
     _startRealTimeUpdates();
+    _notificationService.addListener(_onLeadNotification);
+    _notificationService.startMonitoring(_leadManager.allLeads);
   }
 
   @override
@@ -45,12 +50,13 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
     _refreshTimer?.cancel();
     _tabController.dispose();
     _searchController.dispose();
+    _notificationService.removeListener(_onLeadNotification);
+    _notificationService.stopMonitoring();
     super.dispose();
   }
 
   void _startRealTimeUpdates() {
-    // Refresh data every 5 seconds for real-time updates
-    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       _loadLeads();
       _loadTags();
     });
@@ -59,10 +65,10 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
   Future<void> _loadLeads() async {
     try {
       await _leadManager.loadLeads(forceRefresh: true);
-      // Ensure tags are loaded before displaying leads
       if (_tagColors.isEmpty) {
         await _loadTags();
       }
+      _notificationService.startMonitoring(_leadManager.allLeads);
       if (mounted) setState(() {});
     } catch (e) {
       // Handle error silently
@@ -91,6 +97,34 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
     final normalized = hex.replaceFirst('#', '').toUpperCase();
     if (normalized.length != 6) return const Color(0xFF0B5CFF);
     return Color(int.parse('FF$normalized', radix: 16));
+  }
+
+  void _onLeadNotification(Lead lead) {
+    if (_notifiedLeadIds.contains(lead.id)) return;
+    _notifiedLeadIds.add(lead.id);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Reminder: Follow-up with ${lead.contactName} in 15 minutes'),
+        duration: const Duration(seconds: 5),
+        backgroundColor: const Color(0xFF0B5CFF),
+        action: SnackBarAction(
+          label: 'View',
+          textColor: Colors.white,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailLeadScreen(
+                  lead: lead,
+                  startInEditMode: false,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 
   List<Lead> _getFilteredLeads() {
@@ -461,7 +495,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   children: [
                     if (lead.followUpDate != null)
                       Text(
-                        'Follow-up : ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} 10:00 AM',
+                        'Follow-up : ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? '10:00 AM'}',
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     if (statusTag.isNotEmpty)
