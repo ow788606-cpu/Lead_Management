@@ -192,11 +192,12 @@ class _MainScreenState extends State<MainScreen> {
       case 3: // Contacts screen
         return FloatingActionButton(
           tooltip: 'Add New Contact',
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const AddContactScreen()),
             );
+            if (result == true && mounted) setState(() {});
           },
           child: const Icon(Icons.add),
         );
@@ -221,16 +222,14 @@ class _MainScreenState extends State<MainScreen> {
         return FloatingActionButton(
           tooltip: 'Add Tag',
           onPressed: () async {
-            await Navigator.push(
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const AddTagsScreen(),
               ),
             );
-            if (mounted) {
-              setState(() {
-                _tagsScreenVersion++;
-              });
+            if (result == true && mounted) {
+              setState(() => _tagsScreenVersion++);
             }
           },
           child: const Icon(Icons.add),
@@ -245,7 +244,7 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return const DashboardScreen();
       case 1:
-        return const AllLeadsScreen();
+        return const AllLeadsScreen(initialTabIndex: 0);
       case 2:
         return const AppointmentsScreen();
       case 3:

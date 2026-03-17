@@ -55,7 +55,14 @@ class _AddServicesScreenState extends State<AddServicesScreen> {
                   const SizedBox(width: 12),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context, _serviceController.text);
+                      final name = _serviceController.text.trim();
+                      if (name.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter a service name')),
+                        );
+                        return;
+                      }
+                      Navigator.pop(context, name);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2563EB),

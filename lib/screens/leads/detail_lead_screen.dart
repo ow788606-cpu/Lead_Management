@@ -1737,21 +1737,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     );
   }
 
-  Widget _buildCircleIcon(IconData icon, VoidCallback? onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF8F9FA),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 20, color: const Color(0xFF374151)),
-      ),
-    );
-  }
-
   Widget _buildActivityItem(Map<String, dynamic> activity) {
     return Card(
       color: Colors.white,
@@ -1771,7 +1756,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
-                child: Icon(activity['icon'], color: const Color(0xFF0b5cff), size: 24),
+                child: Icon(activity['icon'],
+                    color: const Color(0xFF0b5cff), size: 24),
               ),
             ),
             const SizedBox(width: 16),
@@ -1781,7 +1767,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 children: [
                   Text(
                     activity['title'],
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -2043,109 +2030,123 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Row 1: Name + action icons
                   Row(
                     children: [
                       Expanded(
                         child: Text(widget.lead.contactName,
                             style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black)),
                       ),
                       if (widget.lead.phone != null)
-                        _buildCircleIcon(Icons.phone, () => launchUrl(Uri.parse('tel:${widget.lead.phone}'))),
+                        GestureDetector(
+                          onTap: () => launchUrl(Uri.parse('tel:${widget.lead.phone}')),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: const Icon(Icons.phone, size: 18, color: Color(0xFF6B7280)),
+                          ),
+                        ),
                       const SizedBox(width: 8),
-                      _buildCircleIcon(
-                        Icons.chat_bubble,
-                        widget.lead.phone != null
-                            ? () => launchUrl(Uri.parse('sms:${widget.lead.phone}'))
-                            : null,
-                      ),
+                      if (widget.lead.phone != null)
+                        GestureDetector(
+                          onTap: () => launchUrl(Uri.parse('sms:${widget.lead.phone}')),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: const Icon(Icons.comment, size: 18, color: Color(0xFF6B7280)),
+                          ),
+                        ),
                       const SizedBox(width: 8),
                       if (widget.lead.email != null)
-                        _buildCircleIcon(Icons.email_rounded, () => launchUrl(Uri.parse('mailto:${widget.lead.email}'))),
+                        GestureDetector(
+                          onTap: () => launchUrl(Uri.parse('mailto:${widget.lead.email}')),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: const Icon(Icons.email, size: 18, color: Color(0xFF6B7280)),
+                          ),
+                        ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  if (widget.lead.service != null)
-                    Row(
-                      children: [
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: Text(
-                            widget.lead.service!,
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.black87),
-                          ),
-                        ),
-                      ],
-                    ),
-                  if (widget.lead.followUpDate != null) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: Text(
-                            'Follow-up: ${widget.lead.followUpDate!.day}/${widget.lead.followUpDate!.month}/${widget.lead.followUpDate!.year} ${widget.lead.followUpTime ?? "10:00 AM"}',
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.black87),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  if (widget.lead.notes != null &&
-                      widget.lead.notes!.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: Text(
-                            widget.lead.notes!,
-                            style: const TextStyle(
-                                fontSize: 13, color: Colors.grey),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  if (widget.lead.tags != null &&
-                      widget.lead.tags!.isNotEmpty) ...[
+                  // Row 2: Service
+                  if (widget.lead.service != null && widget.lead.service!.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(width: 24),
+                        Icon(Icons.design_services, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 6),
+                        Text(widget.lead.service!,
+                            style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+                      ],
+                    ),
+                  ],
+                  // Row 3: Notes
+                  if (widget.lead.notes != null && widget.lead.notes!.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[400]),
+                        const SizedBox(width: 6),
                         Expanded(
-                          child: Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            children: widget.lead.tags!.split(',').map((tag) {
-                              final trimmedTag = tag.trim();
-                              if (trimmedTag.isEmpty) {
-                                return const SizedBox.shrink();
-                              }
-
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Text(
-                                  trimmedTag,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                          child: Text(widget.lead.notes!,
+                              style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis),
+                        ),
+                      ],
+                    ),
+                  ],
+                  // Tags
+                  if (widget.lead.tags != null && widget.lead.tags!.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: widget.lead.tags!.split(',').map((tag) {
+                        final trimmedTag = tag.trim();
+                        if (trimmedTag.isEmpty) return const SizedBox.shrink();
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(16),
                           ),
+                          child: Text(
+                            trimmedTag,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.red,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                  // Follow-up
+                  if (widget.lead.followUpDate != null) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Follow-up : ${widget.lead.followUpDate!.day}/${widget.lead.followUpDate!.month}/${widget.lead.followUpDate!.year} ${widget.lead.followUpTime ?? "10:00 AM"}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                         ),
                       ],
                     ),
@@ -2266,7 +2267,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                   onTap: () {
                                     Navigator.pop(context);
                                     if (widget.lead.phone != null) {
-                                      launchUrl(Uri.parse('sms:${widget.lead.phone}'));
+                                      launchUrl(Uri.parse(
+                                          'sms:${widget.lead.phone}'));
                                     }
                                   },
                                 ),
@@ -2276,7 +2278,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                   onTap: () {
                                     Navigator.pop(context);
                                     if (widget.lead.email != null) {
-                                      launchUrl(Uri.parse('mailto:${widget.lead.email}'));
+                                      launchUrl(Uri.parse(
+                                          'mailto:${widget.lead.email}'));
                                     }
                                   },
                                 ),
@@ -2286,11 +2289,14 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         );
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 12),
                         decoration: BoxDecoration(
-                          border: Border(left: BorderSide(color: Colors.grey.shade300)),
+                          border: Border(
+                              left: BorderSide(color: Colors.grey.shade300)),
                         ),
-                        child: const Icon(Icons.keyboard_arrow_down, size: 18, color: Colors.black54),
+                        child: const Icon(Icons.keyboard_arrow_down,
+                            size: 18, color: Colors.black54),
                       ),
                     ),
                   ],
@@ -2305,7 +2311,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     onPressed: widget.lead.phone != null
                         ? () => launchUrl(Uri.parse('tel:${widget.lead.phone}'))
                         : null,
-                    icon: const Icon(Icons.phone, color: Colors.white, size: 16),
+                    icon:
+                        const Icon(Icons.phone, color: Colors.white, size: 16),
                     label: const Text('Make a Call',
                         style: TextStyle(color: Colors.white, fontSize: 13)),
                     style: ElevatedButton.styleFrom(

@@ -69,10 +69,6 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      drawer: AppDrawer(
-        selectedIndex: 1,
-        onItemSelected: (_) => Navigator.pop(context),
-      ),
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
@@ -87,6 +83,10 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
             onPressed: () {},
           ),
         ],
+      ),
+      drawer: AppDrawer(
+        selectedIndex: -1,
+        onItemSelected: (_) {},
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -168,62 +168,110 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            DropdownButtonFormField<String>(
-                              initialValue: _selectedContact,
-                              style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  color: Colors.black,
-                                  fontSize: 14),
-                              decoration: InputDecoration(
-                                hintText: 'Select Contact or Add New',
-                                hintStyle: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                    fontFamily: 'Inter'),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
+                            if (_selectedContact != null &&
+                                _selectedContact != 'add_new') ...
+                              [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    border: Border.all(color: Colors.grey[300]!),
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.grey[300]!)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.grey[300]!)),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 14),
-                              ),
-                              selectedItemBuilder: (context) => [
-                                const Text('Add New Contact',
-                                    style: TextStyle(fontFamily: 'Inter')),
-                                ..._contactManager.allContacts.map(
-                                  (contact) => Text(
-                                    contact.name,
-                                    style: const TextStyle(fontFamily: 'Inter'),
                                   ),
-                                ),
-                              ],
-                              items: [
-                                const DropdownMenuItem(
-                                    value: 'add_new',
-                                    child: Text('Add New Contact',
-                                        style: TextStyle(fontFamily: 'Inter'))),
-                                ..._contactManager.allContacts.map(
-                                  (contact) => DropdownMenuItem(
-                                    value: contact.id,
-                                    child: Text(contact.name,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        _contactManager.allContacts
+                                            .firstWhere(
+                                              (c) => c.id == _selectedContact,
+                                              orElse: () => Contact(
+                                                id: '',
+                                                name: '',
+                                                phone: '',
+                                                address: '',
+                                                createdAt: DateTime.now(),
+                                              ),
+                                            )
+                                            .name,
                                         style: const TextStyle(
-                                            fontFamily: 'Inter')),
+                                            fontFamily: 'Inter',
+                                            fontSize: 14,
+                                            color: Colors.black),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.close, size: 18),
+                                        onPressed: () => setState(() {
+                                          _selectedContact = null;
+                                          _showContactForm = false;
+                                        }),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedContact = value;
-                                  _showContactForm = value == 'add_new';
-                                });
-                              },
-                            ),
+                              ]
+                            else
+                              DropdownButtonFormField<String>(
+                                initialValue: _selectedContact,
+                                style: const TextStyle(
+                                    fontFamily: 'Inter',
+                                    color: Colors.black,
+                                    fontSize: 14),
+                                decoration: InputDecoration(
+                                  hintText: 'Select Contact or Add New',
+                                  hintStyle: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                      fontFamily: 'Inter'),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey[300]!)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide:
+                                          BorderSide(color: Colors.grey[300]!)),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 14),
+                                ),
+                                selectedItemBuilder: (context) => [
+                                  const Text('Add New Contact',
+                                      style: TextStyle(fontFamily: 'Inter')),
+                                  ..._contactManager.allContacts.map(
+                                    (contact) => Text(
+                                      contact.name,
+                                      style: const TextStyle(fontFamily: 'Inter'),
+                                    ),
+                                  ),
+                                ],
+                                items: [
+                                  const DropdownMenuItem(
+                                      value: 'add_new',
+                                      child: Text('Add New Contact',
+                                          style:
+                                              TextStyle(fontFamily: 'Inter'))),
+                                  ..._contactManager.allContacts.map(
+                                    (contact) => DropdownMenuItem(
+                                      value: contact.id,
+                                      child: Text(contact.name,
+                                          style: const TextStyle(
+                                              fontFamily: 'Inter')),
+                                    ),
+                                  ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedContact = value;
+                                    _showContactForm = value == 'add_new';
+                                  });
+                                },
+                              ),
                             if (_showContactForm) ...[
                               const SizedBox(height: 24),
                               const Text('Name',
@@ -586,6 +634,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 return TextField(
                                   controller: controller,
                                   focusNode: focusNode,
+                                  enabled: _selectedService == null,
                                   style: const TextStyle(
                                       fontFamily: 'Inter', fontSize: 14),
                                   decoration: InputDecoration(
@@ -603,6 +652,10 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                         borderSide: BorderSide(
                                             color: Colors.grey[300]!)),
                                     enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                            color: Colors.grey[300]!)),
+                                    disabledBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: BorderSide(
                                             color: Colors.grey[300]!)),
@@ -756,9 +809,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                             : '--:--',
                                         style: const TextStyle(
                                             fontSize: 14, fontFamily: 'Inter')),
-                                    const Spacer(),
-                                    Icon(Icons.watch_later_outlined,
-                                        size: 18, color: Colors.grey[600]),
+
                                   ],
                                 ),
                               ),

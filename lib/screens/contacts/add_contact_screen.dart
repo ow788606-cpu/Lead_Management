@@ -57,7 +57,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Contact added successfully')),
     );
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 
   @override

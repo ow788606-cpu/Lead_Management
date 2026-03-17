@@ -8,10 +8,6 @@ import '../screens/auth/manage_profile_screen.dart';
 import '../screens/auth/change_password_screen.dart';
 import '../screens/leads/add_new_lead_screen.dart';
 import '../screens/leads/all_leads_screen.dart';
-import '../screens/leads/fresh_leads_screen.dart';
-import '../screens/leads/follow_ups_screen.dart';
-import '../screens/leads/overdue_screen.dart';
-import '../screens/leads/completed_screen.dart';
 import '../screens/contacts/all_contacts_screen.dart';
 import '../screens/contacts/new_contact_screen.dart';
 import '../screens/contacts/bulk_upload_screen.dart';
@@ -92,31 +88,31 @@ class AppDrawer extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const AllLeadsScreen()));
+                        builder: (context) => const AllLeadsScreen(initialTabIndex: 0)));
               }),
               _SubItem('Fresh Leads', () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const FreshLeadsScreen()));
+                        builder: (context) => const AllLeadsScreen(initialTabIndex: 1)));
               }),
               _SubItem('Follow-Ups', () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const FollowUpsScreen()));
+                        builder: (context) => const AllLeadsScreen(initialTabIndex: 2)));
               }),
               _SubItem('Overdue', () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const OverdueScreen()));
+                        builder: (context) => const AllLeadsScreen(initialTabIndex: 3)));
               }),
               _SubItem('Completed', () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const CompletedScreen()));
+                        builder: (context) => const AllLeadsScreen(initialTabIndex: 4)));
               }),
             ]),
             _DrawerItem(

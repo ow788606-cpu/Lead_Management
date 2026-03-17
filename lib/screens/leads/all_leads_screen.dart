@@ -9,7 +9,9 @@ import 'detail_lead_screen.dart';
 import 'add_new_lead_screen.dart';
 
 class AllLeadsScreen extends StatefulWidget {
-  const AllLeadsScreen({super.key});
+  final int initialTabIndex;
+
+  const AllLeadsScreen({super.key, this.initialTabIndex = 0});
 
   @override
   State<AllLeadsScreen> createState() => _AllLeadsScreenState();
@@ -28,10 +30,11 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 5, vsync: this, initialIndex: widget.initialTabIndex);
     _tabController.addListener(() {
       setState(() => _selectedTab = _tabController.index);
     });
+    _selectedTab = widget.initialTabIndex;
     _loadLeads();
     _loadTags();
     _startRealTimeUpdates();
@@ -205,6 +208,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   labelColor: const Color(0xFF0B5CFF),
                   unselectedLabelColor: Colors.grey,
                   indicatorColor: const Color(0xFF0B5CFF),
+                  dividerColor: Colors.transparent,
                   tabs: const [
                     Tab(text: 'All Leads'),
                     Tab(text: 'Fresh Leads'),
@@ -317,27 +321,30 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: Icon(Icons.phone, size: 20, color: const Color(0xFF6B7280)),
+                    child: Icon(Icons.phone, size: 18, color: const Color(0xFF6B7280)),
                   ),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: Icon(Icons.comment, size: 20, color: const Color(0xFF6B7280)),
+                    child: Icon(Icons.comment, size: 18, color: const Color(0xFF6B7280)),
                   ),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: Icon(Icons.email, size: 20, color: const Color(0xFF6B7280)),
+                    child: Icon(Icons.email, size: 18, color: const Color(0xFF6B7280)),
                   ),
                 ],
               ),
@@ -445,30 +452,34 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   }).toList(),
                 ),
               ],
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (lead.followUpDate != null)
-                    Text(
+              if (lead.followUpDate != null || statusTag.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E7EB)),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (lead.followUpDate != null)
+                      Text(
                         'Follow-up : ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} 10:00 AM',
-                        style: TextStyle(
-                            fontSize: 12, color: Colors.grey[600])),
-                  if (statusTag.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    if (statusTag.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
                           color: statusColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Text(statusTag,
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: statusColor,
-                              fontWeight: FontWeight.w500)),
-                    ),
-                ],
-              ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(statusTag,
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: statusColor,
+                                fontWeight: FontWeight.w500)),
+                      ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

@@ -59,7 +59,9 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddContactScreen()),
-          );
+          ).then((result) {
+            if (result == true) _loadContacts();
+          });
         },
         child: const Icon(Icons.add),
       ),
