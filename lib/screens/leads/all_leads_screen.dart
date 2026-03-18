@@ -104,7 +104,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Reminder: Follow-up with ${lead.contactName} in 15 minutes'),
+        content: Text('Reminder: Follow-up with ${lead.contactName} in 5 minutes'),
         duration: const Duration(seconds: 5),
         backgroundColor: const Color(0xFF0B5CFF),
         action: SnackBarAction(

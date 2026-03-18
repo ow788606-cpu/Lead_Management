@@ -124,7 +124,7 @@ class NotificationService {
     await _flutterLocalNotificationsPlugin.show(
       lead.id.hashCode,
       'Lead Follow-up Reminder',
-      'Follow-up with ${lead.contactName} in 15 minutes',
+      'Follow-up with ${lead.contactName} in 5 minutes',
       notificationDetails,
       payload: lead.id,
     );
@@ -148,10 +148,11 @@ class NotificationService {
       return;
     }
     _notificationTimer?.cancel();
-    // GLOBAL MONITORING: 30-second intervals for precise timing
-    _notificationTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+    // TESTING MODE: 10-second intervals for more precise timing during testing
+    _notificationTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       _checkNotifications(leads);
     });
+    debugPrint('🔔 Notification monitoring started with ${leads.length} leads');
   }
 
   void stopMonitoring() {
@@ -168,6 +169,8 @@ class NotificationService {
   /// - Debug logging for monitoring
   void _checkNotifications(List<Lead> leads) {
     final now = DateTime.now();
+    debugPrint('🔍 Checking notifications at ${now.hour}:${now.minute.toString().padLeft(2, '0')} for ${leads.length} leads');
+    
     for (final lead in leads) {
       if (lead.followUpDate != null && !lead.isCompleted && !_notifiedLeadIds.contains(lead.id)) {
         // Parse follow-up time with fallback to 10:00 AM
@@ -199,8 +202,15 @@ class NotificationService {
           minute,
         );
         
-        final notificationTime = followUpDateTime.subtract(const Duration(minutes: 15));
+        final notificationTime = followUpDateTime.subtract(const Duration(minutes: 5));
         final minutesUntilNotification = notificationTime.difference(now).inMinutes;
+        final secondsUntilNotification = notificationTime.difference(now).inSeconds;
+        
+        debugPrint('📅 Lead: ${lead.contactName}');
+        debugPrint('   Follow-up: ${followUpDateTime.day}/${followUpDateTime.month} ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}');
+        debugPrint('   Notification time: ${notificationTime.hour.toString().padLeft(2, '0')}:${notificationTime.minute.toString().padLeft(2, '0')}');
+        debugPrint('   Minutes until notification: $minutesUntilNotification');
+        debugPrint('   Seconds until notification: $secondsUntilNotification');
         
         // PRECISE TIMING LOGIC: Trigger notification within accurate timing window
         // Notify if within 1 minute of notification time or up to 5 minutes late
