@@ -16,10 +16,20 @@ try {
     switch ($method) {
         case 'GET':
             if (isset($_GET['lead_id'])) {
-                $lead_id = (int)$_GET['lead_id'];
-                $stmt = $pdo->prepare("SELECT * FROM lead_tasks WHERE lead_id = ? ORDER BY created_at DESC");
+                $lead_id = (int)$_GET['lead_id']; // Ensure integer conversion
+                $stmt = $pdo->prepare("
+                    SELECT lt.*, u.userName as user_name 
+                    FROM lead_tasks lt 
+                    LEFT JOIN users u ON lt.user_id = u.user_Id 
+                    WHERE lt.lead_id = ? 
+                    ORDER BY lt.created_at DESC
+                ");
                 $stmt->execute([$lead_id]);
                 $tasks = $stmt->fetchAll();
+                
+                // Debug logging
+                error_log("Lead Tasks Query for lead_id: $lead_id");
+                error_log("Lead Tasks Results: " . count($tasks) . " records");
                 
                 echo json_encode([
                     'success' => true,

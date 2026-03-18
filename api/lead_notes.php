@@ -17,9 +17,19 @@ try {
         case 'GET':
             if (isset($_GET['lead_id'])) {
                 $lead_id = (int)$_GET['lead_id'];
-                $stmt = $pdo->prepare("SELECT * FROM lead_notes WHERE lead_id = ? ORDER BY created_at DESC");
+                $stmt = $pdo->prepare("
+                    SELECT ln.*, u.userName as user_name 
+                    FROM lead_notes ln 
+                    LEFT JOIN users u ON ln.user_id = u.user_Id 
+                    WHERE ln.lead_id = ? 
+                    ORDER BY ln.created_at DESC
+                ");
                 $stmt->execute([$lead_id]);
                 $notes = $stmt->fetchAll();
+                
+                // Debug logging
+                error_log("Lead Notes Query for lead_id: $lead_id");
+                error_log("Lead Notes Results: " . count($notes) . " records");
                 
                 echo json_encode([
                     'success' => true,

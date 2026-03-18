@@ -22,13 +22,46 @@ class Task {
   });
 
   Map<String, dynamic> toJson() {
+    // Combine dueDate and dueTime to create complete datetime
+    DateTime completeDueDateTime = dueDate;
+    
+    // Parse the dueTime string to get hour and minute
+    try {
+      final timeMatch = RegExp(r'(\d{1,2}):(\d{2})\s*(AM|PM)', caseSensitive: false)
+          .firstMatch(dueTime);
+      if (timeMatch != null) {
+        int hour = int.parse(timeMatch.group(1)!);
+        int minute = int.parse(timeMatch.group(2)!);
+        final isPM = timeMatch.group(3)!.toUpperCase() == 'PM';
+        if (isPM && hour != 12) hour += 12;
+        if (!isPM && hour == 12) hour = 0;
+        
+        completeDueDateTime = DateTime(
+          dueDate.year,
+          dueDate.month,
+          dueDate.day,
+          hour,
+          minute,
+        );
+      }
+    } catch (e) {
+      // If parsing fails, use the date with default time (12:00 PM)
+      completeDueDateTime = DateTime(
+        dueDate.year,
+        dueDate.month,
+        dueDate.day,
+        12,
+        0,
+      );
+    }
+    
     return {
       'id': id,
       'lead_id': leadId,
       'title': title,
       'description': description,
       'priority': priority,
-      'due_at': dueDate.toIso8601String(),
+      'due_at': completeDueDateTime.toIso8601String(),
       'dueTime': dueTime,
       'isCompleted': isCompleted,
       'completedDate': completedDate?.toIso8601String(),
@@ -36,18 +69,46 @@ class Task {
   }
 
   factory Task.fromJson(Map<String, dynamic> json) {
+    DateTime dueDateTime;
+    String dueTimeString = '12:00 PM';
+    
+    // Parse the due_at field which contains the complete datetime
+    if (json['due_at'] != null) {
+      dueDateTime = DateTime.parse(json['due_at'].toString());
+      // Extract time and format as 12-hour string
+      int hour = dueDateTime.hour;
+      int minute = dueDateTime.minute;
+      String period = 'AM';
+      
+      if (hour == 0) {
+        hour = 12;
+      } else if (hour > 12) {
+        hour = hour - 12;
+        period = 'PM';
+      } else if (hour == 12) {
+        period = 'PM';
+      }
+      
+      dueTimeString = '${hour.toString()}:${minute.toString().padLeft(2, '0')} $period';
+    } else if (json['dueDate'] != null) {
+      dueDateTime = DateTime.parse(json['dueDate'].toString());
+    } else {
+      dueDateTime = DateTime.now();
+    }
+    
+    // Use provided dueTime if available, otherwise use extracted time
+    if (json['dueTime'] != null && json['dueTime'].toString().isNotEmpty) {
+      dueTimeString = json['dueTime'].toString();
+    }
+    
     return Task(
       id: (json['id'] ?? '').toString(),
       leadId: json['lead_id']?.toString(),
       title: (json['title'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
       priority: (json['priority'] ?? 'Medium').toString(),
-      dueDate: json['dueDate'] != null 
-          ? DateTime.parse(json['dueDate'].toString())
-          : json['due_at'] != null
-              ? DateTime.parse(json['due_at'].toString())
-              : DateTime.now(),
-      dueTime: (json['dueTime'] ?? json['due_time'] ?? '12:00 PM').toString(),
+      dueDate: DateTime(dueDateTime.year, dueDateTime.month, dueDateTime.day), // Date only
+      dueTime: dueTimeString,
       isCompleted: json['isCompleted'] == true || 
                    json['is_completed'] == true ||
                    json['status'] == 'completed',

@@ -17,6 +17,7 @@ import 'managers/contact_manager.dart';
 import 'managers/lead_manager.dart';
 import 'managers/task_manager.dart';
 import 'services/notification_service.dart';
+import 'services/lead_activity_api.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -374,20 +375,96 @@ class _MainScreenState extends State<MainScreen> {
 
   Future<void> _startNotificationMonitoring() async {
     final leadManager = LeadManager();
-    await leadManager.loadLeads();
-    _notificationService.startMonitoring(leadManager.allLeads);
+    final taskManager = TaskManager();
+    await Future.wait([
+      leadManager.loadLeads(),
+      taskManager.loadTasks(),
+    ]);
     
-    // Check if there's a pending lead to navigate to
+    debugPrint('🔄 Starting notification monitoring...');
+    debugPrint('📊 Loaded ${leadManager.allLeads.length} leads');
+    
+    // Get all tasks from task manager (combine pending and completed)
+    final allTasks = [...taskManager.pendingTasks, ...taskManager.completedTasks].map((task) => {
+      'id': task.id,
+      'title': task.title,
+      'description': task.description,
+      'dueDate': task.dueDate,
+      'dueTime': task.dueTime,
+      'isCompleted': task.isCompleted,
+      'priority': task.priority,
+    }).toList();
+    
+    debugPrint('📋 Loaded ${allTasks.length} tasks');
+    
+    // Get all activities from all leads
+    final allActivities = <Map<String, dynamic>>[];
+    for (final lead in leadManager.allLeads) {
+      try {
+        debugPrint('🔍 Loading activities for lead: ${lead.contactName} (ID: ${lead.id})');
+        final activities = await LeadActivityApi.getActivities(lead.id);
+        debugPrint('📞 Found ${activities.length} activities for ${lead.contactName}');
+        
+        for (int i = 0; i < activities.length; i++) {
+          final activity = activities[i];
+          debugPrint('   Activity $i: ${activity['activity_type']} - scheduled_at: ${activity['scheduled_at']}');
+          
+          // Only include activities with scheduled_at dates
+          if (activity['scheduled_at'] != null && activity['scheduled_at'].toString().isNotEmpty) {
+            final scheduledActivity = {
+              'id': activity['id'],
+              'title': activity['activity_type'] ?? 'Activity',
+              'description': activity['description'] ?? '',
+              'scheduledDate': DateTime.parse(activity['scheduled_at']),
+              'leadId': lead.id,
+            };
+            allActivities.add(scheduledActivity);
+            debugPrint('   ✅ Added scheduled activity: ${scheduledActivity['title']} at ${scheduledActivity['scheduledDate']}');
+          } else {
+            debugPrint('   ❌ Skipped activity (no scheduled_at): ${activity['activity_type']}');
+          }
+        }
+      } catch (e) {
+        debugPrint('❌ Error loading activities for lead ${lead.contactName}: $e');
+      }
+    }
+    
+    debugPrint('📞 Total scheduled activities loaded: ${allActivities.length}');
+    
+    _notificationService.startMonitoring(
+      leadManager.allLeads, 
+      allTasks: allTasks,
+      allActivities: allActivities,
+    );
+    
+    // Check if there's a pending notification to navigate to
     _checkPendingNotification();
   }
   
   void _checkPendingNotification() {
-    final pendingLeadId = _notificationService.pendingLeadId;
-    if (pendingLeadId != null) {
-      _notificationService.clearPendingLeadId();
-      // Navigate to lead details
+    final pendingPayload = _notificationService.pendingPayload;
+    if (pendingPayload != null) {
+      _notificationService.clearPendingPayload();
+      // Navigate based on notification type
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _navigateToLead(pendingLeadId);
+        if (pendingPayload.startsWith('lead:')) {
+          final leadId = pendingPayload.substring(5);
+          _navigateToLead(leadId);
+        } else if (pendingPayload.startsWith('task:')) {
+          final parts = pendingPayload.split(':');
+          if (parts.length >= 3) {
+            final taskId = parts[1];
+            final leadId = parts[2];
+            _navigateToTaskInLead(taskId, leadId);
+          }
+        } else if (pendingPayload.startsWith('activity:')) {
+          final parts = pendingPayload.split(':');
+          if (parts.length >= 3) {
+            final activityId = parts[1];
+            final leadId = parts[2];
+            _navigateToActivityInLead(activityId, leadId);
+          }
+        }
       });
     }
   }
@@ -395,21 +472,91 @@ class _MainScreenState extends State<MainScreen> {
   void _navigateToLead(String leadId) {
     // Find the lead by ID
     final leadManager = LeadManager();
-    final lead = leadManager.allLeads.firstWhere(
-      (lead) => lead.id == leadId,
-      orElse: () => throw Exception('Lead not found'),
-    );
-    
-    // Navigate directly to the lead detail screen
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DetailLeadScreen(
-          lead: lead,
-          startInEditMode: false,
+    try {
+      final lead = leadManager.allLeads.firstWhere(
+        (lead) => lead.id == leadId,
+      );
+      
+      // Navigate directly to the lead detail screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailLeadScreen(
+            lead: lead,
+            startInEditMode: false,
+          ),
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      debugPrint('Lead not found: $leadId');
+      // Fallback to all leads screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AllLeadsScreen(initialTabIndex: 0),
+        ),
+      );
+    }
+  }
+  
+  void _navigateToTaskInLead(String taskId, String leadId) {
+    // Find the lead by ID and navigate to its detail screen with tasks tab
+    final leadManager = LeadManager();
+    try {
+      final lead = leadManager.allLeads.firstWhere(
+        (lead) => lead.id == leadId,
+      );
+      
+      // Navigate to lead detail screen - tasks will be visible in the Tasks tab
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailLeadScreen(
+            lead: lead,
+            startInEditMode: false,
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Lead not found for task: $leadId');
+      // Fallback to all leads screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AllLeadsScreen(initialTabIndex: 0),
+        ),
+      );
+    }
+  }
+  
+  void _navigateToActivityInLead(String activityId, String leadId) {
+    // Find the lead by ID and navigate to its detail screen with activity tab
+    final leadManager = LeadManager();
+    try {
+      final lead = leadManager.allLeads.firstWhere(
+        (lead) => lead.id == leadId,
+      );
+      
+      // Navigate to lead detail screen - activities will be visible in the Activity tab
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailLeadScreen(
+            lead: lead,
+            startInEditMode: false,
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Lead not found for activity: $leadId');
+      // Fallback to all leads screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AllLeadsScreen(initialTabIndex: 0),
+        ),
+      );
+    }
   }
 
   @override

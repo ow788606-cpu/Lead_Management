@@ -1,24 +1,21 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'api_config.dart';
-import '../managers/auth_manager.dart';
 
 class LeadActivityApi {
   static Future<List<Map<String, dynamic>>> getActivities(String leadId) async {
     try {
-      // Get current user ID for filtering
-      final userId = await AuthManager().getUserId();
-
       final response = await http.get(
         Uri.parse(
-            '${ApiConfig.baseUrl}/lead_activities.php?lead_id=$leadId&user_id=$userId'),
+            '${ApiConfig.baseUrl}/lead_activities.php?lead_id=$leadId'),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
-          return List<Map<String, dynamic>>.from(data['data']);
+          final activities = List<Map<String, dynamic>>.from(data['data']);
+          return activities;
         }
       }
       return [];
@@ -32,17 +29,25 @@ class LeadActivityApi {
     required String activityType,
     required String description,
     required int userId,
+    DateTime? scheduledAt,
   }) async {
     try {
+      final requestBody = {
+        'lead_id': int.tryParse(leadId) ?? 0,
+        'activity_type': activityType,
+        'description': description,
+        'user_id': userId,
+      };
+      
+      // Add scheduled_at if provided
+      if (scheduledAt != null) {
+        requestBody['scheduled_at'] = scheduledAt.toIso8601String();
+      }
+      
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/lead_activities.php'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'lead_id': int.tryParse(leadId) ?? 0,
-          'activity_type': activityType,
-          'description': description,
-          'user_id': userId,
-        }),
+        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -58,14 +63,15 @@ class LeadActivityApi {
     try {
       final response = await http.get(
         Uri.parse(
-            '${ApiConfig.baseUrl}/lead_history.php?lead_id=$leadId&type=note'),
+            '${ApiConfig.baseUrl}/lead_notes.php?lead_id=$leadId'),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
-          return List<Map<String, dynamic>>.from(data['data']);
+          final notes = List<Map<String, dynamic>>.from(data['data']);
+          return notes;
         }
       }
       return [];
@@ -81,13 +87,12 @@ class LeadActivityApi {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/lead_history.php'),
+        Uri.parse('${ApiConfig.baseUrl}/lead_notes.php'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'lead_id': int.tryParse(leadId) ?? 0,
           'content': content,
           'user_id': userId,
-          'type': 'note',
         }),
       );
 
@@ -102,19 +107,17 @@ class LeadActivityApi {
 
   static Future<List<Map<String, dynamic>>> getTasks(String leadId) async {
     try {
-      // Get current user ID for filtering
-      final userId = await AuthManager().getUserId();
-
       final response = await http.get(
         Uri.parse(
-            '${ApiConfig.baseUrl}/lead_tasks.php?lead_id=$leadId&user_id=$userId'),
+            '${ApiConfig.baseUrl}/lead_tasks.php?lead_id=$leadId'),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success'] == true) {
-          return List<Map<String, dynamic>>.from(data['data']);
+          final tasks = List<Map<String, dynamic>>.from(data['data']);
+          return tasks;
         }
       }
       return [];

@@ -17,9 +17,19 @@ try {
         case 'GET':
             if (isset($_GET['lead_id'])) {
                 $lead_id = (int)$_GET['lead_id'];
-                $stmt = $pdo->prepare("SELECT * FROM lead_activities WHERE lead_id = ? ORDER BY created_at DESC");
+                $stmt = $pdo->prepare("
+                    SELECT la.*, u.userName as user_name 
+                    FROM lead_activities la 
+                    LEFT JOIN users u ON la.user_id = u.user_Id 
+                    WHERE la.lead_id = ? 
+                    ORDER BY la.created_at DESC
+                ");
                 $stmt->execute([$lead_id]);
                 $activities = $stmt->fetchAll();
+                
+                // Debug logging
+                error_log("Lead Activities Query for lead_id: $lead_id");
+                error_log("Lead Activities Results: " . count($activities) . " records");
                 
                 echo json_encode([
                     'success' => true,
@@ -44,13 +54,27 @@ try {
                 break;
             }
             
-            $stmt = $pdo->prepare("INSERT INTO lead_activities (lead_id, activity_type, description, user_id, created_at) VALUES (?, ?, ?, ?, NOW())");
-            $result = $stmt->execute([
-                $input['lead_id'],
-                $input['activity_type'],
-                $input['description'],
-                $input['user_id'] ?? 1
-            ]);
+            // Handle scheduled_at field if provided
+            $scheduled_at = isset($input['scheduled_at']) ? $input['scheduled_at'] : null;
+            
+            if ($scheduled_at) {
+                $stmt = $pdo->prepare("INSERT INTO lead_activities (lead_id, activity_type, description, user_id, scheduled_at, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+                $result = $stmt->execute([
+                    $input['lead_id'],
+                    $input['activity_type'],
+                    $input['description'],
+                    $input['user_id'] ?? 1,
+                    $scheduled_at
+                ]);
+            } else {
+                $stmt = $pdo->prepare("INSERT INTO lead_activities (lead_id, activity_type, description, user_id, created_at) VALUES (?, ?, ?, ?, NOW())");
+                $result = $stmt->execute([
+                    $input['lead_id'],
+                    $input['activity_type'],
+                    $input['description'],
+                    $input['user_id'] ?? 1
+                ]);
+            }
             
             if ($result) {
                 echo json_encode([

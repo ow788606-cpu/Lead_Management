@@ -41,19 +41,45 @@ function handleGet() {
     
     $lead_id = $_GET['lead_id'] ?? null;
     $user_id = $_GET['user_id'] ?? null;
+    $type = $_GET['type'] ?? null;
     
-    if (!$lead_id || !$user_id) {
-        echo json_encode(['success' => false, 'message' => 'Lead ID and User ID are required']);
+    if (!$lead_id) {
+        echo json_encode(['success' => false, 'message' => 'Lead ID is required']);
         return;
     }
     
-    $stmt = $pdo->prepare("
-        SELECT * FROM lead_history 
-        WHERE lead_id = ? AND owner_user_id = ? 
-        ORDER BY created_at DESC
-    ");
-    $stmt->execute([$lead_id, $user_id]);
+    // Build query with user information
+    $query = "SELECT lh.*, u.username as user_name 
+              FROM lead_history lh 
+              LEFT JOIN users u ON lh.owner_user_id = u.id 
+              WHERE lh.lead_id = ?";
+    $params = [(int)$lead_id]; // Ensure lead_id is integer
+    
+    // Add user filter if provided
+    if ($user_id) {
+        $query .= " AND lh.owner_user_id = ?";
+        $params[] = (int)$user_id;
+    }
+    
+    // Add type filter if provided
+    if ($type) {
+        if ($type === 'note') {
+            $query .= " AND (lh.type = 'note' OR (lh.type IS NULL AND lh.title = 'Note Added'))";
+        } else {
+            $query .= " AND (lh.type != 'note' OR lh.type IS NULL) AND lh.title != 'Note Added'";
+        }
+    }
+    
+    $query .= " ORDER BY lh.created_at DESC";
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
     $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Debug logging
+    error_log("Lead History Query: $query");
+    error_log("Lead History Params: " . json_encode($params));
+    error_log("Lead History Results: " . count($history) . " records");
     
     echo json_encode(['success' => true, 'data' => $history]);
 }
@@ -74,8 +100,8 @@ function handlePost() {
     $stmt = $pdo->prepare("
         INSERT INTO lead_history (
             lead_id, owner_user_id, created_by, title, description, 
-            priority, scheduled_at, is_recurring, is_archived, result_notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            priority, scheduled_at, is_recurring, is_archived, result_notes, type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     
     $result = $stmt->execute([
@@ -88,7 +114,8 @@ function handlePost() {
         $input['scheduled_at'] ?? date('Y-m-d H:i:s'),
         $input['is_recurring'] ?? 0,
         $input['is_archived'] ?? 0,
-        $input['result_notes'] ?? null
+        $input['result_notes'] ?? null,
+        $input['type'] ?? null
     ]);
     
     if ($result) {

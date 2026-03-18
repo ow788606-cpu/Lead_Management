@@ -57,17 +57,17 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         throw Exception('User not authenticated');
       }
       
-      // Load activities from database with user filter
+      // Load activities from database - show ALL activities for this lead
       final activitiesData = await LeadActivityApi.getActivities(widget.lead.id);
       _activities = activitiesData
-          .where((activity) => activity['user_id'] == userId || activity['user_id'] == null)
           .map((activity) => {
         'id': activity['id'],
         'title': activity['activity_type'] ?? 'Activity',
-        'description': activity['description'] ?? '',
+        'description': _fixActivityDescription(activity['activity_type'] ?? 'Activity', activity['description'] ?? ''),
         'date': DateTime.parse(activity['created_at'] ?? DateTime.now().toIso8601String()),
         'icon': _getActivityIcon(activity['activity_type'] ?? 'Activity'),
         'user_id': activity['user_id'],
+        'user_name': activity['user_name'] ?? 'Unknown User',
       }).toList();
 
       // Add default lead created activity if no activities exist
@@ -82,31 +82,38 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         });
       }
 
-      // Add follow-up activity if exists
+      // Add follow-up activity if exists - but only if not already in database
       if (widget.lead.followUpDate != null) {
-        _activities.add({
-          'id': null,
-          'title': 'Follow-up Scheduled',
-          'description':
-              'Follow-up scheduled for ${widget.lead.followUpDate!.day}/${widget.lead.followUpDate!.month}/${widget.lead.followUpDate!.year}',
-          'date': widget.lead.followUpDate!,
-          'icon': Icons.schedule,
-          'user_id': userId,
-        });
+        // Check if follow-up activity already exists in database
+        final hasFollowUpActivity = _activities.any((activity) => 
+          activity['title'] == 'Follow-up Scheduled' || 
+          activity['activity_type'] == 'Follow-up Scheduled'
+        );
+        
+        if (!hasFollowUpActivity) {
+          String followUpTimeString = widget.lead.followUpTime ?? '10:00 AM';
+          
+          _activities.add({
+            'id': null,
+            'title': 'Follow-up Scheduled',
+            'description': 'Follow-up scheduled at $followUpTimeString',
+            'date': widget.lead.followUpDate!,
+            'icon': Icons.schedule,
+            'user_id': userId,
+          });
+        }
       }
 
-      // Load notes from database with user filter
+      // Load notes from database - show ALL notes for this lead
       final notesData = await LeadActivityApi.getNotes(widget.lead.id);
-      print('Raw notes data from API: $notesData'); // Debug print
       _notes = notesData
           .map((note) => {
         'id': note['id'],
-        'content': note['content'] ?? note['description'] ?? '',
+        'content': note['content'] ?? '',
         'date': DateTime.parse(note['created_at'] ?? DateTime.now().toIso8601String()),
         'user_id': note['user_id'],
-        'user_name': note['user_name'] ?? note['username'] ?? 'Unknown User',
+        'user_name': note['user_name'] ?? 'Unknown User',
       }).toList();
-      print('Processed notes: $_notes'); // Debug print
 
       // Add default note if exists and no notes in database
       if (_notes.isEmpty && widget.lead.notes != null && widget.lead.notes!.isNotEmpty) {
@@ -121,10 +128,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         });
       }
 
-      // Load tasks from database with user filter
+      // Load tasks from database - show ALL tasks for this lead
       final tasksData = await LeadActivityApi.getTasks(widget.lead.id);
       _tasks = tasksData
-          .where((task) => task['user_id'] == userId || task['user_id'] == null)
           .map((task) => {
         'id': task['id'],
         'title': task['title'] ?? '',
@@ -133,6 +139,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         'dueDate': DateTime.parse(task['due_date'] ?? DateTime.now().add(const Duration(days: 1)).toIso8601String()),
         'isCompleted': (task['is_completed'] ?? 0) == 1,
         'user_id': task['user_id'],
+        'user_name': task['user_name'] ?? task['username'] ?? 'Unknown User',
       }).toList();
       
       // Load local data and merge
@@ -508,12 +515,27 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
 
                   // Save to database immediately and automatically
                   final userId = await AuthManager().getUserId() ?? 0;
+                  DateTime? scheduledDateTime;
+                  
+                  // Create scheduled datetime if date and time are provided
+                  if ((activity == 'SMS Sent' || activity == 'Email Sent') &&
+                      selectedDate != null && selectedTime != null) {
+                    scheduledDateTime = DateTime(
+                      selectedDate!.year,
+                      selectedDate!.month,
+                      selectedDate!.day,
+                      selectedTime!.hour,
+                      selectedTime!.minute,
+                    );
+                  }
+                  
                   try {
                     await LeadActivityApi.saveActivity(
                       leadId: widget.lead.id,
                       activityType: activity,
                       description: description,
                       userId: userId,
+                      scheduledAt: scheduledDateTime,
                     );
                     
                     // Update activity with database confirmation
@@ -821,12 +843,26 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
 
                     // Save to database immediately and automatically
                     final userId = await AuthManager().getUserId() ?? 0;
+                    DateTime? scheduledDateTime;
+                    
+                    // Create scheduled datetime if date and time are provided
+                    if (selectedDate != null && selectedTime != null) {
+                      scheduledDateTime = DateTime(
+                        selectedDate!.year,
+                        selectedDate!.month,
+                        selectedDate!.day,
+                        selectedTime!.hour,
+                        selectedTime!.minute,
+                      );
+                    }
+                    
                     try {
                       await LeadActivityApi.saveActivity(
                         leadId: widget.lead.id,
                         activityType: activityTitle,
                         description: description,
                         userId: userId,
+                        scheduledAt: scheduledDateTime,
                       );
                       
                       // Update activity with database confirmation
@@ -1834,6 +1870,37 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     );
   }
 
+  String _fixActivityDescription(String activityType, String description) {
+    // Fix old follow-up descriptions that contain dates instead of times
+    if (activityType == 'Follow-up Scheduled' && description.contains('scheduled for')) {
+      final followUpTime = widget.lead.followUpTime ?? '10:00 AM';
+      return 'Follow-up scheduled at $followUpTime';
+    }
+    // Also fix descriptions that still show dates - replace with time
+    if (activityType == 'Follow-up Scheduled' && description.contains('18/3/2026')) {
+      final followUpTime = widget.lead.followUpTime ?? '10:00 AM';
+      return 'Follow-up scheduled at $followUpTime';
+    }
+    return description;
+  }
+
+  String _formatTime(DateTime dateTime) {
+    int hour = dateTime.hour;
+    int minute = dateTime.minute;
+    String period = 'AM';
+    
+    if (hour == 0) {
+      hour = 12;
+    } else if (hour > 12) {
+      hour = hour - 12;
+      period = 'PM';
+    } else if (hour == 12) {
+      period = 'PM';
+    }
+    
+    return '${hour.toString()}:${minute.toString().padLeft(2, '0')} $period';
+  }
+
   String _formatDate(DateTime date) {
     const months = [
       'Jan',
@@ -1850,6 +1917,21 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       'Dec'
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
+  }
+
+  String _formatTaskDueDateTime(DateTime dueDate) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    // Format date
+    String dateStr = '${dueDate.day} ${months[dueDate.month - 1]} ${dueDate.year}';
+    
+    // Format time
+    String hour = dueDate.hour > 12 ? '${dueDate.hour - 12}' : dueDate.hour == 0 ? '12' : '${dueDate.hour}';
+    String minute = dueDate.minute.toString().padLeft(2, '0');
+    String period = dueDate.hour >= 12 ? 'PM' : 'AM';
+    String timeStr = '$hour:$minute $period';
+    
+    return '$dateStr, $timeStr';
   }
 
   String _formatDateTime(dynamic date) {
@@ -1973,14 +2055,27 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      activity['title'],
-                      style: const TextStyle(
-                        fontSize: 16, 
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            activity['title'],
+                            style: const TextStyle(
+                              fontSize: 16, 
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          '${activity['date'].day}/${activity['date'].month}/${activity['date'].year}',
+                          style: const TextStyle(
+                            fontSize: 12, 
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -1992,15 +2087,18 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (activity['user_name'] != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Added by: ${activity['user_name']}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
                   ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '${activity['date'].day}/${activity['date'].month}/${activity['date'].year}',
-                style: const TextStyle(
-                  fontSize: 12, 
-                  color: Colors.grey,
                 ),
               ),
             ],
@@ -2025,7 +2123,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Date and time at the top
+              // Date and user info at the top
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -2107,6 +2205,33 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   ),
                 ],
               ),
+              // User info row
+              if (note['user_name'] != null) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 60,
+                      child: Text(
+                        'Added by',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Text(
+                      note['user_name'],
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
@@ -2270,10 +2395,16 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         for (final localActivity in localActivities) {
           final exists = _activities.any((a) => 
             a['title'] == localActivity['title'] && 
-            a['description'] == localActivity['description'] &&
-            a['user_id'] == localActivity['user_id']
+            a['description'] == localActivity['description']
           );
           if (!exists) {
+            // Fix old follow-up descriptions that contain dates
+            if (localActivity['title'] == 'Follow-up Scheduled' && 
+                localActivity['description'].toString().contains('scheduled for')) {
+              // Extract time from follow-up date and update description
+              final followUpTime = widget.lead.followUpTime ?? '10:00 AM';
+              localActivity['description'] = 'Follow-up scheduled at $followUpTime';
+            }
             _activities.add(localActivity);
           }
         }
@@ -2295,7 +2426,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         
         // Merge with API tasks (avoid duplicates)
         for (final localTask in localTasks) {
-          if (!_tasks.any((t) => t['id'] == localTask['id'] && t['user_id'] == localTask['user_id'])) {
+          if (!_tasks.any((t) => t['id'] == localTask['id'])) {
             _tasks.add(localTask);
           }
         }
@@ -2316,8 +2447,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         // Merge with API notes (avoid duplicates)
         for (final localNote in localNotes) {
           final exists = _notes.any((n) => 
-            n['content'] == localNote['content'] &&
-            n['user_id'] == localNote['user_id']
+            n['content'] == localNote['content']
           );
           if (!exists) {
             _notes.add(localNote);
@@ -2387,7 +2517,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Due: ${task['dueDate'].day}/${task['dueDate'].month}/${task['dueDate'].year}',
+                      'Due: ${_formatTaskDueDateTime(task['dueDate'])}',
                       style: const TextStyle(
                         fontSize: 12, 
                         color: Colors.grey,
@@ -2398,6 +2528,17 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   ),
                 ],
               ),
+              if (task['user_name'] != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Created by: ${task['user_name']}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.blue,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
             ],
           ),
           onTap: () async {
