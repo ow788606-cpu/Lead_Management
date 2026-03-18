@@ -145,6 +145,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       // Load local data and merge
       await _loadLocalData();
       
+      // Remove any duplicates that might have been created
+      _removeDuplicateTasks();
+      
       // Save current state to ensure data persistence
       await _saveAllDataToStorage();
     } catch (e) {
@@ -2424,9 +2427,14 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           'user_id': task['user_id'] ?? userId,
         }).toList();
         
-        // Merge with API tasks (avoid duplicates)
+        // Merge with API tasks (avoid duplicates by checking title AND description)
         for (final localTask in localTasks) {
-          if (!_tasks.any((t) => t['id'] == localTask['id'])) {
+          final exists = _tasks.any((t) => 
+            t['title'] == localTask['title'] && 
+            t['description'] == localTask['description'] &&
+            t['dueDate'].toString() == localTask['dueDate'].toString()
+          );
+          if (!exists) {
             _tasks.add(localTask);
           }
         }
@@ -2455,14 +2463,32 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         }
       }
       
-      // Sort lists by date
+      // Sort lists by date and remove any remaining duplicates
       _activities.sort((a, b) => b['date'].compareTo(a['date']));
       _notes.sort((a, b) => b['date'].compareTo(a['date']));
       _tasks.sort((a, b) => a['dueDate'].compareTo(b['dueDate']));
       
+      // Remove duplicate tasks based on title, description, and due date
+      _removeDuplicateTasks();
+      
     } catch (e) {
       print('Error loading local data: $e');
     }
+  }
+
+  void _removeDuplicateTasks() {
+    final uniqueTasks = <Map<String, dynamic>>[];
+    final seenTasks = <String>{};
+    
+    for (final task in _tasks) {
+      final taskKey = '${task['title']}_${task['description']}_${task['dueDate'].toString()}';
+      if (!seenTasks.contains(taskKey)) {
+        seenTasks.add(taskKey);
+        uniqueTasks.add(task);
+      }
+    }
+    
+    _tasks = uniqueTasks;
   }
 
   Widget _buildTaskItem(Map<String, dynamic> task) {

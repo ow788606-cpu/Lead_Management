@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/leads/all_leads_screen.dart';
@@ -21,6 +23,10 @@ import 'services/lead_activity_api.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize timezone data for scheduled notifications
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('UTC')); // You can change this to your local timezone
   
   // Initialize NotificationService singleton at app startup
   try {
@@ -561,8 +567,58 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
+    // Schedule notifications for when app is closed
+    _scheduleNotificationsForClosedApp();
     _notificationService.dispose();
     super.dispose();
+  }
+
+  Future<void> _scheduleNotificationsForClosedApp() async {
+    try {
+      final leadManager = LeadManager();
+      final taskManager = TaskManager();
+      
+      // Get all tasks
+      final allTasks = [...taskManager.pendingTasks, ...taskManager.completedTasks].map((task) => {
+        'id': task.id,
+        'title': task.title,
+        'description': task.description,
+        'dueDate': task.dueDate,
+        'dueTime': task.dueTime,
+        'isCompleted': task.isCompleted,
+        'priority': task.priority,
+      }).toList();
+      
+      // Get all activities
+      final allActivities = <Map<String, dynamic>>[];
+      for (final lead in leadManager.allLeads) {
+        try {
+          final activities = await LeadActivityApi.getActivities(lead.id);
+          for (final activity in activities) {
+            if (activity['scheduled_at'] != null && activity['scheduled_at'].toString().isNotEmpty) {
+              allActivities.add({
+                'id': activity['id'],
+                'title': activity['activity_type'] ?? 'Activity',
+                'description': activity['description'] ?? '',
+                'scheduledDate': DateTime.parse(activity['scheduled_at']),
+                'leadId': lead.id,
+              });
+            }
+          }
+        } catch (e) {
+          debugPrint('Error loading activities for scheduling: $e');
+        }
+      }
+      
+      // Schedule all notifications for when app is closed
+      await _notificationService.scheduleNotificationsForClosedApp(
+        leadManager.allLeads,
+        allTasks: allTasks,
+        allActivities: allActivities,
+      );
+    } catch (e) {
+      debugPrint('Error scheduling notifications for closed app: $e');
+    }
   }
 
   @override

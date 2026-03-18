@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 import '../models/lead.dart';
 
 typedef NotificationCallback = void Function(Lead lead);
@@ -301,6 +302,233 @@ class NotificationService {
       }
     });
     debugPrint('🔔 Notification monitoring started with ${leads.length} leads, ${allTasks?.length ?? 0} tasks, and ${allActivities?.length ?? 0} activities');
+  }
+
+  /// Schedule notifications for leads, tasks, and activities when app is closed
+  Future<void> scheduleNotificationsForClosedApp(List<Lead> leads, {List<Map<String, dynamic>>? allTasks, List<Map<String, dynamic>>? allActivities}) async {
+    if (!_isInitialized) {
+      debugPrint('NotificationService not initialized');
+      return;
+    }
+
+    // Cancel all existing scheduled notifications first
+    await _flutterLocalNotificationsPlugin.cancelAll();
+    
+    final now = DateTime.now();
+    debugPrint('📅 Scheduling notifications for when app is closed...');
+    
+    // Schedule lead follow-up notifications
+    for (final lead in leads) {
+      if (lead.followUpDate != null && !lead.isCompleted) {
+        await _scheduleLeadNotification(lead, now);
+      }
+    }
+    
+    // Schedule task notifications
+    if (allTasks != null) {
+      for (final task in allTasks) {
+        if (task['dueDate'] != null && !(task['isCompleted'] ?? false)) {
+          await _scheduleTaskNotification(task, leads, now);
+        }
+      }
+    }
+    
+    // Schedule activity notifications
+    if (allActivities != null) {
+      for (final activity in allActivities) {
+        if (activity['scheduledDate'] != null) {
+          await _scheduleActivityNotification(activity, leads, now);
+        }
+      }
+    }
+    
+    debugPrint('✅ All notifications scheduled for when app is closed');
+  }
+
+  Future<void> _scheduleLeadNotification(Lead lead, DateTime now) async {
+    // Parse follow-up time with fallback to 10:00 AM
+    int hour = 10;
+    int minute = 0;
+    
+    if (lead.followUpTime != null && lead.followUpTime!.isNotEmpty) {
+      try {
+        final timeMatch = RegExp(r'(\d{1,2}):(\d{2})\s*(AM|PM)', caseSensitive: false)
+            .firstMatch(lead.followUpTime!);
+        if (timeMatch != null) {
+          hour = int.parse(timeMatch.group(1)!);
+          minute = int.parse(timeMatch.group(2)!);
+          final isPM = timeMatch.group(3)!.toUpperCase() == 'PM';
+          if (isPM && hour != 12) hour += 12;
+          if (!isPM && hour == 12) hour = 0;
+        }
+      } catch (e) {
+        hour = 10;
+        minute = 0;
+      }
+    }
+    
+    final followUpDateTime = DateTime(
+      lead.followUpDate!.year,
+      lead.followUpDate!.month,
+      lead.followUpDate!.day,
+      hour,
+      minute,
+    );
+    
+    // Only schedule if follow-up is in the future
+    if (followUpDateTime.isAfter(now)) {
+      await _flutterLocalNotificationsPlugin.zonedSchedule(
+        lead.id.hashCode,
+        'Lead Follow-up Reminder',
+        'Follow-up with ${lead.contactName} is due now',
+        tz.TZDateTime.from(followUpDateTime, tz.local),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'lead_notifications',
+            'Lead Follow-up Notifications',
+            channelDescription: 'Notifications for lead follow-ups',
+            importance: Importance.max,
+            priority: Priority.high,
+            autoCancel: false,
+            ongoing: false,
+            showWhen: true,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        payload: 'lead:${lead.id}',
+      );
+      
+      debugPrint('📅 Scheduled notification for ${lead.contactName} at $followUpDateTime');
+    }
+  }
+
+  Future<void> _scheduleTaskNotification(Map<String, dynamic> task, List<Lead> leads, DateTime now) async {
+    final dueDate = task['dueDate'] as DateTime;
+    final dueTimeString = task['dueTime'] as String? ?? '12:00 PM';
+    
+    // Parse the due time string
+    int hour = 12;
+    int minute = 0;
+    
+    try {
+      final timeMatch = RegExp(r'(\d{1,2}):(\d{2})\s*(AM|PM)', caseSensitive: false)
+          .firstMatch(dueTimeString);
+      if (timeMatch != null) {
+        hour = int.parse(timeMatch.group(1)!);
+        minute = int.parse(timeMatch.group(2)!);
+        final isPM = timeMatch.group(3)!.toUpperCase() == 'PM';
+        if (isPM && hour != 12) hour += 12;
+        if (!isPM && hour == 12) hour = 0;
+      }
+    } catch (e) {
+      hour = 12;
+      minute = 0;
+    }
+    
+    final completeDueDateTime = DateTime(
+      dueDate.year,
+      dueDate.month,
+      dueDate.day,
+      hour,
+      minute,
+    );
+    
+    // Only schedule if due time is in the future
+    if (completeDueDateTime.isAfter(now)) {
+      // Find associated lead
+      Lead? associatedLead = leads.isNotEmpty ? leads.first : null;
+      
+      await _flutterLocalNotificationsPlugin.zonedSchedule(
+        task['id'].hashCode + 10000,
+        'Task Reminder',
+        'Task "${task['title']}" is due now${associatedLead != null ? ' for ${associatedLead.contactName}' : ''}',
+        tz.TZDateTime.from(completeDueDateTime, tz.local),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'task_notifications',
+            'Task Reminder Notifications',
+            channelDescription: 'Notifications for task reminders',
+            importance: Importance.max,
+            priority: Priority.high,
+            autoCancel: false,
+            ongoing: false,
+            showWhen: true,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        payload: 'task:${task['id']}:${associatedLead?.id ?? ''}',
+      );
+      
+      debugPrint('📋 Scheduled task notification for "${task['title']}" at $completeDueDateTime');
+    }
+  }
+
+  Future<void> _scheduleActivityNotification(Map<String, dynamic> activity, List<Lead> leads, DateTime now) async {
+    final scheduledDate = activity['scheduledDate'] as DateTime;
+    
+    // Only schedule if scheduled time is in the future
+    if (scheduledDate.isAfter(now)) {
+      // Find associated lead
+      Lead? associatedLead;
+      try {
+        if (activity['leadId'] != null) {
+          associatedLead = leads.firstWhere(
+            (lead) => lead.id == activity['leadId'],
+            orElse: () => leads.isNotEmpty ? leads.first : throw Exception('No leads available'),
+          );
+        } else {
+          associatedLead = leads.isNotEmpty ? leads.first : null;
+        }
+      } catch (e) {
+        associatedLead = leads.isNotEmpty ? leads.first : null;
+      }
+      
+      String activityType = activity['title'] ?? 'Activity';
+      String message = associatedLead != null 
+          ? _getActivityNotificationMessage(activityType, associatedLead.contactName)
+          : 'Activity "$activityType" is scheduled now';
+      
+      await _flutterLocalNotificationsPlugin.zonedSchedule(
+        activity['id'].hashCode + 20000,
+        'Activity Reminder',
+        message,
+        tz.TZDateTime.from(scheduledDate, tz.local),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'activity_notifications',
+            'Activity Reminder Notifications',
+            channelDescription: 'Notifications for scheduled activities',
+            importance: Importance.max,
+            priority: Priority.high,
+            autoCancel: false,
+            ongoing: false,
+            showWhen: true,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        ),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        payload: 'activity:${activity['id']}:${associatedLead?.id ?? ''}',
+      );
+      
+      debugPrint('📞 Scheduled activity notification for "$activityType" at $scheduledDate');
+    }
   }
 
   void stopMonitoring() {
