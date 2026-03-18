@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'auth_manager.dart';
 import '../models/lead.dart';
 import '../services/api_config.dart';
+import '../services/notification_service.dart';
 
 class LeadManager {
   static final LeadManager _instance = LeadManager._internal();
@@ -155,6 +156,9 @@ class LeadManager {
     if (index != -1) {
       _leads[index].isCompleted = true;
     }
+    
+    // Cancel notification for this lead
+    NotificationService().cancelNotification(id);
   }
 
   Lead _leadFromApi(Map<String, dynamic> json) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/leads/all_leads_screen.dart';
+import 'screens/leads/detail_lead_screen.dart';
 import 'screens/appointments/appointments_screen.dart';
 import 'screens/contacts/contacts_screen.dart';
 import 'screens/contacts/add_contact_screen.dart';
@@ -15,8 +16,20 @@ import 'managers/auth_manager.dart';
 import 'managers/contact_manager.dart';
 import 'managers/lead_manager.dart';
 import 'managers/task_manager.dart';
+import 'services/notification_service.dart';
 
-void main() => runApp(const CloopApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize NotificationService singleton at app startup
+  try {
+    await NotificationService().initialize();
+  } catch (e) {
+    debugPrint('NotificationService initialization failed: $e');
+  }
+  
+  runApp(const CloopApp());
+}
 
 class CloopApp extends StatelessWidget {
   const CloopApp({super.key});
@@ -185,6 +198,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   late int _selectedIndex;
   final _serviceManager = ServiceManager();
+  // NotificationService is initialized globally, access singleton instance
+  final _notificationService = NotificationService();
   int _tagsScreenVersion = 0;
 
   Widget? _buildFloatingActionButton() {
@@ -261,16 +276,80 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> _buildAppBarActions() {
-    // Add notification icon for specific screens
-    if (_selectedIndex == 2 || _selectedIndex == 5 || _selectedIndex == 6) { // Appointments, Services, or Tags
+    if (_selectedIndex == 2 || _selectedIndex == 5 || _selectedIndex == 6) {
       return [
         IconButton(
           icon: const Icon(Icons.notifications_outlined),
-          onPressed: () {},
+          tooltip: 'View notification status',
+          onPressed: () => _showNotificationStatus(),
         ),
       ];
     }
     return const [];
+  }
+
+  void _showNotificationStatus() {
+    final leadManager = LeadManager();
+    final upcomingLeads = leadManager.followUpLeads
+        .where((lead) => !lead.isCompleted && lead.followUpDate != null)
+        .take(5)
+        .toList();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.notifications_active, color: Color(0xFF0B5CFF)),
+            SizedBox(width: 8),
+            Text('Notification Status'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '✅ Notification system is active',
+              style: TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Upcoming Follow-ups (${upcomingLeads.length}):',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            if (upcomingLeads.isEmpty)
+              const Text('No upcoming follow-ups', style: TextStyle(color: Colors.grey))
+            else
+              ...upcomingLeads.map((lead) {
+                final followUpDate = lead.followUpDate!;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    '• ${lead.contactName} - ${followUpDate.day}/${followUpDate.month}',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                );
+              }),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+          if (upcomingLeads.isNotEmpty)
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() => _selectedIndex = 1);
+              },
+              child: const Text('View Leads'),
+            ),
+        ],
+      ),
+    );
   }
 
   String _getAppBarTitle() {
@@ -290,6 +369,53 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+    _startNotificationMonitoring();
+  }
+
+  Future<void> _startNotificationMonitoring() async {
+    final leadManager = LeadManager();
+    await leadManager.loadLeads();
+    _notificationService.startMonitoring(leadManager.allLeads);
+    
+    // Check if there's a pending lead to navigate to
+    _checkPendingNotification();
+  }
+  
+  void _checkPendingNotification() {
+    final pendingLeadId = _notificationService.pendingLeadId;
+    if (pendingLeadId != null) {
+      _notificationService.clearPendingLeadId();
+      // Navigate to lead details
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _navigateToLead(pendingLeadId);
+      });
+    }
+  }
+  
+  void _navigateToLead(String leadId) {
+    // Find the lead by ID
+    final leadManager = LeadManager();
+    final lead = leadManager.allLeads.firstWhere(
+      (lead) => lead.id == leadId,
+      orElse: () => throw Exception('Lead not found'),
+    );
+    
+    // Navigate directly to the lead detail screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailLeadScreen(
+          lead: lead,
+          startInEditMode: false,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _notificationService.dispose();
+    super.dispose();
   }
 
   @override

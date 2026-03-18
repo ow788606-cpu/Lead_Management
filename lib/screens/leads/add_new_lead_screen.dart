@@ -617,56 +617,86 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
                             const SizedBox(height: 16),
-                            Autocomplete<String>(
-                              optionsBuilder: (textEditingValue) {
-                                if (textEditingValue.text.isEmpty) {
-                                  return _serviceManager.services;
-                                }
-                                return _serviceManager.services.where(
-                                    (service) => service.toLowerCase().contains(
-                                        textEditingValue.text.toLowerCase()));
-                              },
-                              onSelected: (value) =>
-                                  setState(() => _selectedService = value),
-                              fieldViewBuilder: (context, controller, focusNode,
-                                  onEditingComplete) {
-                                _serviceController.text = controller.text;
-                                return TextField(
-                                  controller: controller,
-                                  focusNode: focusNode,
-                                  enabled: _selectedService == null,
-                                  style: const TextStyle(
-                                      fontFamily: 'Inter', fontSize: 14),
-                                  decoration: InputDecoration(
-                                    hintText: 'Type or select service',
-                                    hintStyle: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                        fontFamily: 'Inter'),
-                                    suffixIcon:
-                                        const Icon(Icons.arrow_drop_down),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: BorderSide(
-                                            color: Colors.grey[300]!)),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: BorderSide(
-                                            color: Colors.grey[300]!)),
-                                    disabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: BorderSide(
-                                            color: Colors.grey[300]!)),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 14),
+                            if (_selectedService != null) ...
+                              [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    border: Border.all(color: Colors.grey[300]!),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  onChanged: (value) =>
-                                      setState(() => _selectedService = value),
-                                );
-                              },
-                            ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        _selectedService!,
+                                        style: const TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 14,
+                                            color: Colors.black),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.close, size: 18),
+                                        onPressed: () => setState(() {
+                                          _selectedService = null;
+                                          _serviceController.clear();
+                                        }),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ]
+                            else
+                              Autocomplete<String>(
+                                optionsBuilder: (textEditingValue) {
+                                  if (textEditingValue.text.isEmpty) {
+                                    return _serviceManager.services;
+                                  }
+                                  return _serviceManager.services.where(
+                                      (service) => service.toLowerCase().contains(
+                                          textEditingValue.text.toLowerCase()));
+                                },
+                                onSelected: (value) =>
+                                    setState(() => _selectedService = value),
+                                fieldViewBuilder: (context, controller, focusNode,
+                                    onEditingComplete) {
+                                  _serviceController.text = controller.text;
+                                  return TextField(
+                                    controller: controller,
+                                    focusNode: focusNode,
+                                    style: const TextStyle(
+                                        fontFamily: 'Inter', fontSize: 14),
+                                    decoration: InputDecoration(
+                                      hintText: 'Type or select service',
+                                      hintStyle: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                          fontFamily: 'Inter'),
+                                      suffixIcon:
+                                          const Icon(Icons.arrow_drop_down),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey[300]!)),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey[300]!)),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 14),
+                                    ),
+                                    onChanged: (value) =>
+                                        setState(() => _selectedService = value),
+                                  );
+                                },
+                              ),
                             const SizedBox(height: 24),
                             const Text('Tags',
                                 style: TextStyle(

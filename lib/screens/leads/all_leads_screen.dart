@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../managers/lead_manager.dart';
 import '../../models/lead.dart';
 import '../tags/tag_api.dart';
@@ -358,7 +357,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: Icon(Icons.phone, size: 18, color: const Color(0xFF6B7280)),
+                    child: const Icon(Icons.phone, size: 18, color: Color(0xFF6B7280)),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -368,7 +367,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: Icon(Icons.comment, size: 18, color: const Color(0xFF6B7280)),
+                    child: const Icon(Icons.comment, size: 18, color: Color(0xFF6B7280)),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -378,7 +377,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: Icon(Icons.email, size: 18, color: const Color(0xFF6B7280)),
+                    child: const Icon(Icons.email, size: 18, color: Color(0xFF6B7280)),
                   ),
                 ],
               ),
@@ -460,11 +459,11 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                     
                     if (tagColor == null) {
                       textColor = const Color(0xFF6B46C1); // Purple for unknown tags
-                      backgroundColor = const Color(0xFF6B46C1).withOpacity(0.1);
+                      backgroundColor = const Color(0xFF6B46C1).withValues(alpha: 0.1);
                       tagName = trimmedTag;
                     } else {
                       textColor = tagColor;
-                      backgroundColor = tagColor.withOpacity(0.1);
+                      backgroundColor = tagColor.withValues(alpha: 0.1);
                     }
 
                     return Container(
@@ -502,7 +501,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.1),
+                          color: statusColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(statusTag,

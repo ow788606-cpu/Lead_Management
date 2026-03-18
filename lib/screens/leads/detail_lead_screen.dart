@@ -2262,7 +2262,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           'title': activity['title'],
           'description': activity['description'],
           'date': DateTime.parse(activity['date']),
-          'icon': _getIconFromCodePoint(activity['icon']),
+          'icon': _getIconFromCodePoint(activity['icon'] ?? 0xe878),
           'user_id': activity['user_id'] ?? userId,
         }).toList();
         
