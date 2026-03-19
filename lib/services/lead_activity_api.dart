@@ -133,19 +133,27 @@ class LeadActivityApi {
     required String priority,
     required DateTime dueDate,
     required int userId,
+    String? dueTime,
   }) async {
     try {
+      final requestBody = {
+        'lead_id': int.tryParse(leadId) ?? 0,
+        'title': title,
+        'description': description,
+        'priority': priority,
+        'due_date': dueDate.toIso8601String(),
+        'user_id': userId,
+      };
+      
+      // Add due_time if provided
+      if (dueTime != null) {
+        requestBody['due_time'] = dueTime;
+      }
+      
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/lead_tasks.php'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'lead_id': int.tryParse(leadId) ?? 0,
-          'title': title,
-          'description': description,
-          'priority': priority,
-          'due_date': dueDate.toIso8601String(),
-          'user_id': userId,
-        }),
+        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode != 200 && response.statusCode != 201) {

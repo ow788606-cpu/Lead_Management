@@ -1,15 +1,18 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
 import '../../managers/auth_manager.dart';
+import '../../managers/task_manager.dart';
 import '../../services/lead_activity_api.dart';
 import '../../widgets/app_drawer.dart';
 import '../../main.dart';
+import '../../services/notification_service.dart';
 
 class DetailLeadScreen extends StatefulWidget {
   final Lead lead;
@@ -26,9 +29,10 @@ class DetailLeadScreen extends StatefulWidget {
 }
 
 class _DetailLeadScreenState extends State<DetailLeadScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
   final _leadManager = LeadManager();
+  final _notificationService = NotificationService();
 
   List<Map<String, dynamic>> _activities = [];
   List<Map<String, dynamic>> _notes = [];
@@ -38,14 +42,62 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {}); // Rebuild to update floating action button
+    });
     _loadData();
+    
+    // Initialize notification service if not already initialized
+    _initializeNotificationService();
+  }
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Save data when app goes to background or is paused
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      _saveAllDataToStorage().catchError((e) {
+        debugPrint('Error saving data on lifecycle change: $e');
+      });
+    }
+  }
+  
+  Future<void> _initializeNotificationService() async {
+    try {
+      if (!_notificationService.isInitialized) {
+        await _notificationService.initialize();
+        debugPrint('✅ NotificationService initialized in detail screen');
+      }
+      
+      // Clear notification tracking to allow fresh notifications for testing
+      _notificationService.clearNotificationTracking();
+      
+      // Force immediate notification check for this lead's data
+      await _updateNotificationMonitoring();
+      
+      // Show test notification to verify system is working
+      if (mounted) {
+        try {
+          await _notificationService.showImmediateTestNotification(
+            'system',
+            'Notification System Ready',
+            'Notifications are now active for ${widget.lead.contactName}',
+          );
+        } catch (e) {
+          debugPrint('Error showing system ready notification: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('❌ Failed to initialize notification service in detail screen: $e');
+    }
   }
 
   @override
   void dispose() {
-    // Save all current data before disposing
-    _saveAllDataToStorage();
+    // Remove observer and dispose resources
+    WidgetsBinding.instance.removeObserver(this);
     _tabController.dispose();
     super.dispose();
   }
@@ -129,28 +181,25 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         });
       }
 
-      // Load tasks from database - show ALL tasks for this lead
+      // Load tasks from database ONLY - show ALL tasks for this lead
       final tasksData = await LeadActivityApi.getTasks(widget.lead.id);
       _tasks = tasksData
           .map((task) => {
         'id': task['id'],
-        'title': task['title'] ?? '',
-        'description': task['description'] ?? '',
-        'priority': task['priority'] ?? 'Medium',
+        'title': (task['title'] ?? '').toString().trim(),
+        'description': (task['description'] ?? '').toString().trim(),
+        'priority': (task['priority'] ?? 'Medium').toString().trim(),
         'dueDate': DateTime.parse(task['due_date'] ?? DateTime.now().add(const Duration(days: 1)).toIso8601String()),
+        'dueTime': (task['due_time'] ?? '12:00 PM').toString().trim(),
         'isCompleted': (task['is_completed'] ?? 0) == 1,
         'user_id': task['user_id'],
         'user_name': task['user_name'] ?? task['username'] ?? 'Unknown User',
       }).toList();
       
-      // Load local data and merge
+      debugPrint('📋 Loaded ${_tasks.length} tasks from database for lead: ${widget.lead.contactName}');
+      
+      // Load local data for activities and notes only (not tasks)
       await _loadLocalData();
-      
-      // Remove any duplicates that might have been created
-      _removeDuplicateTasks();
-      
-      // Save current state to ensure data persistence
-      await _saveAllDataToStorage();
     } catch (e) {
       print('Error loading data: $e');
       // Fallback to default data
@@ -508,15 +557,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         '\nDeal Amount: ₹${dealAmountController.text}';
                   }
 
-                  final activityData = {
-                    'id': null, // Will be assigned by database
-                    'title': activity,
-                    'description': description,
-                    'date': DateTime.now(),
-                    'icon': _getActivityIcon(activity),
-                    'user_id': await AuthManager().getUserId(),
-                  };
-
                   // Save to database immediately and automatically
                   final userId = await AuthManager().getUserId() ?? 0;
                   DateTime? scheduledDateTime;
@@ -531,6 +571,20 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       selectedTime!.hour,
                       selectedTime!.minute,
                     );
+                  }
+
+                  final activityData = {
+                    'id': null, // Will be assigned by database
+                    'title': activity,
+                    'description': description,
+                    'date': DateTime.now(),
+                    'icon': _getActivityIcon(activity),
+                    'user_id': await AuthManager().getUserId(),
+                  };
+                  
+                  // Add scheduled date if this is a scheduled activity
+                  if (scheduledDateTime != null) {
+                    activityData['scheduledDate'] = scheduledDateTime;
                   }
                   
                   try {
@@ -556,6 +610,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   
                   // Save to local storage as backup
                   await _saveActivitiesToStorage();
+                  
+                  // Update notification monitoring with new activity data
+                  await _updateNotificationMonitoring();
+                  
+                  // Show immediate test notification to verify the system is working
+                  if (scheduledDateTime != null && mounted) {
+                    try {
+                      await _notificationService.showImmediateTestNotification(
+                        'activity',
+                        'Activity Created',
+                        'Activity "$activity" scheduled for ${selectedDate!.day}/${selectedDate!.month} at ${selectedTime!.format(dialogContext)}',
+                      );
+                    } catch (e) {
+                      debugPrint('Error showing test notification: $e');
+                    }
+                  }
                   
                   Navigator.pop(dialogContext);
                   ScaffoldMessenger.of(this.context).showSnackBar(
@@ -835,16 +905,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           '\n${_getDateTimeLabel(outcome)}: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year} at ${selectedTime!.format(dialogContext)}';
                     }
 
-                    // Create activity data
-                    final callActivityData = {
-                      'id': null, // Will be assigned by database
-                      'title': activityTitle,
-                      'description': description,
-                      'date': DateTime.now(),
-                      'icon': Icons.phone,
-                      'user_id': await AuthManager().getUserId(),
-                    };
-
                     // Save to database immediately and automatically
                     final userId = await AuthManager().getUserId() ?? 0;
                     DateTime? scheduledDateTime;
@@ -858,6 +918,21 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         selectedTime!.hour,
                         selectedTime!.minute,
                       );
+                    }
+
+                    // Create activity data
+                    final callActivityData = {
+                      'id': null, // Will be assigned by database
+                      'title': activityTitle,
+                      'description': description,
+                      'date': DateTime.now(),
+                      'icon': Icons.phone,
+                      'user_id': await AuthManager().getUserId(),
+                    };
+                    
+                    // Add scheduled date if this is a scheduled call activity
+                    if (scheduledDateTime != null) {
+                      callActivityData['scheduledDate'] = scheduledDateTime;
                     }
                     
                     try {
@@ -883,6 +958,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     
                     // Save to local storage as backup
                     await _saveActivitiesToStorage();
+                    
+                    // Update notification monitoring with new activity data
+                    await _updateNotificationMonitoring();
+                    
+                    // Show immediate test notification to verify the system is working
+                    if (scheduledDateTime != null && mounted) {
+                      try {
+                        await _notificationService.showImmediateTestNotification(
+                          'activity',
+                          'Call Activity Created',
+                          'Call activity "$activityTitle" scheduled for ${selectedDate!.day}/${selectedDate!.month} at ${selectedTime!.format(dialogContext)}',
+                        );
+                      } catch (e) {
+                        debugPrint('Error showing test notification: $e');
+                      }
+                    }
                     
                     if (!mounted) return;
                     Navigator.pop(dialogContext);
@@ -1216,17 +1307,38 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       );
                     }
 
+                    // Check for duplicates before creating the task
+                    final isDuplicate = _tasks.any((t) => 
+                      t['title']?.toString().trim() == titleController.text.trim() && 
+                      t['description']?.toString().trim() == descriptionController.text.trim() &&
+                      t['dueDate']?.toString() == dueDate.toString() &&
+                      t['dueTime']?.toString().trim() == (selectedTime?.format(dialogContext) ?? '12:00 PM').trim() &&
+                      t['priority']?.toString().trim() == priority.trim()
+                    );
+                    
+                    if (isDuplicate) {
+                      debugPrint('❌ Duplicate task not created: ${titleController.text}');
+                      if (!mounted) return;
+                      Navigator.pop(dialogContext);
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Task already exists')),
+                      );
+                      return;
+                    }
+
                     final newTask = {
                       'id': DateTime.now().millisecondsSinceEpoch, // Generate local ID
-                      'title': titleController.text,
-                      'description': descriptionController.text,
-                      'priority': priority,
+                      'title': titleController.text.trim(),
+                      'description': descriptionController.text.trim(),
+                      'priority': priority.trim(),
                       'dueDate': dueDate,
+                      'dueTime': (selectedTime?.format(dialogContext) ?? '12:00 PM').trim(),
                       'isCompleted': false,
                       'user_id': await AuthManager().getUserId(),
                     };
 
-                    // Save to database immediately and automatically
+                    // Save to database first
                     final userId = await AuthManager().getUserId() ?? 0;
                     try {
                       await LeadActivityApi.saveTask(
@@ -1236,22 +1348,32 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         priority: priority,
                         dueDate: dueDate,
                         userId: userId,
+                        dueTime: selectedTime?.format(dialogContext) ?? '12:00 PM',
                       );
-                      
-                      // Update task with database confirmation
-                      newTask['id'] = DateTime.now().millisecondsSinceEpoch;
+                      debugPrint('✅ Task saved to database: ${titleController.text}');
                     } catch (e) {
-                      print('Database save failed: $e');
-                      // Continue silently with local storage as backup
+                      debugPrint('❌ Database save failed: $e');
                     }
                     
-                    // Add to UI immediately
-                    setState(() {
-                      _tasks.add(newTask);
-                    });
+                    // Reload tasks from database to get the latest data
+                    await _loadData();
+                    debugPrint('✅ Task created and data reloaded: ${titleController.text}');
                     
-                    // Save to local storage as backup
-                    await _saveTasksToStorage();
+                    // Update notification monitoring with new task data
+                    await _updateNotificationMonitoring();
+                    
+                    // Show immediate test notification to verify the system is working
+                    if (mounted) {
+                      try {
+                        await _notificationService.showImmediateTestNotification(
+                          'task',
+                          'Task Created',
+                          'Task "${titleController.text}" due on ${dueDate.day}/${dueDate.month} at ${selectedTime?.format(dialogContext) ?? '12:00 PM'}',
+                        );
+                      } catch (e) {
+                        debugPrint('Error showing test notification: $e');
+                      }
+                    }
                     
                     if (!mounted) return;
                     Navigator.pop(dialogContext);
@@ -1558,6 +1680,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     
                     // Save to local storage as backup
                     await _saveNotesToStorage();
+                    
+                    // Update notification monitoring with new note data
+                    await _updateNotificationMonitoring();
+                    
+                    // Show immediate test notification to verify the system is working
+                    if (mounted) {
+                      try {
+                        await _notificationService.showImmediateTestNotification(
+                          'note',
+                          'Note Added',
+                          'Note added to lead: ${widget.lead.contactName}',
+                        );
+                      } catch (e) {
+                        debugPrint('Error showing test notification: $e');
+                      }
+                    }
                     
                     if (!mounted) return;
                     Navigator.pop(dialogContext);
@@ -2351,6 +2489,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         'description': task['description'],
         'priority': task['priority'],
         'dueDate': task['dueDate'].toIso8601String(),
+        'dueTime': task['dueTime'] ?? '12:00 PM',
         'isCompleted': task['isCompleted'],
         'user_id': task['user_id'] ?? userId,
       }).toList();
@@ -2414,32 +2553,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         }
       }
       
-      // Load local tasks
-      final tasksString = prefs.getString('lead_${widget.lead.id}_tasks');
-      if (tasksString != null) {
-        final tasksList = json.decode(tasksString) as List;
-        final localTasks = tasksList.map((task) => {
-          'id': task['id'],
-          'title': task['title'],
-          'description': task['description'],
-          'priority': task['priority'],
-          'dueDate': DateTime.parse(task['dueDate']),
-          'isCompleted': task['isCompleted'],
-          'user_id': task['user_id'] ?? userId,
-        }).toList();
-        
-        // Merge with API tasks (avoid duplicates by checking title AND description)
-        for (final localTask in localTasks) {
-          final exists = _tasks.any((t) => 
-            t['title'] == localTask['title'] && 
-            t['description'] == localTask['description'] &&
-            t['dueDate'].toString() == localTask['dueDate'].toString()
-          );
-          if (!exists) {
-            _tasks.add(localTask);
-          }
-        }
-      }
+      // Skip loading local tasks - use database only
       
       // Load local notes
       final notesString = prefs.getString('lead_${widget.lead.id}_notes');
@@ -2464,16 +2578,35 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         }
       }
       
-      // Sort lists by date and remove any remaining duplicates
+      // Sort lists by date
       _activities.sort((a, b) => b['date'].compareTo(a['date']));
       _notes.sort((a, b) => b['date'].compareTo(a['date']));
-      _tasks.sort((a, b) => a['dueDate'].compareTo(b['dueDate']));
-      
-      // Remove duplicate tasks based on title, description, and due date
-      _removeDuplicateTasks();
       
     } catch (e) {
       print('Error loading local data: $e');
+    }
+  }
+
+  void _clearTaskDuplicates() {
+    final Map<String, Map<String, dynamic>> uniqueTasksMap = {};
+    
+    for (final task in _tasks) {
+      // Create a more comprehensive key for duplicate detection
+      final taskKey = '${task['title']?.toString().trim().toLowerCase()}_${task['description']?.toString().trim().toLowerCase()}_${task['dueDate']?.toString()}_${task['dueTime']?.toString().trim()}_${task['priority']?.toString().trim().toLowerCase()}';
+      
+      // Keep the first occurrence of each unique task
+      if (!uniqueTasksMap.containsKey(taskKey)) {
+        uniqueTasksMap[taskKey] = task;
+      } else {
+        debugPrint('🗑️ Removed duplicate task: ${task['title']}');
+      }
+    }
+    
+    final originalCount = _tasks.length;
+    _tasks = uniqueTasksMap.values.toList();
+    
+    if (originalCount != _tasks.length) {
+      debugPrint('📋 Aggressive deduplication: ${originalCount} → ${_tasks.length} tasks');
     }
   }
 
@@ -2482,14 +2615,129 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     final seenTasks = <String>{};
     
     for (final task in _tasks) {
-      final taskKey = '${task['title']}_${task['description']}_${task['dueDate'].toString()}';
+      // Create a comprehensive key for duplicate detection
+      final taskKey = '${task['title']?.toString().trim()}_${task['description']?.toString().trim()}_${task['dueDate']?.toString()}_${task['dueTime']?.toString().trim()}_${task['priority']?.toString().trim()}';
       if (!seenTasks.contains(taskKey)) {
         seenTasks.add(taskKey);
         uniqueTasks.add(task);
+      } else {
+        debugPrint('🗑️ Removed duplicate task: ${task['title']}');
       }
     }
     
+    final originalCount = _tasks.length;
     _tasks = uniqueTasks;
+    
+    if (originalCount != _tasks.length) {
+      debugPrint('📋 Task deduplication: ${originalCount} → ${_tasks.length} tasks');
+    }
+  }
+
+  Future<void> _updateNotificationMonitoring() async {
+    if (!mounted) return; // Early return if widget is disposed
+    
+    try {
+      // Get all leads from lead manager
+      final allLeads = _leadManager.allLeads;
+      
+      // Get all tasks from task manager and lead-specific tasks
+      final taskManager = TaskManager();
+      await taskManager.loadTasks();
+      
+      final globalTasks = [...taskManager.pendingTasks, ...taskManager.completedTasks].map((task) => {
+        'id': task.id,
+        'title': task.title,
+        'description': task.description,
+        'dueDate': task.dueDate,
+        'dueTime': task.dueTime,
+        'isCompleted': task.isCompleted,
+        'priority': task.priority,
+      }).toList();
+      
+      // Get all lead-specific tasks from all leads (including current lead)
+      final allTasks = <Map<String, dynamic>>[];
+      allTasks.addAll(globalTasks);
+      
+      for (final lead in allLeads) {
+        if (!mounted) return; // Check if still mounted during loop
+        try {
+          final leadTasks = await LeadActivityApi.getTasks(lead.id);
+          for (final task in leadTasks) {
+            final taskData = {
+              'id': task['id'],
+              'title': task['title'] ?? '',
+              'description': task['description'] ?? '',
+              'dueDate': DateTime.parse(task['due_date'] ?? DateTime.now().add(const Duration(days: 1)).toIso8601String()),
+              'dueTime': task['due_time'] ?? '12:00 PM',
+              'isCompleted': (task['is_completed'] ?? 0) == 1,
+              'priority': task['priority'] ?? 'Medium',
+              'leadId': lead.id,
+            };
+            allTasks.add(taskData);
+          }
+        } catch (e) {
+          debugPrint('Error loading tasks for lead ${lead.contactName}: $e');
+        }
+      }
+      
+      if (!mounted) return; // Check if still mounted before continuing
+      
+      // Get all activities from all leads (including current lead)
+      final allActivities = <Map<String, dynamic>>[];
+      for (final lead in allLeads) {
+        if (!mounted) return; // Check if still mounted during loop
+        try {
+          final activities = await LeadActivityApi.getActivities(lead.id);
+          for (final activity in activities) {
+            // Only include activities with scheduled_at dates
+            if (activity['scheduled_at'] != null && activity['scheduled_at'].toString().isNotEmpty && activity['scheduled_at'] != 'null') {
+              try {
+                final scheduledActivity = {
+                  'id': activity['id'],
+                  'title': activity['activity_type'] ?? 'Activity',
+                  'description': activity['description'] ?? '',
+                  'scheduledDate': DateTime.parse(activity['scheduled_at']),
+                  'leadId': lead.id,
+                };
+                allActivities.add(scheduledActivity);
+              } catch (e) {
+                debugPrint('Error parsing scheduled_at for activity: ${activity['activity_type']} - $e');
+              }
+            }
+          }
+        } catch (e) {
+          debugPrint('Error loading activities for lead ${lead.contactName}: $e');
+        }
+      }
+      
+      if (!mounted) return; // Final check before updating notifications
+      
+      // Update notification monitoring with ALL data (not just current lead)
+      _notificationService.startMonitoring(
+        allLeads,
+        allTasks: allTasks,
+        allActivities: allActivities,
+      );
+      
+      // Update cached data for offline notifications
+      _notificationService.updateCachedData(
+        leads: allLeads,
+        tasks: allTasks,
+        activities: allActivities,
+      );
+      
+      // Force immediate notification check
+      _notificationService.forceNotificationCheck();
+      
+      debugPrint('🔄 Notification monitoring updated from detail screen');
+      debugPrint('   Total leads: ${allLeads.length}');
+      debugPrint('   Total tasks: ${allTasks.length}');
+      debugPrint('   Total scheduled activities: ${allActivities.length}');
+    } catch (e) {
+      if (mounted) {
+        debugPrint('❌ Error updating notification monitoring: $e');
+      }
+    }
   }
 
   Widget _buildTaskItem(Map<String, dynamic> task) {
@@ -2593,6 +2841,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             
             // Save to local storage as backup
             await _saveTasksToStorage();
+            
+            // Update notification monitoring when task status changes
+            await _updateNotificationMonitoring();
           },
         ),
         Container(
@@ -2607,24 +2858,36 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F6FA),
-      drawer: AppDrawer(
-        selectedIndex: 1,
-        onItemSelected: (_) => Navigator.pop(context),
-      ),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          // Save data when user navigates back
+          try {
+            await _saveAllDataToStorage();
+          } catch (e) {
+            debugPrint('Error saving data on navigation: $e');
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF4F6FA),
+        drawer: AppDrawer(
+          selectedIndex: 1,
+          onItemSelected: (_) => Navigator.pop(context),
         ),
-        title:
-            const Text('Lead Details', style: TextStyle(color: Colors.black)),
-          actions: [
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.black),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+          ),
+          title:
+              const Text('Lead Details', style: TextStyle(color: Colors.black)),
+            actions: [
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert, color: Colors.black),
               onSelected: (value) async {
@@ -2749,7 +3012,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             ),
           ],
         ),
-      body: SafeArea(
+        body: SafeArea(
         child: Column(
           children: [
             // Lead Header Section (attached to app bar)
@@ -3016,75 +3279,34 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           ],
         ),
       ),
-      floatingActionButton: null,
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 1, // Leads section
-        onTap: (index) => _onBottomNavTap(context, index),
-        selectedItemColor: const Color(0xFF0B5CFF),
-        unselectedItemColor: Colors.grey,
-        selectedFontSize: 12,
-        unselectedFontSize: 10,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            activeIcon: Icon(Icons.dashboard),
-            label: 'Apps',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people_outline),
-            activeIcon: Icon(Icons.people),
-            label: 'Leads',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            activeIcon: Icon(Icons.chat_bubble),
-            label: 'Tasks',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-      ),
+      floatingActionButton: _buildFloatingActionButton(),
+    ),
     );
   }
 
-  void _onBottomNavTap(BuildContext context, int index) {
-    // Map bottom nav indices to screen indices
-    int screenIndex;
-    switch (index) {
-      case 0: // Apps -> Dashboard
-        screenIndex = 0;
-        break;
-      case 1: // Leads
-        screenIndex = 1;
-        break;
-      case 2: // Home -> Contacts
-        screenIndex = 3;
-        break;
-      case 3: // Tasks
-        screenIndex = 4;
-        break;
-      case 4: // Settings
-        screenIndex = 0; // Default to dashboard
-        break;
+  Widget? _buildFloatingActionButton() {
+    switch (_tabController.index) {
+      case 0: // Activity tab
+        return FloatingActionButton(
+          onPressed: _showAddActivityDialog,
+          backgroundColor: const Color(0xFF0B5CFF),
+          child: const Icon(Icons.add, color: Colors.white),
+        );
+      case 1: // Notes tab
+        return FloatingActionButton(
+          onPressed: _showAddNoteDialog,
+          backgroundColor: const Color(0xFF0B5CFF),
+          child: const Icon(Icons.note_add, color: Colors.white),
+        );
+      case 2: // Tasks tab
+        return FloatingActionButton(
+          onPressed: _showAddTaskDialog,
+          backgroundColor: const Color(0xFF0B5CFF),
+          child: const Icon(Icons.task_alt, color: Colors.white),
+        );
       default:
-        screenIndex = 0;
+        return null;
     }
-    
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MainScreen(initialIndex: screenIndex),
-      ),
-    );
   }
 }
 

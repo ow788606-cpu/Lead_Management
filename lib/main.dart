@@ -35,6 +35,8 @@ void main() async {
   // Initialize NotificationService singleton at app startup
   try {
     await NotificationService().initialize();
+    // Initialize offline notifications with cached data
+    await NotificationService().initializeOfflineNotifications();
   } catch (e) {
     debugPrint('NotificationService initialization failed: $e');
   }
@@ -375,6 +377,20 @@ class _MainScreenState extends State<MainScreen> {
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Close'),
           ),
+          TextButton(
+            onPressed: () async {
+              await _notificationService.showTestNotification();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Test notification sent!'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            child: const Text('Test'),
+          ),
           if (upcomingLeads.isNotEmpty)
             ElevatedButton(
               onPressed: () {
@@ -424,7 +440,7 @@ class _MainScreenState extends State<MainScreen> {
     debugPrint('📊 Loaded ${leadManager.allLeads.length} leads');
     
     // Get all tasks from task manager (combine pending and completed)
-    final allTasks = [...taskManager.pendingTasks, ...taskManager.completedTasks].map((task) => {
+    final globalTasks = [...taskManager.pendingTasks, ...taskManager.completedTasks].map((task) => {
       'id': task.id,
       'title': task.title,
       'description': task.description,
@@ -434,7 +450,33 @@ class _MainScreenState extends State<MainScreen> {
       'priority': task.priority,
     }).toList();
     
-    debugPrint('📋 Loaded ${allTasks.length} tasks');
+    // Get all lead-specific tasks from each lead
+    final allTasks = <Map<String, dynamic>>[];
+    allTasks.addAll(globalTasks); // Add global tasks first
+    
+    for (final lead in leadManager.allLeads) {
+      try {
+        final leadTasks = await LeadActivityApi.getTasks(lead.id);
+        for (final task in leadTasks) {
+          // Convert database task to notification format
+          final taskData = {
+            'id': task['id'],
+            'title': task['title'] ?? '',
+            'description': task['description'] ?? '',
+            'dueDate': DateTime.parse(task['due_date'] ?? DateTime.now().add(const Duration(days: 1)).toIso8601String()),
+            'dueTime': task['due_time'] ?? '12:00 PM',
+            'isCompleted': (task['is_completed'] ?? 0) == 1,
+            'priority': task['priority'] ?? 'Medium',
+            'leadId': lead.id, // Associate with lead
+          };
+          allTasks.add(taskData);
+        }
+      } catch (e) {
+        debugPrint('❌ Error loading tasks for lead ${lead.contactName}: $e');
+      }
+    }
+    
+    debugPrint('📋 Loaded ${allTasks.length} total tasks (${globalTasks.length} global + ${allTasks.length - globalTasks.length} lead-specific)');
     
     // Get all activities from all leads
     final allActivities = <Map<String, dynamic>>[];
@@ -449,16 +491,20 @@ class _MainScreenState extends State<MainScreen> {
           debugPrint('   Activity $i: ${activity['activity_type']} - scheduled_at: ${activity['scheduled_at']}');
           
           // Only include activities with scheduled_at dates
-          if (activity['scheduled_at'] != null && activity['scheduled_at'].toString().isNotEmpty) {
-            final scheduledActivity = {
-              'id': activity['id'],
-              'title': activity['activity_type'] ?? 'Activity',
-              'description': activity['description'] ?? '',
-              'scheduledDate': DateTime.parse(activity['scheduled_at']),
-              'leadId': lead.id,
-            };
-            allActivities.add(scheduledActivity);
-            debugPrint('   ✅ Added scheduled activity: ${scheduledActivity['title']} at ${scheduledActivity['scheduledDate']}');
+          if (activity['scheduled_at'] != null && activity['scheduled_at'].toString().isNotEmpty && activity['scheduled_at'] != 'null') {
+            try {
+              final scheduledActivity = {
+                'id': activity['id'],
+                'title': activity['activity_type'] ?? 'Activity',
+                'description': activity['description'] ?? '',
+                'scheduledDate': DateTime.parse(activity['scheduled_at']),
+                'leadId': lead.id,
+              };
+              allActivities.add(scheduledActivity);
+              debugPrint('   ✅ Added scheduled activity: ${scheduledActivity['title']} at ${scheduledActivity['scheduledDate']}');
+            } catch (e) {
+              debugPrint('   ❌ Error parsing scheduled_at for activity: ${activity['activity_type']} - ${e}');
+            }
           } else {
             debugPrint('   ❌ Skipped activity (no scheduled_at): ${activity['activity_type']}');
           }
@@ -474,6 +520,13 @@ class _MainScreenState extends State<MainScreen> {
       leadManager.allLeads, 
       allTasks: allTasks,
       allActivities: allActivities,
+    );
+    
+    // Update cached data for offline notifications
+    _notificationService.updateCachedData(
+      leads: leadManager.allLeads,
+      tasks: allTasks,
+      activities: allActivities,
     );
     
     // Check if there's a pending notification to navigate to
