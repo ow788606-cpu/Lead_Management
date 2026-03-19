@@ -14,25 +14,36 @@ class ContactApi {
       Uri.parse('${ApiConfig.baseUrl}/contacts_bulk_upload.php');
 
   static Future<List<Contact>> fetchContacts() async {
-    final userId = await AuthManager().getUserId() ?? 0;
-    final response = await http.get(_contactsUri(userId: userId));
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load contacts');
-    }
+    try {
+      final userId = await AuthManager().getUserId() ?? 0;
+      final uri = _contactsUri(userId: userId);
+      print('🔗 Fetching contacts from: $uri');
+      
+      final response = await http.get(uri);
+      print('📡 Response status: ${response.statusCode}');
+      print('📡 Response body: ${response.body}');
+      
+      if (response.statusCode != 200) {
+        throw Exception('Failed to load contacts - Status: ${response.statusCode}');
+      }
 
-    final decoded = jsonDecode(response.body);
-    if (decoded is! Map<String, dynamic>) {
-      throw Exception('Invalid contacts response format');
-    }
-    if (decoded['success'] != true) {
-      throw Exception(
-          (decoded['message'] ?? 'Contacts API returned error').toString());
-    }
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic>) {
+        throw Exception('Invalid contacts response format');
+      }
+      if (decoded['success'] != true) {
+        throw Exception(
+            (decoded['message'] ?? 'Contacts API returned error').toString());
+      }
 
-    final rows = (decoded['data'] as List<dynamic>? ?? [])
-        .map((item) => Contact.fromJson(item as Map<String, dynamic>))
-        .toList();
-    return rows;
+      final rows = (decoded['data'] as List<dynamic>? ?? [])
+          .map((item) => Contact.fromJson(item as Map<String, dynamic>))
+          .toList();
+      return rows;
+    } catch (e) {
+      print('❌ Error fetching contacts: $e');
+      rethrow;
+    }
   }
 
   static Future<String> addContact(Contact contact, {int userId = 1}) async {
