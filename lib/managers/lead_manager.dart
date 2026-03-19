@@ -51,32 +51,40 @@ class LeadManager {
   Future<void> loadLeads({bool forceRefresh = false}) async {
     if (_isLoaded && !forceRefresh) return;
     final userId = await AuthManager().getUserId() ?? 0;
-    final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/leads.php?user_id=$userId'),
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load leads');
-    }
-
-    final decoded = jsonDecode(response.body);
-    if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
-      throw Exception('Invalid leads response');
-    }
-
-    final rows = <Lead>[];
-    final data = decoded['data'] as List<dynamic>? ?? [];
-    for (final item in data) {
-      if (item is Map) {
-        final map = <String, dynamic>{};
-        item.forEach((key, value) {
-          map[key.toString()] = value;
-        });
-        rows.add(_leadFromApi(map));
+    
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/leads.php?user_id=$userId'),
+      );
+      
+      if (response.statusCode != 200) {
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
       }
+
+      // Debug: Print response body to see what we're getting
+      
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
+        throw Exception('Invalid leads response: ${response.body}');
+      }
+
+      final rows = <Lead>[];
+      final data = decoded['data'] as List<dynamic>? ?? [];
+      for (final item in data) {
+        if (item is Map) {
+          final map = <String, dynamic>{};
+          item.forEach((key, value) {
+            map[key.toString()] = value;
+          });
+          rows.add(_leadFromApi(map));
+        }
+      }
+      _leads.clear();
+      _leads.addAll(rows);
+      _isLoaded = true;
+    } catch (e) {
+      throw Exception('Failed to load leads: $e');
     }
-    _leads.clear();
-    _leads.addAll(rows);
-    _isLoaded = true;
   }
 
   Future<void> createLead({
@@ -87,30 +95,37 @@ class LeadManager {
     DateTime? nextFollowUpAt,
   }) async {
     final userId = await AuthManager().getUserId() ?? 0;
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/leads.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'user_id': userId,
-        'contact_id': int.tryParse(contactId) ?? 0,
-        'service_name': serviceName?.trim(),
-        'tags': tags?.trim(),
-        'description': description?.trim(),
-        'next_followup_at': nextFollowUpAt?.toIso8601String(),
-        'status_id': 1,
-      }),
-    );
+    
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/leads.php'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'user_id': userId,
+          'contact_id': int.tryParse(contactId) ?? 0,
+          'service_name': serviceName?.trim(),
+          'tags': tags?.trim(),
+          'description': description?.trim(),
+          'next_followup_at': nextFollowUpAt?.toIso8601String(),
+          'status_id': 1,
+        }),
+      );
 
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to create lead');
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
+      }
+
+      // Debug: Print response body
+      
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
+        throw Exception((decoded['message'] ?? 'Invalid lead response: ${response.body}').toString());
+      }
+
+      await loadLeads(forceRefresh: true);
+    } catch (e) {
+      throw Exception('Failed to create lead: $e');
     }
-
-    final decoded = jsonDecode(response.body);
-    if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
-      throw Exception((decoded['message'] ?? 'Invalid lead response').toString());
-    }
-
-    await loadLeads(forceRefresh: true);
   }
 
   void addLead(Lead lead) {

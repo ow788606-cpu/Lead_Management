@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../managers/task_manager.dart';
-import '../../widgets/app_drawer.dart';
 import 'edit_task_screen.dart';
 import 'new_task_screen.dart';
 
@@ -123,25 +122,6 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      drawer: AppDrawer(
-        selectedIndex: 4,
-        onItemSelected: (_) => Navigator.pop(context),
-      ),
-      appBar: AppBar(
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: const Text('Pending Task'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
-          ),
-        ],
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

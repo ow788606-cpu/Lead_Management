@@ -7,6 +7,7 @@ import '../../models/contact.dart';
 import '../../services/service_manager.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
+import '../../main.dart';
 
 class AddNewLeadScreen extends StatefulWidget {
   const AddNewLeadScreen({super.key});
@@ -869,6 +870,42 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                     ],
                   ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: 1, // Leads section
+        onTap: (index) => _onBottomNavTap(context, index),
+        selectedItemColor: const Color(0xFF0B5CFF),
+        unselectedItemColor: Colors.grey,
+        selectedFontSize: 12,
+        unselectedFontSize: 10,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
+            label: 'Apps',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outline),
+            activeIcon: Icon(Icons.people),
+            label: 'Leads',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Tasks',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
     );
   }
 
@@ -989,5 +1026,36 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
     _serviceController.dispose();
     _tagsController.dispose();
     super.dispose();
+  }
+
+  void _onBottomNavTap(BuildContext context, int index) {
+    // Map bottom nav indices to screen indices
+    int screenIndex;
+    switch (index) {
+      case 0: // Apps -> Dashboard
+        screenIndex = 0;
+        break;
+      case 1: // Leads
+        screenIndex = 1;
+        break;
+      case 2: // Home -> Contacts
+        screenIndex = 3;
+        break;
+      case 3: // Tasks
+        screenIndex = 4;
+        break;
+      case 4: // Settings
+        screenIndex = 0; // Default to dashboard
+        break;
+      default:
+        screenIndex = 0;
+    }
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainScreen(initialIndex: screenIndex),
+      ),
+    );
   }
 }

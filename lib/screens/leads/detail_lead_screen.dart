@@ -9,6 +9,7 @@ import '../../managers/lead_manager.dart';
 import '../../managers/auth_manager.dart';
 import '../../services/lead_activity_api.dart';
 import '../../widgets/app_drawer.dart';
+import '../../main.dart';
 
 class DetailLeadScreen extends StatefulWidget {
   final Lead lead;
@@ -2623,131 +2624,131 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         ),
         title:
             const Text('Lead Details', style: TextStyle(color: Colors.black)),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.black),
-            onSelected: (value) async {
-              if (value == 'edit') {
-                // Navigate to edit mode or show edit dialog
-                _showEditDialog();
-              } else if (value == 'personal') {
-                _showPersonalDetails();
-              } else if (value == 'mark_completed') {
-                final shouldMarkCompleted = await showDialog<bool>(
-                  context: context,
-                  builder: (dialogContext) => AlertDialog(
-                    title: const Text('Mark as Completed'),
-                    content: const Text(
-                        'Are you sure you want to mark this lead as completed?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogContext, false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogContext, true),
-                        child: const Text('Mark as Completed',
-                            style: TextStyle(color: Colors.green)),
-                      ),
-                    ],
-                  ),
-                );
-                if (!context.mounted) return;
-                if (shouldMarkCompleted == true) {
-                  try {
-                    await _leadManager.markAsCompleted(widget.lead.id);
-                    if (!context.mounted) return;
+          actions: [
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Colors.black),
+              onSelected: (value) async {
+                if (value == 'edit') {
+                  // Navigate to edit mode or show edit dialog
+                  _showEditDialog();
+                } else if (value == 'personal') {
+                  _showPersonalDetails();
+                } else if (value == 'mark_completed') {
+                  final shouldMarkCompleted = await showDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: const Text('Mark as Completed'),
+                      content: const Text(
+                          'Are you sure you want to mark this lead as completed?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, true),
+                          child: const Text('Mark as Completed',
+                              style: TextStyle(color: Colors.green)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (!context.mounted) return;
+                  if (shouldMarkCompleted == true) {
+                    try {
+                      await _leadManager.markAsCompleted(widget.lead.id);
+                      if (!context.mounted) return;
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Lead marked as completed successfully')),
+                      );
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content:
+                                Text('Failed to mark lead as completed: $e')),
+                      );
+                    }
+                  }
+                } else if (value == 'delete') {
+                  final shouldDelete = await showDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: const Text('Delete Lead'),
+                      content: const Text(
+                          'Are you sure you want to delete this lead?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, true),
+                          child: const Text('Delete',
+                              style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (!context.mounted) return;
+                  if (shouldDelete == true) {
+                    _leadManager.deleteLead(widget.lead.id);
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content:
-                              Text('Lead marked as completed successfully')),
-                    );
-                  } catch (e) {
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content:
-                              Text('Failed to mark lead as completed: $e')),
+                      const SnackBar(content: Text('Lead deleted successfully')),
                     );
                   }
                 }
-              } else if (value == 'delete') {
-                final shouldDelete = await showDialog<bool>(
-                  context: context,
-                  builder: (dialogContext) => AlertDialog(
-                    title: const Text('Delete Lead'),
-                    content: const Text(
-                        'Are you sure you want to delete this lead?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogContext, false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogContext, true),
-                        child: const Text('Delete',
-                            style: TextStyle(color: Colors.red)),
-                      ),
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 20),
+                      SizedBox(width: 8),
+                      Text('Edit'),
                     ],
                   ),
-                );
-                if (!context.mounted) return;
-                if (shouldDelete == true) {
-                  _leadManager.deleteLead(widget.lead.id);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Lead deleted successfully')),
-                  );
-                }
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem<String>(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, size: 20),
-                    SizedBox(width: 8),
-                    Text('Edit'),
-                  ],
                 ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'personal',
-                child: Row(
-                  children: [
-                    Icon(Icons.person, size: 20),
-                    SizedBox(width: 8),
-                    Text('Personal Details'),
-                  ],
+                const PopupMenuItem<String>(
+                  value: 'personal',
+                  child: Row(
+                    children: [
+                      Icon(Icons.person, size: 20),
+                      SizedBox(width: 8),
+                      Text('Personal Details'),
+                    ],
+                  ),
                 ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'mark_completed',
-                child: Row(
-                  children: [
-                    Icon(Icons.check_circle, size: 20, color: Colors.green),
-                    SizedBox(width: 8),
-                    Text('Mark as Completed',
-                        style: TextStyle(color: Colors.green)),
-                  ],
+                const PopupMenuItem<String>(
+                  value: 'mark_completed',
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle, size: 20, color: Colors.green),
+                      SizedBox(width: 8),
+                      Text('Mark as Completed',
+                          style: TextStyle(color: Colors.green)),
+                    ],
+                  ),
                 ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, size: 20, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
-                  ],
+                const PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 20, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Delete', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
+              ],
+            ),
+          ],
+        ),
       body: SafeArea(
         child: Column(
           children: [
@@ -3016,158 +3017,72 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         ),
       ),
       floatingActionButton: null,
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: Colors.grey, width: 0.2)),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: 1, // Leads section
+        onTap: (index) => _onBottomNavTap(context, index),
+        selectedItemColor: const Color(0xFF0B5CFF),
+        unselectedItemColor: Colors.grey,
+        selectedFontSize: 12,
+        unselectedFontSize: 10,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_outlined),
+            activeIcon: Icon(Icons.dashboard),
+            label: 'Apps',
           ),
-          child: Row(
-            children: [
-              // Send Message button with dropdown
-              Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(width: 10),
-                    const Icon(Icons.message, size: 16, color: Colors.black87),
-                    const SizedBox(width: 6),
-                    const Text('Send Message',
-                        style: TextStyle(fontSize: 13, color: Colors.black87)),
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (context) => Container(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ListTile(
-                                  leading: const Icon(Icons.sms),
-                                  title: const Text('SMS'),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    if (widget.lead.phone != null) {
-                                      launchUrl(Uri.parse(
-                                          'sms:${widget.lead.phone}'));
-                                    }
-                                  },
-                                ),
-                                ListTile(
-                                  leading: const Icon(Icons.email),
-                                  title: const Text('Email'),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    if (widget.lead.email != null) {
-                                      launchUrl(Uri.parse(
-                                          'mailto:${widget.lead.email}'));
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 12),
-                        decoration: BoxDecoration(
-                          border: Border(
-                              left: BorderSide(color: Colors.grey.shade300)),
-                        ),
-                        child: const Icon(Icons.keyboard_arrow_down,
-                            size: 18, color: Colors.black54),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Make a Call button
-              Expanded(
-                child: SizedBox(
-                  height: 44,
-                  child: ElevatedButton.icon(
-                    onPressed: widget.lead.phone != null
-                        ? () => launchUrl(Uri.parse('tel:${widget.lead.phone}'))
-                        : null,
-                    icon:
-                        const Icon(Icons.phone, color: Colors.white, size: 16),
-                    label: const Text('Make a Call',
-                        style: TextStyle(color: Colors.white, fontSize: 13)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0b5cff),
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              // + button
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0b5cff),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: IconButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (context) => Container(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.timeline),
-                              title: const Text('Add Activity'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showAddActivityDialog();
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.task),
-                              title: const Text('Create Task'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showAddTaskDialog();
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.note),
-                              title: const Text('Add Note'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showAddNoteDialog();
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add, color: Colors.white, size: 22),
-                  padding: EdgeInsets.zero,
-                ),
-              ),
-            ],
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people_outline),
+            activeIcon: Icon(Icons.people),
+            label: 'Leads',
           ),
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            activeIcon: Icon(Icons.chat_bubble),
+            label: 'Tasks',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onBottomNavTap(BuildContext context, int index) {
+    // Map bottom nav indices to screen indices
+    int screenIndex;
+    switch (index) {
+      case 0: // Apps -> Dashboard
+        screenIndex = 0;
+        break;
+      case 1: // Leads
+        screenIndex = 1;
+        break;
+      case 2: // Home -> Contacts
+        screenIndex = 3;
+        break;
+      case 3: // Tasks
+        screenIndex = 4;
+        break;
+      case 4: // Settings
+        screenIndex = 0; // Default to dashboard
+        break;
+      default:
+        screenIndex = 0;
+    }
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainScreen(initialIndex: screenIndex),
       ),
     );
   }

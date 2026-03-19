@@ -1,18 +1,15 @@
-// ignore_for_file: unnecessary_const
-
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../main.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/billing_screen.dart';
 import '../screens/auth/manage_profile_screen.dart';
 import '../screens/auth/change_password_screen.dart';
 import '../screens/leads/add_new_lead_screen.dart';
-import '../screens/leads/all_leads_screen.dart';
 import '../screens/contacts/all_contacts_screen.dart';
 import '../screens/contacts/new_contact_screen.dart';
 import '../screens/contacts/bulk_upload_screen.dart';
 import '../screens/tasks/new_task_screen.dart';
-import '../screens/tasks/pending_tasks_screen.dart';
 import '../screens/tasks/completed_tasks_screen.dart';
 import '../screens/reports/lead_reports_screen.dart';
 
@@ -66,7 +63,7 @@ class AppDrawer extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.w600)),
             ),
-            _DrawerItem(Icons.dashboard_outlined, 'Dashboard', 0, selectedIndex,
+            _DrawerItem(HugeIcons.strokeRoundedDashboardSquare01, 'Dashboard', 0, selectedIndex,
                 () => openMainTab(0), const Color(0xFF0B5CFF), _activeBgColor),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
@@ -76,7 +73,7 @@ class AppDrawer extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(Icons.phone_in_talk_outlined, 'Leads', 1,
+            _ExpandableDrawerItem(HugeIcons.strokeRoundedCall, 'Leads', 1,
                 selectedIndex, () => onItemSelected(1), _activeBgColor, [
               _SubItem('Add New Lead', () {
                 Navigator.push(
@@ -85,45 +82,50 @@ class AppDrawer extends StatelessWidget {
                         builder: (context) => const AddNewLeadScreen()));
               }),
               _SubItem('All Leads', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AllLeadsScreen(initialTabIndex: 0)));
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => const MainScreen(initialIndex: 1)),
+                  (route) => false,
+                );
               }),
               _SubItem('Fresh Leads', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AllLeadsScreen(initialTabIndex: 1)));
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => const MainScreen(initialIndex: 1)),
+                  (route) => false,
+                );
               }),
               _SubItem('Follow-Ups', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AllLeadsScreen(initialTabIndex: 2)));
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => const MainScreen(initialIndex: 1)),
+                  (route) => false,
+                );
               }),
               _SubItem('Overdue', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AllLeadsScreen(initialTabIndex: 3)));
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => const MainScreen(initialIndex: 1)),
+                  (route) => false,
+                );
               }),
               _SubItem('Completed', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AllLeadsScreen(initialTabIndex: 4)));
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => const MainScreen(initialIndex: 1)),
+                  (route) => false,
+                );
               }),
             ]),
             _DrawerItem(
-                Icons.calendar_today_outlined,
+                HugeIcons.strokeRoundedCalendar03,
                 'Appointments',
                 2,
                 selectedIndex,
                 () => openMainTab(2),
                 const Color(0xFF0B5CFF),
                 _activeBgColor),
-            _ExpandableDrawerItem(Icons.people_outline, 'Contacts', 3,
+            _ExpandableDrawerItem(HugeIcons.strokeRoundedUserMultiple, 'Contacts', 3,
                 selectedIndex, () => onItemSelected(3), _activeBgColor, [
               _SubItem('All Contacts', () {
                 Navigator.push(
@@ -144,7 +146,7 @@ class AppDrawer extends StatelessWidget {
                         builder: (context) => const BulkUploadScreen()));
               }),
             ]),
-            _ExpandableDrawerItem(Icons.task_alt_outlined, 'Tasks', 4,
+            _ExpandableDrawerItem(HugeIcons.strokeRoundedTask01, 'Tasks', 4,
                 selectedIndex, () => onItemSelected(4), _activeBgColor, [
               _SubItem('New Task', () {
                 Navigator.push(
@@ -153,10 +155,11 @@ class AppDrawer extends StatelessWidget {
                         builder: (context) => const NewTaskScreen()));
               }),
               _SubItem('Pending Tasks', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const PendingTasksScreen()));
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => const MainScreen(initialIndex: 4)),
+                  (route) => false,
+                );
               }),
               _SubItem('Completed Tasks', () {
                 Navigator.push(
@@ -166,14 +169,14 @@ class AppDrawer extends StatelessWidget {
               }),
             ]),
             _DrawerItem(
-                Icons.business_center_outlined,
+                HugeIcons.strokeRoundedCustomerService,
                 'Services',
                 5,
                 selectedIndex,
                 () => openMainTab(5),
                 const Color(0xFF0B5CFF),
                 _activeBgColor),
-            _DrawerItem(Icons.local_offer_outlined, 'Tags', 6, selectedIndex,
+            _DrawerItem(HugeIcons.strokeRoundedTag01, 'Tags', 6, selectedIndex,
                 () => openMainTab(6), const Color(0xFF0B5CFF), _activeBgColor),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
@@ -183,7 +186,7 @@ class AppDrawer extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(Icons.bar_chart_outlined, 'Reports', -1,
+            _ExpandableDrawerItem(HugeIcons.strokeRoundedAnalytics01, 'Reports', -1,
                 selectedIndex, () {}, _activeBgColor, [
               _SubItem('Lead Reports', () {
                 Navigator.push(
@@ -200,7 +203,7 @@ class AppDrawer extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(Icons.person_outline, 'Profile', -2,
+            _ExpandableDrawerItem(HugeIcons.strokeRoundedUser, 'Profile', -2,
                 selectedIndex, () {}, _activeBgColor, [
               _SubItem('Billing', () {
                 Navigator.push(
@@ -222,8 +225,11 @@ class AppDrawer extends StatelessWidget {
               }),
             ]),
             ListTile(
-              leading: const Icon(Icons.logout,
-                  size: 18, color: const Color(0xFF0B5CFF)),
+              leading: const HugeIcon(
+                icon: HugeIcons.strokeRoundedLogout01,
+                size: 18,
+                color: Color(0xFF0B5CFF),
+              ),
               title: const Text('Logout', style: TextStyle(fontSize: 13)),
               onTap: () {
                 Navigator.of(context).pushAndRemoveUntil(
@@ -256,8 +262,11 @@ class _DrawerItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isSelected = index == selectedIndex;
     return ListTile(
-      leading:
-          Icon(icon, color: isSelected ? Colors.white : iconColor, size: 18),
+      leading: HugeIcon(
+        icon: icon,
+        color: isSelected ? Colors.white : iconColor,
+        size: 18,
+      ),
       title: Text(title,
           style: TextStyle(
               color: isSelected ? Colors.white : Colors.black87, fontSize: 13)),
@@ -293,9 +302,11 @@ class _ExpandableDrawerItemState extends State<_ExpandableDrawerItem> {
     return Column(
       children: [
         ListTile(
-          leading: Icon(widget.icon,
-              color: isSelected ? Colors.white : const Color(0xFF0B5CFF),
-              size: 18),
+          leading: HugeIcon(
+            icon: widget.icon,
+            color: isSelected ? Colors.white : const Color(0xFF0B5CFF),
+            size: 18,
+          ),
           title: Text(widget.title,
               style: TextStyle(
                   color: isSelected ? Colors.white : Colors.black87,

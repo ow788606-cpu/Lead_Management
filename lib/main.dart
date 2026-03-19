@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:hugeicons/hugeicons.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/leads/all_leads_screen.dart';
+import 'screens/leads/add_new_lead_screen.dart';
 import 'screens/leads/detail_lead_screen.dart';
 import 'screens/appointments/appointments_screen.dart';
 import 'screens/contacts/contacts_screen.dart';
 import 'screens/contacts/add_contact_screen.dart';
+import 'screens/tasks/pending_tasks_screen.dart';
+import 'screens/auth/manage_profile_screen.dart';
 import 'services/services_screen.dart';
 import 'services/add_services.dart';
 import 'services/service_manager.dart';
@@ -195,8 +199,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
+  final int initialLeadTabIndex;
 
-  const MainScreen({super.key, this.initialIndex = 0});
+  const MainScreen({super.key, this.initialIndex = 0, this.initialLeadTabIndex = 0});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -211,6 +216,29 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget? _buildFloatingActionButton() {
     switch (_selectedIndex) {
+      case 1: // Leads screen
+        return Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0B5CFF),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddNewLeadScreen(),
+                ),
+              ).then((result) {
+                if (result == true && mounted) setState(() {});
+              });
+            },
+            icon: const Icon(Icons.add, color: Colors.white, size: 24),
+            padding: EdgeInsets.zero,
+          ),
+        );
       case 3: // Contacts screen
         return FloatingActionButton(
           tooltip: 'Add New Contact',
@@ -266,13 +294,13 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return const DashboardScreen();
       case 1:
-        return const AllLeadsScreen(initialTabIndex: 0);
+        return AllLeadsScreen(initialTabIndex: widget.initialLeadTabIndex);
       case 2:
         return const AppointmentsScreen();
       case 3:
         return const ContactsScreen();
       case 4:
-        return const Center(child: Text('Tasks'));
+        return const PendingTasksScreen();
       case 5:
         return const ServicesScreen();
       case 6:
@@ -283,16 +311,17 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> _buildAppBarActions() {
-    if (_selectedIndex == 2 || _selectedIndex == 5 || _selectedIndex == 6) {
-      return [
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined),
-          tooltip: 'View notification status',
-          onPressed: () => _showNotificationStatus(),
+    return [
+      IconButton(
+        icon: const HugeIcon(
+          icon: HugeIcons.strokeRoundedNotification03,
+          color: Colors.black,
+          size: 20.0,
         ),
-      ];
-    }
-    return const [];
+        tooltip: 'View notification status',
+        onPressed: () => _showNotificationStatus(),
+      ),
+    ];
   }
 
   void _showNotificationStatus() {
@@ -361,8 +390,12 @@ class _MainScreenState extends State<MainScreen> {
 
   String _getAppBarTitle() {
     switch (_selectedIndex) {
+      case 1:
+        return 'All Leads';
       case 2:
         return 'Appointments Schedule';
+      case 4:
+        return 'Pending Tasks';
       case 5:
         return 'All Services';
       case 6:
@@ -624,14 +657,15 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: AppDrawer(
+        selectedIndex: _selectedIndex,
+        onItemSelected: (index) {
+          setState(() => _selectedIndex = index);
+          Navigator.pop(context);
+        },
+      ),
       appBar: AppBar(
         centerTitle: true,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
         title: Text(_getAppBarTitle(),
             style: const TextStyle(
                 color: Colors.black,
@@ -639,17 +673,200 @@ class _MainScreenState extends State<MainScreen> {
                 fontSize: 14)),
         actions: _buildAppBarActions(),
       ),
-      drawer: AppDrawer(
-        selectedIndex: _selectedIndex,
-        onItemSelected: _select,
-      ),
       floatingActionButton: _buildFloatingActionButton(),
       body: _buildSelectedScreen(),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          currentIndex: _getBottomNavIndex(),
+          onTap: _onBottomNavTap,
+          selectedItemColor: const Color(0xFF0B5CFF),
+          unselectedItemColor: Colors.grey,
+          selectedFontSize: 12,
+          unselectedFontSize: 10,
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedCalendar03,
+                color: Colors.grey,
+                size: 24.0,
+              ),
+              activeIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedCalendar03,
+                color: Color(0xFF0B5CFF),
+                size: 24.0,
+              ),
+              label: 'Appts',
+            ),
+            BottomNavigationBarItem(
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedCall,
+                color: Colors.grey,
+                size: 24.0,
+              ),
+              activeIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedCall,
+                color: Color(0xFF0B5CFF),
+                size: 24.0,
+              ),
+              label: 'Leads',
+            ),
+            BottomNavigationBarItem(
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedHome01,
+                color: Colors.grey,
+                size: 24.0,
+              ),
+              activeIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedHome01,
+                color: Color(0xFF0B5CFF),
+                size: 24.0,
+              ),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedTaskEdit01,
+                color: Colors.grey,
+                size: 24.0,
+              ),
+              activeIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedTaskEdit01,
+                color: Color(0xFF0B5CFF),
+                size: 24.0,
+              ),
+              label: 'Tasks',
+            ),
+            BottomNavigationBarItem(
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedSettings01,
+                color: Colors.grey,
+                size: 24.0,
+              ),
+              activeIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedSettings01,
+                color: Color(0xFF0B5CFF),
+                size: 24.0,
+              ),
+              label: 'Settings',
+            ),
+          ],
+        ),
+      ),
     );
+  }
+
+  int _getBottomNavIndex() {
+    // Map screen indices to bottom nav indices
+    switch (_selectedIndex) {
+      case 2: // AppointmentsScreen -> Appointments tab (index 0)
+        return 0;
+      case 1: // AllLeadsScreen -> Leads tab (index 1)
+        return 1;
+      case 0: // DashboardScreen -> Home tab (index 2)
+        return 2;
+      case 4: // Tasks -> Tasks tab (index 3)
+        return 3;
+      default:
+        return 2; // Default to Home
+    }
   }
 
   void _select(int index) {
     setState(() => _selectedIndex = index);
     Navigator.pop(context);
+  }
+
+  void _onBottomNavTap(int index) {
+    // Map bottom nav indices to screen indices
+    int screenIndex;
+    switch (index) {
+      case 0: // Appointments
+        screenIndex = 2;
+        break;
+      case 1: // Leads
+        screenIndex = 1;
+        break;
+      case 2: // Home -> Dashboard
+        screenIndex = 0;
+        break;
+      case 3: // Tasks
+        screenIndex = 4;
+        break;
+      case 4: // Settings -> Open Manage Profile
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ManageProfileScreen()),
+        );
+        return;
+      default:
+        screenIndex = 0;
+    }
+    setState(() => _selectedIndex = screenIndex);
+  }
+
+  void _showSettingsMenu() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Appointments'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _selectedIndex = 2);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.business),
+              title: const Text('Services'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _selectedIndex = 5);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.label),
+              title: const Text('Tags'),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _selectedIndex = 6);
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () async {
+                Navigator.pop(context);
+                await AuthManager().logout();
+                if (mounted) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

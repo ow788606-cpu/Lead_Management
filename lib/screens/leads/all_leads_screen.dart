@@ -5,6 +5,7 @@ import '../../models/lead.dart';
 import '../tags/tag_api.dart';
 import '../../widgets/app_drawer.dart';
 import '../../services/notification_service.dart';
+import '../../main.dart';
 import 'detail_lead_screen.dart';
 import 'add_new_lead_screen.dart';
 
@@ -161,28 +162,6 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        title: const Text('All Leads',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      drawer: AppDrawer(
-        selectedIndex: 1,
-        onItemSelected: (index) {},
-      ),
       body: Column(
         children: [
           // White section with search and tabs
@@ -275,30 +254,6 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
             ),
           ),
         ],
-      ),
-      floatingActionButton: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: const Color(0xFF0B5CFF),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AddNewLeadScreen(),
-              ),
-            ).then((result) {
-              if (result == true) {
-                _loadLeads();
-              }
-            });
-          },
-          icon: const Icon(Icons.add, color: Colors.white, size: 24),
-          padding: EdgeInsets.zero,
-        ),
       ),
     );
   }
