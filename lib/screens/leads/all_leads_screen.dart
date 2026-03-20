@@ -143,7 +143,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
         leads = _leadManager.completedLeads;
         break;
       default:
-        leads = _leadManager.allLeads;
+        leads = _leadManager.allLeads.where((lead) => !lead.isCompleted).toList();
     }
 
     final query = _searchController.text.toLowerCase();

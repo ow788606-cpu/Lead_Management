@@ -28,6 +28,7 @@ class NotificationService {
   final Map<String, DateTime> _notifiedLeads = {};
   final Map<String, DateTime> _notifiedTasks = {};
   final Map<String, DateTime> _notifiedActivities = {};
+  final Map<String, DateTime> _notifiedOverdueTasks = {};
 
   bool _isInitialized = false;
 
@@ -135,6 +136,7 @@ class NotificationService {
     _pruneOldNotifiedIds();
     _checkLeads(_cachedLeads);
     _checkTasks(_cachedTasks, _cachedLeads);
+    _checkOverdueTasks(_cachedTasks, _cachedLeads);
     _checkActivities(_cachedActivities, _cachedLeads);
   }
 
@@ -144,6 +146,7 @@ class NotificationService {
     _notifiedLeads.removeWhere((_, dt) => dt.isBefore(cutoff));
     _notifiedTasks.removeWhere((_, dt) => dt.isBefore(cutoff));
     _notifiedActivities.removeWhere((_, dt) => dt.isBefore(cutoff));
+    _notifiedOverdueTasks.removeWhere((_, dt) => dt.isBefore(cutoff));
   }
 
   // ─── Lead checks ─────────────────────────────────────────────────────────
@@ -252,6 +255,43 @@ class NotificationService {
     return DateTime(dueDate.year, dueDate.month, dueDate.day, hour, minute);
   }
 
+  // ─── Overdue Task checks ─────────────────────────────────────────────────
+
+  void _checkOverdueTasks(List<Map<String, dynamic>> tasks, List<Lead> leads) {
+    final now = DateTime.now();
+    for (final task in tasks) {
+      if (task['dueDate'] == null) continue;
+      if (task['isCompleted'] == true) continue;
+      final key = 'overdue_${task['id']}';
+      if (_notifiedOverdueTasks.containsKey(key)) continue;
+
+      final dueDt = _buildTaskDateTime(task);
+      final hoursSinceOverdue = now.difference(dueDt).inHours;
+
+      debugPrint('⏰ Task "${task['title']}" — overdue hours: $hoursSinceOverdue');
+
+      // Notify if task is overdue by 24 hours (23-25 hour window)
+      if (hoursSinceOverdue >= 23 && hoursSinceOverdue <= 25) {
+        _notifiedOverdueTasks[key] = now;
+        final lead = _findLead(leads, task['leadId']);
+        final body = lead != null
+            ? 'Task "${task['title']}" for ${lead.contactName} is overdue by 24 hours'
+            : 'Task "${task['title']}" is overdue by 24 hours';
+        _showNotification(
+          id: task['id'].hashCode + 30000,
+          title: '⚠️ Task Overdue',
+          body: body,
+          payload: 'task_overdue:${task['id']}:${lead?.id ?? ''}',
+          channel: _overdueTaskChannel,
+        );
+        if (lead != null) {
+          for (final cb in _taskCallbacks) { cb(task, lead); }
+        }
+        debugPrint('✅ Overdue task notification sent: ${task['title']}');
+      }
+    }
+  }
+
   // ─── Activity checks ──────────────────────────────────────────────────────
 
   void _checkActivities(List<Map<String, dynamic>> activities, List<Lead> leads) {
@@ -330,6 +370,13 @@ class NotificationService {
   static const _activityChannel = AndroidNotificationDetails(
     'activity_notifications', 'Activity Reminder Notifications',
     channelDescription: 'Notifications for scheduled activities',
+    importance: Importance.max, priority: Priority.high,
+    autoCancel: true, ongoing: false, showWhen: true,
+  );
+
+  static const _overdueTaskChannel = AndroidNotificationDetails(
+    'overdue_task_notifications', 'Overdue Task Notifications',
+    channelDescription: 'Notifications for tasks overdue by 24 hours',
     importance: Importance.max, priority: Priority.high,
     autoCancel: true, ongoing: false, showWhen: true,
   );
@@ -546,6 +593,7 @@ class NotificationService {
     _notifiedLeads.clear();
     _notifiedTasks.clear();
     _notifiedActivities.clear();
+    _notifiedOverdueTasks.clear();
     debugPrint('🧽 Notification tracking cleared');
   }
 
