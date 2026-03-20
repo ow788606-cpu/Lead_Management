@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:hugeicons/hugeicons.dart';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
 import '../../managers/auth_manager.dart';
@@ -2818,6 +2819,10 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             actions: [
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert, color: Colors.black),
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
               onSelected: (value) async {
                 if (value == 'edit') {
                   // Navigate to edit mode or show edit dialog
@@ -2895,43 +2900,59 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'edit',
                   child: Row(
                     children: [
-                      Icon(Icons.edit, size: 20),
-                      SizedBox(width: 8),
+                      HugeIcon(
+                        icon: HugeIcons.strokeRoundedEdit02,
+                        color: Colors.black,
+                        size: 20.0,
+                      ),
+                      SizedBox(width: 12),
                       Text('Edit'),
                     ],
                   ),
                 ),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'personal',
                   child: Row(
                     children: [
-                      Icon(Icons.person, size: 20),
-                      SizedBox(width: 8),
+                      HugeIcon(
+                        icon: HugeIcons.strokeRoundedUser,
+                        color: Colors.black,
+                        size: 20.0,
+                      ),
+                      SizedBox(width: 12),
                       Text('Personal Details'),
                     ],
                   ),
                 ),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'mark_completed',
                   child: Row(
                     children: [
-                      Icon(Icons.check_circle, size: 20, color: Colors.green),
-                      SizedBox(width: 8),
+                      HugeIcon(
+                        icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                        color: Colors.green,
+                        size: 20.0,
+                      ),
+                      SizedBox(width: 12),
                       Text('Mark as Completed',
                           style: TextStyle(color: Colors.green)),
                     ],
                   ),
                 ),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'delete',
                   child: Row(
                     children: [
-                      Icon(Icons.delete, size: 20, color: Colors.red),
-                      SizedBox(width: 8),
+                      HugeIcon(
+                        icon: HugeIcons.strokeRoundedDelete02,
+                        color: Colors.red,
+                        size: 20.0,
+                      ),
+                      SizedBox(width: 12),
                       Text('Delete', style: TextStyle(color: Colors.red)),
                     ],
                   ),
@@ -3207,7 +3228,86 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           ],
         ),
       ),
-      floatingActionButton: _buildFloatingActionButton(),
+      floatingActionButton: null,
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    if (widget.lead.phone != null) {
+                      launchUrl(Uri.parse('sms:${widget.lead.phone}'));
+                    }
+                  },
+                  icon: const Icon(Icons.message, size: 18),
+                  label: const Text('Send Message'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: const BorderSide(color: Color(0xFF0B5CFF)),
+                    foregroundColor: const Color(0xFF0B5CFF),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    if (widget.lead.phone != null) {
+                      launchUrl(Uri.parse('tel:${widget.lead.phone}'));
+                    }
+                  },
+                  icon: const Icon(Icons.call, size: 18),
+                  label: const Text('Make a Call'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: const Color(0xFF0B5CFF),
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0B5CFF),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    // Show menu based on current tab
+                    switch (_tabController.index) {
+                      case 0:
+                        _showAddActivityDialog();
+                        break;
+                      case 1:
+                        _showAddNoteDialog();
+                        break;
+                      case 2:
+                        _showAddTaskDialog();
+                        break;
+                    }
+                  },
+                  icon: const Icon(Icons.add, color: Colors.white, size: 24),
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     ),
     );
   }

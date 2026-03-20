@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../managers/lead_manager.dart';
 import '../managers/auth_manager.dart';
-import 'appointments/appointments_screen.dart';
-import 'leads/follow_ups_screen.dart';
-import 'leads/fresh_leads_screen.dart';
-import 'leads/overdue_screen.dart';
+import '../models/lead.dart';
+import 'leads/detail_lead_screen.dart';
+import '../screens/tags/tag_api.dart';
+import 'main_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -110,9 +110,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       'Fresh Leads',
                       Icons.phone_in_talk_outlined,
                       const Color(0xFF0B5CFF), onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const FreshLeadsScreen()),
+                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 1)),
                 );
               })),
               const SizedBox(width: 16),
@@ -122,9 +122,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       'Scheduled Appointments',
                       Icons.calendar_today_outlined,
                       const Color(0xFF0B5CFF), onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const AppointmentsScreen()),
+                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 2)),
                 );
               })),
             ],
@@ -138,9 +138,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       'Followup Leads',
                       Icons.access_time_outlined,
                       const Color(0xFF0B5CFF), onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const FollowUpsScreen()),
+                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 2)),
                 );
               })),
               const SizedBox(width: 16),
@@ -150,9 +150,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       'Overdue Leads',
                       Icons.warning_amber_outlined,
                       const Color(0xFF0B5CFF), onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const OverdueScreen()),
+                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 3)),
                 );
               })),
             ],
@@ -546,7 +546,7 @@ class _MonthlyReportCard extends StatelessWidget {
 }
 
 class _LeadsOverviewCard extends StatefulWidget {
-  final List leads;
+  final List<Lead> leads;
 
   const _LeadsOverviewCard({required this.leads});
 
@@ -556,6 +556,37 @@ class _LeadsOverviewCard extends StatefulWidget {
 
 class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
   String _selectedTab = 'Fresh Leads';
+  List<TagItem> _tags = [];
+  Map<String, Color> _tagColors = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTags();
+  }
+
+  Future<void> _loadTags() async {
+    try {
+      _tags = await TagApi.fetchTags();
+      _tagColors = {};
+      for (final tag in _tags) {
+        _tagColors[tag.id.toString()] = _parseColor(tag.colorHex);
+        _tagColors[tag.name] = _parseColor(tag.colorHex);
+        _tagColors[tag.name.toLowerCase()] = _parseColor(tag.colorHex);
+        _tagColors[tag.name.trim()] = _parseColor(tag.colorHex);
+        _tagColors[tag.name.trim().toLowerCase()] = _parseColor(tag.colorHex);
+      }
+      if (mounted) setState(() {});
+    } catch (e) {
+      // Handle error silently
+    }
+  }
+
+  Color _parseColor(String hex) {
+    final normalized = hex.replaceFirst('#', '').toUpperCase();
+    if (normalized.length != 6) return const Color(0xFF0B5CFF);
+    return Color(int.parse('FF$normalized', radix: 16));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -635,68 +666,212 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: filteredLeads.length > 5 ? 5 : filteredLeads.length,
-              itemBuilder: (context, index) {
-                final lead = filteredLeads[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(lead.contactName,
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 6),
-                      if (lead.phone != null)
-                        Row(
-                          children: [
-                            const Icon(Icons.phone_outlined,
-                                size: 14, color: Colors.grey),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text('Phone: ${lead.phone}',
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey)),
-                            ),
-                          ],
-                        ),
-                      if (lead.email != null)
-                        Row(
-                          children: [
-                            const Icon(Icons.email_outlined,
-                                size: 14, color: Colors.grey),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text('Email: ${lead.email}',
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey)),
-                            ),
-                          ],
-                        ),
-                      if (lead.service != null)
-                        Row(
-                          children: [
-                            const Icon(Icons.miscellaneous_services_outlined,
-                                size: 14, color: Colors.grey),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text('Service: ${lead.service}',
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Colors.grey)),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                );
-              },
+              itemBuilder: (context, index) => _buildLeadCard(filteredLeads[index]),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLeadCard(Lead lead) {
+    String statusTag = '';
+    Color statusColor = Colors.grey;
+
+    if (lead.isCompleted) {
+      statusTag = 'Completed';
+      statusColor = Colors.green;
+    } else if (lead.isOverdue) {
+      statusTag = 'Overdue';
+      statusColor = Colors.red;
+    } else if (lead.isFresh) {
+      statusTag = 'Fresh';
+      statusColor = Colors.blue;
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailLeadScreen(
+                lead: lead,
+                startInEditMode: false,
+              ),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(lead.contactName,
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black)),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: const Icon(Icons.phone, size: 18, color: Color(0xFF6B7280)),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: const Icon(Icons.comment, size: 18, color: Color(0xFF6B7280)),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: const Icon(Icons.email, size: 18, color: Color(0xFF6B7280)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (lead.service != null)
+                Row(
+                  children: [
+                    Icon(Icons.design_services, size: 16, color: Colors.grey[600]),
+                    const SizedBox(width: 6),
+                    Text('${lead.service}',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+                  ],
+                ),
+              if (lead.notes != null) ...[
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[400]),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text('${lead.notes}',
+                          style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                ),
+              ],
+              if (lead.tags != null && lead.tags!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: lead.tags!.split(',').map((tag) {
+                    final trimmedTag = tag.trim();
+                    if (trimmedTag.isEmpty) return const SizedBox.shrink();
+
+                    String mappedTag = trimmedTag;
+                    if (trimmedTag == 'bh') {
+                      mappedTag = '15';
+                    }
+
+                    Color? tagColor;
+                    String? tagName;
+
+                    if (_tagColors.containsKey(mappedTag)) {
+                      tagColor = _tagColors[mappedTag];
+                      final matchingTag = _tags.firstWhere(
+                        (t) => t.id.toString() == mappedTag,
+                        orElse: () => TagItem(
+                            id: 0, name: mappedTag, description: '', colorHex: ''),
+                      );
+                      tagName = matchingTag.name.isNotEmpty ? matchingTag.name : mappedTag;
+                    } else {
+                      for (final entry in _tagColors.entries) {
+                        if (entry.key.toLowerCase() == mappedTag.toLowerCase()) {
+                          tagColor = entry.value;
+                          tagName = mappedTag;
+                          break;
+                        }
+                      }
+                    }
+
+                    Color textColor;
+                    Color backgroundColor;
+
+                    if (tagColor == null) {
+                      textColor = const Color(0xFF6B46C1);
+                      backgroundColor = const Color(0xFF6B46C1).withValues(alpha: 0.1);
+                      tagName = trimmedTag;
+                    } else {
+                      textColor = tagColor;
+                      backgroundColor = tagColor.withValues(alpha: 0.1);
+                    }
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: backgroundColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        tagName ?? trimmedTag,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: textColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+              if (lead.followUpDate != null || statusTag.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E7EB)),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (lead.followUpDate != null)
+                      Text(
+                        'Follow-up : ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? '10:00 AM'}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    if (statusTag.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(statusTag,
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: statusColor,
+                                fontWeight: FontWeight.w500)),
+                      ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
