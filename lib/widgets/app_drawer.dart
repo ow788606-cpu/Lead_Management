@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
-import '../main.dart';
+import '../screens/main_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/billing_screen.dart';
 import '../screens/auth/manage_profile_screen.dart';
@@ -84,35 +84,35 @@ class AppDrawer extends StatelessWidget {
               _SubItem('All Leads', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1)),
+                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 0)),
                   (route) => false,
                 );
               }),
               _SubItem('Fresh Leads', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1)),
+                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 1)),
                   (route) => false,
                 );
               }),
               _SubItem('Follow-Ups', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1)),
+                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 2)),
                   (route) => false,
                 );
               }),
               _SubItem('Overdue', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1)),
+                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 3)),
                   (route) => false,
                 );
               }),
               _SubItem('Completed', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1)),
+                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 4)),
                   (route) => false,
                 );
               }),

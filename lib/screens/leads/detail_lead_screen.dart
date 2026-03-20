@@ -11,7 +11,7 @@ import '../../managers/auth_manager.dart';
 import '../../managers/task_manager.dart';
 import '../../services/lead_activity_api.dart';
 import '../../widgets/app_drawer.dart';
-import '../../main.dart';
+import '../main_screen.dart';
 import '../../services/notification_service.dart';
 
 class DetailLeadScreen extends StatefulWidget {
@@ -71,24 +71,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         debugPrint('✅ NotificationService initialized in detail screen');
       }
       
-      // Clear notification tracking to allow fresh notifications for testing
-      _notificationService.clearNotificationTracking();
-      
       // Force immediate notification check for this lead's data
       await _updateNotificationMonitoring();
-      
-      // Show test notification to verify system is working
-      if (mounted) {
-        try {
-          await _notificationService.showImmediateTestNotification(
-            'system',
-            'Notification System Ready',
-            'Notifications are now active for ${widget.lead.contactName}',
-          );
-        } catch (e) {
-          debugPrint('Error showing system ready notification: $e');
-        }
-      }
     } catch (e) {
       debugPrint('❌ Failed to initialize notification service in detail screen: $e');
     }
@@ -614,19 +598,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   // Update notification monitoring with new activity data
                   await _updateNotificationMonitoring();
                   
-                  // Show immediate test notification to verify the system is working
-                  if (scheduledDateTime != null && mounted) {
-                    try {
-                      await _notificationService.showImmediateTestNotification(
-                        'activity',
-                        'Activity Created',
-                        'Activity "$activity" scheduled for ${selectedDate!.day}/${selectedDate!.month} at ${selectedTime!.format(dialogContext)}',
-                      );
-                    } catch (e) {
-                      debugPrint('Error showing test notification: $e');
-                    }
-                  }
-                  
                   Navigator.pop(dialogContext);
                   ScaffoldMessenger.of(this.context).showSnackBar(
                     const SnackBar(
@@ -961,19 +932,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     
                     // Update notification monitoring with new activity data
                     await _updateNotificationMonitoring();
-                    
-                    // Show immediate test notification to verify the system is working
-                    if (scheduledDateTime != null && mounted) {
-                      try {
-                        await _notificationService.showImmediateTestNotification(
-                          'activity',
-                          'Call Activity Created',
-                          'Call activity "$activityTitle" scheduled for ${selectedDate!.day}/${selectedDate!.month} at ${selectedTime!.format(dialogContext)}',
-                        );
-                      } catch (e) {
-                        debugPrint('Error showing test notification: $e');
-                      }
-                    }
                     
                     if (!mounted) return;
                     Navigator.pop(dialogContext);
@@ -1362,19 +1320,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     // Update notification monitoring with new task data
                     await _updateNotificationMonitoring();
                     
-                    // Show immediate test notification to verify the system is working
-                    if (mounted) {
-                      try {
-                        await _notificationService.showImmediateTestNotification(
-                          'task',
-                          'Task Created',
-                          'Task "${titleController.text}" due on ${dueDate.day}/${dueDate.month} at ${selectedTime?.format(dialogContext) ?? '12:00 PM'}',
-                        );
-                      } catch (e) {
-                        debugPrint('Error showing test notification: $e');
-                      }
-                    }
-                    
                     if (!mounted) return;
                     Navigator.pop(dialogContext);
                     if (!mounted) return;
@@ -1683,19 +1628,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     
                     // Update notification monitoring with new note data
                     await _updateNotificationMonitoring();
-                    
-                    // Show immediate test notification to verify the system is working
-                    if (mounted) {
-                      try {
-                        await _notificationService.showImmediateTestNotification(
-                          'note',
-                          'Note Added',
-                          'Note added to lead: ${widget.lead.contactName}',
-                        );
-                      } catch (e) {
-                        debugPrint('Error showing test notification: $e');
-                      }
-                    }
                     
                     if (!mounted) return;
                     Navigator.pop(dialogContext);
@@ -2634,109 +2566,105 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   }
 
   Future<void> _updateNotificationMonitoring() async {
-    if (!mounted) return; // Early return if widget is disposed
-    
+    if (!mounted) return;
+
     try {
-      // Get all leads from lead manager
+      // Ensure the current lead is always included even if leadManager is stale
       final allLeads = _leadManager.allLeads;
-      
-      // Get all tasks from task manager and lead-specific tasks
+      final leadsToCheck = allLeads.any((l) => l.id == widget.lead.id)
+          ? allLeads
+          : [...allLeads, widget.lead];
+
       final taskManager = TaskManager();
       await taskManager.loadTasks();
-      
-      final globalTasks = [...taskManager.pendingTasks, ...taskManager.completedTasks].map((task) => {
-        'id': task.id,
-        'title': task.title,
-        'description': task.description,
-        'dueDate': task.dueDate,
-        'dueTime': task.dueTime,
-        'isCompleted': task.isCompleted,
-        'priority': task.priority,
-      }).toList();
-      
-      // Get all lead-specific tasks from all leads (including current lead)
-      final allTasks = <Map<String, dynamic>>[];
-      allTasks.addAll(globalTasks);
-      
-      for (final lead in allLeads) {
-        if (!mounted) return; // Check if still mounted during loop
+      if (!mounted) return;
+
+      final globalTasks = [
+        ...taskManager.pendingTasks,
+        ...taskManager.completedTasks
+      ].map((task) => {
+            'id': task.id,
+            'title': task.title,
+            'description': task.description,
+            'dueDate': task.dueDate,
+            'dueTime': task.dueTime,
+            'isCompleted': task.isCompleted,
+            'priority': task.priority,
+          }).toList();
+
+      final allTasks = <Map<String, dynamic>>[...globalTasks];
+      final allActivities = <Map<String, dynamic>>[];
+
+      for (final lead in leadsToCheck) {
+        if (!mounted) return;
         try {
           final leadTasks = await LeadActivityApi.getTasks(lead.id);
           for (final task in leadTasks) {
-            final taskData = {
+            allTasks.add({
               'id': task['id'],
               'title': task['title'] ?? '',
               'description': task['description'] ?? '',
-              'dueDate': DateTime.parse(task['due_date'] ?? DateTime.now().add(const Duration(days: 1)).toIso8601String()),
+              'dueDate': DateTime.parse(task['due_date'] ??
+                  DateTime.now()
+                      .add(const Duration(days: 1))
+                      .toIso8601String()),
               'dueTime': task['due_time'] ?? '12:00 PM',
               'isCompleted': (task['is_completed'] ?? 0) == 1,
               'priority': task['priority'] ?? 'Medium',
               'leadId': lead.id,
-            };
-            allTasks.add(taskData);
+            });
           }
         } catch (e) {
           debugPrint('Error loading tasks for lead ${lead.contactName}: $e');
         }
-      }
-      
-      if (!mounted) return; // Check if still mounted before continuing
-      
-      // Get all activities from all leads (including current lead)
-      final allActivities = <Map<String, dynamic>>[];
-      for (final lead in allLeads) {
-        if (!mounted) return; // Check if still mounted during loop
+
+        if (!mounted) return;
         try {
           final activities = await LeadActivityApi.getActivities(lead.id);
           for (final activity in activities) {
-            // Only include activities with scheduled_at dates
-            if (activity['scheduled_at'] != null && activity['scheduled_at'].toString().isNotEmpty && activity['scheduled_at'] != 'null') {
+            final scheduledAt = activity['scheduled_at'];
+            if (scheduledAt != null &&
+                scheduledAt.toString().isNotEmpty &&
+                scheduledAt != 'null') {
               try {
-                final scheduledActivity = {
+                allActivities.add({
                   'id': activity['id'],
                   'title': activity['activity_type'] ?? 'Activity',
                   'description': activity['description'] ?? '',
-                  'scheduledDate': DateTime.parse(activity['scheduled_at']),
+                  'scheduledDate': DateTime.parse(scheduledAt),
                   'leadId': lead.id,
-                };
-                allActivities.add(scheduledActivity);
+                });
               } catch (e) {
-                debugPrint('Error parsing scheduled_at for activity: ${activity['activity_type']} - $e');
+                debugPrint(
+                    'Error parsing scheduled_at for activity: ${activity['activity_type']} - $e');
               }
             }
           }
         } catch (e) {
-          debugPrint('Error loading activities for lead ${lead.contactName}: $e');
+          debugPrint(
+              'Error loading activities for lead ${lead.contactName}: $e');
         }
       }
-      
-      if (!mounted) return; // Final check before updating notifications
-      
-      // Update notification monitoring with ALL data (not just current lead)
+
+      if (!mounted) return;
+
       _notificationService.startMonitoring(
-        allLeads,
+        leadsToCheck,
         allTasks: allTasks,
         allActivities: allActivities,
       );
-      
-      // Update cached data for offline notifications
       _notificationService.updateCachedData(
-        leads: allLeads,
+        leads: leadsToCheck,
         tasks: allTasks,
         activities: allActivities,
       );
-      
-      // Force immediate notification check
-      _notificationService.forceNotificationCheck();
-      
-      debugPrint('🔄 Notification monitoring updated from detail screen');
-      debugPrint('   Total leads: ${allLeads.length}');
+
+      debugPrint('🔄 Notification data updated from detail screen');
+      debugPrint('   Total leads: ${leadsToCheck.length}');
       debugPrint('   Total tasks: ${allTasks.length}');
       debugPrint('   Total scheduled activities: ${allActivities.length}');
     } catch (e) {
-      if (mounted) {
-        debugPrint('❌ Error updating notification monitoring: $e');
-      }
+      if (mounted) debugPrint('❌ Error updating notification monitoring: $e');
     }
   }
 

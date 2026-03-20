@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../main.dart';
+import '../screens/main_screen.dart';
 
 class MainWrapper extends StatelessWidget {
   final Widget child;

@@ -7,7 +7,7 @@ import '../../models/contact.dart';
 import '../../services/service_manager.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
-import '../../main.dart';
+import '../main_screen.dart';
 
 class AddNewLeadScreen extends StatefulWidget {
   const AddNewLeadScreen({super.key});

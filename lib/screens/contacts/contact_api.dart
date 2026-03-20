@@ -17,11 +17,8 @@ class ContactApi {
     try {
       final userId = await AuthManager().getUserId() ?? 0;
       final uri = _contactsUri(userId: userId);
-      print('🔗 Fetching contacts from: $uri');
       
       final response = await http.get(uri);
-      print('📡 Response status: ${response.statusCode}');
-      print('📡 Response body: ${response.body}');
       
       if (response.statusCode != 200) {
         throw Exception('Failed to load contacts - Status: ${response.statusCode}');
@@ -41,7 +38,6 @@ class ContactApi {
           .toList();
       return rows;
     } catch (e) {
-      print('❌ Error fetching contacts: $e');
       rethrow;
     }
   }

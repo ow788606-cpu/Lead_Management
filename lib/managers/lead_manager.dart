@@ -55,14 +55,12 @@ class LeadManager {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/leads.php?user_id=$userId'),
-      );
+      ).timeout(const Duration(seconds: 10));
       
       if (response.statusCode != 200) {
         throw Exception('HTTP ${response.statusCode}: ${response.body}');
       }
 
-      // Debug: Print response body to see what we're getting
-      
       final decoded = jsonDecode(response.body);
       if (decoded is! Map<String, dynamic> || decoded['success'] != true) {
         throw Exception('Invalid leads response: ${response.body}');
@@ -83,6 +81,7 @@ class LeadManager {
       _leads.addAll(rows);
       _isLoaded = true;
     } catch (e) {
+      _isLoaded = true; // Mark as loaded to prevent retry loops
       throw Exception('Failed to load leads: $e');
     }
   }
@@ -109,7 +108,7 @@ class LeadManager {
           'next_followup_at': nextFollowUpAt?.toIso8601String(),
           'status_id': 1,
         }),
-      );
+      ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw Exception('HTTP ${response.statusCode}: ${response.body}');
@@ -155,7 +154,7 @@ class LeadManager {
         'user_id': userId,
         'status_id': 4, // 4 = completed status
       }),
-    );
+    ).timeout(const Duration(seconds: 10));
 
     if (response.statusCode != 200) {
       throw Exception('Failed to mark lead as completed');

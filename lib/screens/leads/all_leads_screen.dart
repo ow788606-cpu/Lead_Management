@@ -5,7 +5,7 @@ import '../../models/lead.dart';
 import '../tags/tag_api.dart';
 import '../../widgets/app_drawer.dart';
 import '../../services/notification_service.dart';
-import '../../main.dart';
+import '../main_screen.dart';
 import 'detail_lead_screen.dart';
 import 'add_new_lead_screen.dart';
 
