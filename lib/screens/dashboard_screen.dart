@@ -702,6 +702,7 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
               builder: (context) => DetailLeadScreen(
                 lead: lead,
                 startInEditMode: false,
+                initialTabIndex: 0,
               ),
             ),
           );

@@ -1229,6 +1229,7 @@ class _ViewLeadsScreenState extends State<ViewLeadsScreen> {
                     builder: (context) => DetailLeadScreen(
                       lead: widget.lead,
                       startInEditMode: true,
+                      initialTabIndex: 0,
                     ),
                   ),
                 );

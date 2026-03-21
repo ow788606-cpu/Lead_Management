@@ -195,6 +195,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               builder: (context) => DetailLeadScreen(
                 lead: lead,
                 startInEditMode: false,
+                initialTabIndex: 0,
               ),
             ),
           );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../managers/task_manager.dart';
 import 'edit_task_screen.dart';
 import 'new_task_screen.dart';
@@ -199,6 +200,7 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   PopupMenuButton<String>(
+                                    color: Colors.white,
                                     onSelected: (value) {
                                       switch (value) {
                                         case 'edit':
@@ -223,10 +225,13 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                         value: 'edit',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.edit,
-                                                size: 16, color: Colors.blue),
-                                            SizedBox(width: 8),
-                                            Text('Edit'),
+                                            HugeIcon(
+                                              icon: HugeIcons.strokeRoundedPencilEdit02,
+                                              color: Colors.blue,
+                                              size: 18,
+                                            ),
+                                            SizedBox(width: 10),
+                                            Text('Edit', style: TextStyle(fontFamily: 'Inter', fontSize: 14)),
                                           ],
                                         ),
                                       ),
@@ -234,10 +239,13 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                         value: 'complete',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.check_circle,
-                                                size: 16, color: Colors.green),
-                                            SizedBox(width: 8),
-                                            Text('Mark as Complete'),
+                                            HugeIcon(
+                                              icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                                              color: Colors.green,
+                                              size: 18,
+                                            ),
+                                            SizedBox(width: 10),
+                                            Text('Mark as Complete', style: TextStyle(fontFamily: 'Inter', fontSize: 14)),
                                           ],
                                         ),
                                       ),
@@ -245,16 +253,18 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                         value: 'delete',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.delete,
-                                                size: 16, color: Colors.red),
-                                            SizedBox(width: 8),
-                                            Text('Delete'),
+                                            HugeIcon(
+                                              icon: HugeIcons.strokeRoundedDelete02,
+                                              color: Colors.red,
+                                              size: 18,
+                                            ),
+                                            SizedBox(width: 10),
+                                            Text('Delete', style: TextStyle(fontFamily: 'Inter', fontSize: 14)),
                                           ],
                                         ),
                                       ),
                                     ],
-                                    child:
-                                        const Icon(Icons.more_vert, size: 18),
+                                    child: const Icon(Icons.more_vert, size: 18),
                                   ),
                                 ],
                               ),

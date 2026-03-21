@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_const
 
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'service_manager.dart';
 
 class ServicesScreen extends StatefulWidget {
@@ -132,9 +133,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                             fontSize: 14, fontFamily: 'Inter')),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        size: 18,
-                                        color: const Color(0xFF0B5CFF)),
+                                    icon: const HugeIcon(
+                                      icon: HugeIcons.strokeRoundedPencilEdit02,
+                                      color: Color(0xFF0B5CFF),
+                                      size: 18,
+                                    ),
                                     onPressed: () async {
                                       final controller = TextEditingController(
                                           text: filteredServices[index]);
@@ -175,8 +178,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                     },
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        size: 18, color: Colors.red),
+                                    icon: const HugeIcon(
+                                      icon: HugeIcons.strokeRoundedDelete02,
+                                      color: Colors.red,
+                                      size: 18,
+                                    ),
                                     onPressed: () async {
                                       final originalIndex = _serviceManager
                                           .services

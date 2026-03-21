@@ -118,6 +118,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                 builder: (context) => DetailLeadScreen(
                   lead: lead,
                   startInEditMode: false,
+                  initialTabIndex: 0,
                 ),
               ),
             );
@@ -287,6 +288,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
               builder: (context) => DetailLeadScreen(
                 lead: lead,
                 startInEditMode: false,
+                initialTabIndex: 0,
               ),
             ),
           );

@@ -18,11 +18,13 @@ import '../../services/notification_service.dart';
 class DetailLeadScreen extends StatefulWidget {
   final Lead lead;
   final bool startInEditMode;
+  final int initialTabIndex;
 
   const DetailLeadScreen({
     super.key,
     required this.lead,
     this.startInEditMode = false,
+    this.initialTabIndex = 0,
   });
 
   @override
@@ -44,7 +46,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 3, vsync: this, initialIndex: widget.initialTabIndex);
     _tabController.addListener(() {
       setState(() {}); // Rebuild to update floating action button
     });
@@ -1039,210 +1041,241 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          title: const Row(
+          title: Row(
             children: [
-              SizedBox(width: 32), // Space equivalent to back button
-              Expanded(
+              IconButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              const Expanded(
                 child: Text(
                   'Create Task',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(width: 32), // Balance the spacing
+              const SizedBox(width: 32),
             ],
           ),
           content: SizedBox(
             width: 320,
-            height: 280,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Task Title *',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87),
-                ),
-                const SizedBox(height: 4),
-                SizedBox(
-                  height: 36,
-                  child: TextField(
-                    controller: titleController,
-                    style: const TextStyle(fontSize: 14),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter task title...',
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            height: 320,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Task Title *',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87),
+                  ),
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    height: 40,
+                    child: TextField(
+                      controller: titleController,
+                      style: const TextStyle(fontSize: 14),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFF0b5cff)),
+                        ),
+                        hintText: 'Enter task title...',
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Priority',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87),
-                ),
-                const SizedBox(height: 4),
-                SizedBox(
-                  height: 36,
-                  child: DropdownButtonFormField<String>(
-                    initialValue: priority,
-                    style: const TextStyle(fontSize: 14, color: Colors.black),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                    ),
-                    items: ['Low', 'Medium', 'High']
-                        .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                        .toList(),
-                    onChanged: (value) =>
-                        setDialogState(() => priority = value!),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Priority',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Due Date',
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87),
-                          ),
-                          const SizedBox(height: 4),
-                          SizedBox(
-                            height: 36,
-                            child: GestureDetector(
-                              onTap: () async {
-                                final date = await showDatePicker(
-                                  context: dialogContext,
-                                  initialDate: selectedDate ??
-                                      DateTime.now()
-                                          .add(const Duration(days: 1)),
-                                  firstDate: DateTime.now(),
-                                  lastDate: DateTime(2100),
-                                );
-                                if (date != null) {
-                                  setDialogState(() => selectedDate = date);
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 6),
-                                decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        selectedDate != null
-                                            ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
-                                            : 'Select date',
-                                        style: const TextStyle(fontSize: 14),
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    height: 40,
+                    child: DropdownButtonFormField<String>(
+                      initialValue: priority,
+                      style: const TextStyle(fontSize: 14, color: Colors.black),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFF0b5cff)),
+                        ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      ),
+                      items: ['Low', 'Medium', 'High']
+                          .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                          .toList(),
+                      onChanged: (value) =>
+                          setDialogState(() => priority = value!),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Due Date',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87),
+                            ),
+                            const SizedBox(height: 6),
+                            SizedBox(
+                              height: 40,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final date = await showDatePicker(
+                                    context: dialogContext,
+                                    initialDate: selectedDate ??
+                                        DateTime.now()
+                                            .add(const Duration(days: 1)),
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (date != null) {
+                                    setDialogState(() => selectedDate = date);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    border:
+                                        Border.all(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          selectedDate != null
+                                              ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
+                                              : 'Select date',
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
                                       ),
-                                    ),
-                                    const Icon(Icons.calendar_today,
-                                        size: 16, color: Colors.grey),
-                                  ],
+                                      const Icon(Icons.calendar_today,
+                                          size: 16, color: Colors.grey),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Due Time',
-                            style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87),
-                          ),
-                          const SizedBox(height: 4),
-                          SizedBox(
-                            height: 36,
-                            child: GestureDetector(
-                              onTap: () async {
-                                final time = await showTimePicker(
-                                  context: dialogContext,
-                                  initialTime: selectedTime ?? TimeOfDay.now(),
-                                );
-                                if (time != null) {
-                                  setDialogState(() => selectedTime = time);
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 6),
-                                decoration: BoxDecoration(
-                                  border:
-                                      Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        selectedTime != null
-                                            ? selectedTime!
-                                                .format(dialogContext)
-                                            : 'Select time',
-                                        style: const TextStyle(fontSize: 14),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Due Time',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87),
+                            ),
+                            const SizedBox(height: 6),
+                            SizedBox(
+                              height: 40,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  final time = await showTimePicker(
+                                    context: dialogContext,
+                                    initialTime: selectedTime ?? TimeOfDay.now(),
+                                  );
+                                  if (time != null) {
+                                    setDialogState(() => selectedTime = time);
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    border:
+                                        Border.all(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          selectedTime != null
+                                              ? selectedTime!
+                                                  .format(dialogContext)
+                                              : 'Select time',
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
                                       ),
-                                    ),
-                                    const Icon(Icons.access_time,
-                                        size: 16, color: Colors.grey),
-                                  ],
+                                      const Icon(Icons.access_time,
+                                          size: 16, color: Colors.grey),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Description',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87),
+                  ),
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    height: 80,
+                    child: TextField(
+                      controller: descriptionController,
+                      maxLines: 3,
+                      style: const TextStyle(fontSize: 14),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFF0b5cff)),
+                        ),
+                        hintText: 'Enter description...',
+                        contentPadding: const EdgeInsets.all(10),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Description',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87),
-                ),
-                const SizedBox(height: 4),
-                Expanded(
-                  child: TextField(
-                    controller: descriptionController,
-                    maxLines: null,
-                    expands: true,
-                    style: const TextStyle(fontSize: 14),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter description...',
-                      contentPadding: EdgeInsets.all(8),
-                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           actions: [
@@ -1366,17 +1399,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          title: const Row(
+          title: Row(
             children: [
-              SizedBox(width: 32), // Space equivalent to back button
-              Expanded(
+              IconButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+              const Expanded(
                 child: Text(
                   'Add Notes',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(width: 32), // Balance the spacing
+              const SizedBox(width: 32),
             ],
           ),
           content: SizedBox(
@@ -1394,7 +1432,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(4),
-                    color: Colors.grey.shade50,
+                    color: Colors.white,
                   ),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -1573,10 +1611,20 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           ? TextDecoration.underline
                           : TextDecoration.none,
                     ),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFF0b5cff)),
+                      ),
                       hintText: 'Add your notes here...',
-                      contentPadding: EdgeInsets.all(12),
+                      contentPadding: const EdgeInsets.all(12),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
                   ),
                 ),

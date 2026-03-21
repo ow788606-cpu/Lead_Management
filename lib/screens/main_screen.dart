@@ -11,7 +11,6 @@ import '../screens/tasks/pending_tasks_screen.dart';
 import '../screens/auth/manage_profile_screen.dart';
 
 import '../services/services_screen.dart';
-import '../services/add_services.dart';
 import '../services/service_manager.dart';
 import '../services/notification_service.dart';
 import '../services/lead_activity_api.dart';
@@ -78,11 +77,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         return FloatingActionButton(
           tooltip: 'Add Service',
           onPressed: () async {
-            final result = await Navigator.push<String>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AddServicesScreen(),
-              ),
+            final result = await showDialog<String>(
+              context: context,
+              builder: (context) => const _AddServiceDialog(),
             );
             if (result != null && result.trim().isNotEmpty) {
               await _serviceManager.addService(result.trim());
@@ -238,7 +235,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       case 6:
         return 'All Tags';
       default:
-        return 'Cloop';
+        return '';
     }
   }
 
@@ -373,7 +370,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DetailLeadScreen(lead: lead, startInEditMode: false),
+          builder: (context) => DetailLeadScreen(lead: lead, startInEditMode: false, initialTabIndex: 0),
         ),
       );
     } catch (e) {
@@ -392,15 +389,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DetailLeadScreen(lead: lead, startInEditMode: false),
+          builder: (context) => DetailLeadScreen(lead: lead, startInEditMode: false, initialTabIndex: 2),
         ),
       );
     } catch (e) {
       debugPrint('Lead not found for task: $leadId');
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const AllLeadsScreen(initialTabIndex: 0)),
-      );
+      setState(() => _selectedIndex = 4);
     }
   }
 
@@ -411,7 +405,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DetailLeadScreen(lead: lead, startInEditMode: false),
+          builder: (context) => DetailLeadScreen(lead: lead, startInEditMode: false, initialTabIndex: 0),
         ),
       );
     } catch (e) {
@@ -487,13 +481,34 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         },
       ),
       appBar: AppBar(
+        toolbarHeight: 56,
         centerTitle: true,
-        title: Text(_getAppBarTitle(),
-            style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 14)),
-        actions: _buildAppBarActions(),
+        leading: IconButton(
+          icon: const Icon(Icons.menu, size: 28),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        ),
+        title: _selectedIndex == 0
+            ? Image.asset(
+                'assets/images/logo-dark.png',
+                height: 32,
+                fit: BoxFit.contain,
+              )
+            : Text(_getAppBarTitle(),
+                style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14)),
+        actions: [
+          IconButton(
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
+            tooltip: 'View notification status',
+            onPressed: () => _showNotificationStatus(),
+          ),
+        ],
       ),
       floatingActionButton: _buildFloatingActionButton(),
       body: _buildSelectedScreen(),
@@ -576,5 +591,111 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       default: screenIndex = 0;
     }
     setState(() => _selectedIndex = screenIndex);
+  }
+}
+
+class _AddServiceDialog extends StatefulWidget {
+  const _AddServiceDialog();
+
+  @override
+  State<_AddServiceDialog> createState() => _AddServiceDialogState();
+}
+
+class _AddServiceDialogState extends State<_AddServiceDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 32),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Service Name',
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Inter')),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    borderSide: BorderSide(color: Colors.grey[300]!)),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    borderSide: BorderSide(color: Colors.grey[300]!)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.grey[600],
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4)),
+                  ),
+                  child: const Text('Close',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontFamily: 'Inter')),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    final name = _controller.text.trim();
+                    if (name.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Please enter a service name')),
+                      );
+                      return;
+                    }
+                    Navigator.pop(context, name);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4)),
+                  ),
+                  child: const Text('Add Service',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                          fontFamily: 'Inter')),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

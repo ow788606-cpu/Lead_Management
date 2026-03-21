@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'tag_api.dart';
 
 class TagsScreen extends StatefulWidget {
@@ -173,11 +174,11 @@ class _TagsScreenState extends State<TagsScreen> {
                                       ),
                                     ),
                                     IconButton(
-                                      icon: const Icon(
-                                        Icons.edit_outlined,
+                                      icon: const HugeIcon(
+                                        icon: HugeIcons.strokeRoundedPencilEdit02,
+                                        color: Color(0xFF0B5CFF),
                                         size: 18,
                                       ),
-                                      color: const Color(0xFF0B5CFF),
                                       padding: const EdgeInsets.all(4),
                                       constraints: const BoxConstraints(),
                                       onPressed: () async {
@@ -291,11 +292,11 @@ class _TagsScreenState extends State<TagsScreen> {
                                       },
                                     ),
                                     IconButton(
-                                      icon: const Icon(
-                                        Icons.delete_outline,
+                                      icon: const HugeIcon(
+                                        icon: HugeIcons.strokeRoundedDelete02,
+                                        color: Colors.red,
                                         size: 18,
                                       ),
-                                      color: Colors.red,
                                       padding: const EdgeInsets.all(4),
                                       constraints: const BoxConstraints(),
                                       onPressed: () => _deleteTag(tag),

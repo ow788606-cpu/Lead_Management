@@ -36,23 +36,22 @@ class AppDrawer extends StatelessWidget {
     }
 
     return Drawer(
+      width: 250,
+      backgroundColor: Colors.white,
       child: SafeArea(
         child: ListView(
           padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),
           children: [
             Container(
-              height: 72,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(color: Colors.white),
-              child: Row(
-                children: [
-                  Image.asset('assets/images/logo-md.webp', height: 32),
-                  const SizedBox(width: 12),
-                  const Text('Lead Management',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ],
+              child: Center(
+                child: Image.asset(
+                  'assets/images/logo-dark.png',
+                  height: 60,
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
             const Padding(

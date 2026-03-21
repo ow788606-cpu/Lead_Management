@@ -8,6 +8,7 @@ import '../../services/service_manager.dart';
 import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
 import '../main_screen.dart';
+import '../tags/tag_api.dart';
 
 class AddNewLeadScreen extends StatefulWidget {
   const AddNewLeadScreen({super.key});
@@ -30,6 +31,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
   final _tagsController = TextEditingController();
   String? _selectedContact;
   String? _selectedService;
+  String? _selectedTag;
   String? _selectedCountry;
   DateTime? _followUpDate;
   TimeOfDay? _followUpTime;
@@ -40,6 +42,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
   final _serviceManager = ServiceManager();
   final _leadManager = LeadManager();
   final _contactManager = ContactManager();
+  List<TagItem> _tags = [];
 
   @override
   void initState() {
@@ -58,6 +61,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
         _serviceManager.refreshServices(),
         _contactManager.loadContacts(forceRefresh: true),
       ]);
+      _tags = await TagApi.fetchTags();
     } catch (e) {
       _dependencyError = e.toString().replaceFirst('Exception: ', '');
     }
@@ -706,30 +710,89 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
                             const SizedBox(height: 16),
-                            TextField(
-                              controller: _tagsController,
-                              style: const TextStyle(
-                                  fontFamily: 'Inter', fontSize: 14),
-                              decoration: InputDecoration(
-                                hintText: 'Add tags...',
-                                hintStyle: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                    fontFamily: 'Inter'),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
+                            if (_selectedTag != null) ...
+                              [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    border: Border.all(color: Colors.grey[300]!),
                                     borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.grey[300]!)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                        BorderSide(color: Colors.grey[300]!)),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 14),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        _selectedTag!,
+                                        style: const TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 14,
+                                            color: Colors.black),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.close, size: 18),
+                                        onPressed: () => setState(() {
+                                          _selectedTag = null;
+                                          _tagsController.clear();
+                                        }),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ]
+                            else
+                              Autocomplete<String>(
+                                optionsBuilder: (textEditingValue) {
+                                  final tagNames = _tags.map((t) => t.name).toList();
+                                  if (textEditingValue.text.isEmpty) {
+                                    return tagNames;
+                                  }
+                                  return tagNames.where((name) => name
+                                      .toLowerCase()
+                                      .contains(textEditingValue.text.toLowerCase()));
+                                },
+                                onSelected: (value) {
+                                  final tag = _tags.firstWhere((t) => t.name == value);
+                                  setState(() {
+                                    _selectedTag = value;
+                                    _tagsController.text = tag.id.toString();
+                                  });
+                                },
+                                fieldViewBuilder: (context, controller, focusNode,
+                                    onEditingComplete) {
+                                  return TextField(
+                                    controller: controller,
+                                    focusNode: focusNode,
+                                    style: const TextStyle(
+                                        fontFamily: 'Inter', fontSize: 14),
+                                    decoration: InputDecoration(
+                                      hintText: 'Select tag',
+                                      hintStyle: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                          fontFamily: 'Inter'),
+                                      suffixIcon:
+                                          const Icon(Icons.arrow_drop_down),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey[300]!)),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide: BorderSide(
+                                              color: Colors.grey[300]!)),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 14),
+                                    ),
+                                  );
+                                },
                               ),
-                            ),
                             const SizedBox(height: 24),
                             const Text('Notes',
                                 style: TextStyle(
