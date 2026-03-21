@@ -130,21 +130,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
   }
 
-  List<Widget> _buildAppBarActions() {
-    return [
-      IconButton(
-        icon: const HugeIcon(
-          icon: HugeIcons.strokeRoundedNotification03,
-          color: Colors.black,
-          size: 20.0,
-        ),
-        tooltip: 'View notification status',
-        onPressed: () => _showNotificationStatus(),
-      ),
-    ];
-  }
-
-  void _showNotificationStatus() {
+void _showNotificationStatus() {
     final leadManager = LeadManager();
     final upcomingLeads = leadManager.followUpLeads
         .where((lead) => !lead.isCompleted && lead.followUpDate != null)
@@ -483,9 +469,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       appBar: AppBar(
         toolbarHeight: 56,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, size: 28),
-          onPressed: () => Scaffold.of(context).openDrawer(),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, size: 28),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
         ),
         title: _selectedIndex == 0
             ? Image.asset(
