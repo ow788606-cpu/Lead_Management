@@ -132,7 +132,11 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
               onChanged: (value) => setState(() => _searchQuery = value),
               decoration: InputDecoration(
                 hintText: 'Search pending tasks...',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedSearch01,
+                  color: Colors.grey,
+                  size: 20.0,
+                ),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -264,7 +268,11 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                         ),
                                       ),
                                     ],
-                                    child: const Icon(Icons.more_vert, size: 18),
+                                    child: const HugeIcon(
+                                      icon: HugeIcons.strokeRoundedMoreVertical,
+                                      color: Colors.grey,
+                                      size: 18.0,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -276,8 +284,11 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.notes_outlined,
-                                          size: 16, color: Colors.grey),
+                                      const HugeIcon(
+                                        icon: HugeIcons.strokeRoundedFileEdit,
+                                        color: Colors.grey,
+                                        size: 16.0,
+                                      ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(task.description,
@@ -295,8 +306,11 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                 padding: const EdgeInsets.only(left: 12),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.schedule_outlined,
-                                        size: 16, color: Color(0xFF0B5CFF)),
+                                    const HugeIcon(
+                                      icon: HugeIcons.strokeRoundedClock01,
+                                      color: Color(0xFF0B5CFF),
+                                      size: 16.0,
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(

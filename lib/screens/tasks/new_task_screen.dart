@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../models/task.dart';
 import '../../managers/task_manager.dart';
 import '../../widgets/app_drawer.dart';
@@ -35,14 +36,22 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedMenu01,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         title: const Text('New Task'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () {},
           ),
         ],
@@ -90,8 +99,11 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                       decoration: InputDecoration(
                         hintText: 'Enter task title',
                         hintStyle: TextStyle(color: Colors.grey[400]),
-                        prefixIcon: Icon(Icons.task_outlined,
-                            size: 20, color: Colors.grey[400]),
+                        prefixIcon: HugeIcon(
+                          icon: HugeIcons.strokeRoundedTask01,
+                          color: Colors.grey[400]!,
+                          size: 20.0,
+                        ),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -121,8 +133,11 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         prefixIcon: Padding(
                           padding: const EdgeInsets.only(bottom: 60),
-                          child: Icon(Icons.description_outlined,
-                              size: 20, color: Colors.grey[400]),
+                          child: HugeIcon(
+                            icon: HugeIcons.strokeRoundedFileEdit,
+                            color: Colors.grey[400]!,
+                            size: 20.0,
+                          ),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -160,8 +175,11 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                       decoration: InputDecoration(
                         hintText: 'Select Priority',
                         hintStyle: TextStyle(color: Colors.grey[400]),
-                        prefixIcon: Icon(Icons.priority_high_outlined,
-                            size: 20, color: Colors.grey[400]),
+                        prefixIcon: HugeIcon(
+                          icon: HugeIcons.strokeRoundedFlag01,
+                          color: Colors.grey[400]!,
+                          size: 20.0,
+                        ),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -228,8 +246,11 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                       ? Colors.black
                                       : Colors.grey[400]),
                             ),
-                            Icon(Icons.calendar_today,
-                                size: 16, color: Colors.grey[400]),
+                            HugeIcon(
+                              icon: HugeIcons.strokeRoundedCalendar03,
+                              color: Colors.grey[400]!,
+                              size: 16.0,
+                            ),
                           ],
                         ),
                       ),
@@ -280,14 +301,10 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                                       : Colors.grey[400],
                                   fontFamily: 'Inter'),
                             ),
-                            Row(
-                              children: [
-                                Icon(Icons.access_time,
-                                    size: 16, color: Colors.grey[400]),
-                                const SizedBox(width: 8),
-                                Icon(Icons.more_time,
-                                    size: 16, color: Colors.grey[400]),
-                              ],
+                            HugeIcon(
+                              icon: HugeIcons.strokeRoundedClock01,
+                              color: Colors.grey[400]!,
+                              size: 16.0,
                             ),
                           ],
                         ),

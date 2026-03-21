@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../widgets/app_drawer.dart';
 
 class BillingScreen extends StatelessWidget {
@@ -15,14 +16,22 @@ class BillingScreen extends StatelessWidget {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedMenu01,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         title: const Text('Billing Details'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () {},
           ),
         ],

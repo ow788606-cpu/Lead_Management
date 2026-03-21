@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../managers/lead_manager.dart';
 import '../managers/auth_manager.dart';
 import '../models/lead.dart';
@@ -728,7 +729,11 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: const Icon(Icons.phone, size: 18, color: Color(0xFF6B7280)),
+                    child: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedCall,
+                      color: Color(0xFF6B7280),
+                      size: 18.0,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -738,7 +743,11 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: const Icon(Icons.comment, size: 18, color: Color(0xFF6B7280)),
+                    child: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedComment01,
+                      color: Color(0xFF6B7280),
+                      size: 18.0,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -748,7 +757,11 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: const Icon(Icons.email, size: 18, color: Color(0xFF6B7280)),
+                    child: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedMail01,
+                      color: Color(0xFF6B7280),
+                      size: 18.0,
+                    ),
                   ),
                 ],
               ),
@@ -756,7 +769,11 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
               if (lead.service != null)
                 Row(
                   children: [
-                    Icon(Icons.design_services, size: 16, color: Colors.grey[600]),
+                    HugeIcon(
+                      icon: HugeIcons.strokeRoundedCustomerService,
+                      color: Colors.grey[600]!,
+                      size: 16.0,
+                    ),
                     const SizedBox(width: 6),
                     Text('${lead.service}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[700])),
@@ -766,7 +783,11 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[400]),
+                    HugeIcon(
+                      icon: HugeIcons.strokeRoundedChatting01,
+                      color: Colors.grey[400]!,
+                      size: 16.0,
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text('${lead.notes}',

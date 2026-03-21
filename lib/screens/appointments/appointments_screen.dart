@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../managers/lead_manager.dart';
 import '../../models/lead.dart';
 import '../leads/detail_lead_screen.dart';
@@ -111,7 +112,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(left: 12),
-                    child: Icon(Icons.search, color: Colors.grey, size: 20),
+                    child: HugeIcon(
+                      icon: HugeIcons.strokeRoundedSearch01,
+                      color: Colors.grey,
+                      size: 20.0,
+                    ),
                   ),
                   Expanded(
                     child: TextField(
@@ -131,7 +136,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: IconButton(
-                      icon: const Icon(Icons.tune, color: Colors.grey, size: 20),
+                      icon: const HugeIcon(
+                        icon: HugeIcons.strokeRoundedFilterHorizontal,
+                        color: Colors.grey,
+                        size: 20.0,
+                      ),
                       onPressed: () {},
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
@@ -221,7 +230,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: const Icon(Icons.phone, size: 18, color: Color(0xFF6B7280)),
+                    child: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedCall,
+                      color: Color(0xFF6B7280),
+                      size: 18.0,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -231,7 +244,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: const Icon(Icons.comment, size: 18, color: Color(0xFF6B7280)),
+                    child: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedComment01,
+                      color: Color(0xFF6B7280),
+                      size: 18.0,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -241,7 +258,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: const Icon(Icons.email, size: 18, color: Color(0xFF6B7280)),
+                    child: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedMail01,
+                      color: Color(0xFF6B7280),
+                      size: 18.0,
+                    ),
                   ),
                 ],
               ),
@@ -249,7 +270,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               if (lead.service != null)
                 Row(
                   children: [
-                    Icon(Icons.design_services, size: 16, color: Colors.grey[600]),
+                    HugeIcon(
+                      icon: HugeIcons.strokeRoundedCustomerService,
+                      color: Colors.grey[600]!,
+                      size: 16.0,
+                    ),
                     const SizedBox(width: 6),
                     Text('${lead.service}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[700])),
@@ -259,7 +284,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[400]),
+                    HugeIcon(
+                      icon: HugeIcons.strokeRoundedChatting01,
+                      color: Colors.grey[400]!,
+                      size: 16.0,
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text('${lead.notes}',

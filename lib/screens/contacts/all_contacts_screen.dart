@@ -73,7 +73,11 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedMenu01,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -99,7 +103,11 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
               onChanged: (value) => setState(() => _searchQuery = value),
               decoration: InputDecoration(
                 hintText: 'Search contacts by name, phone, email, location...',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedSearch01,
+                  color: Colors.grey,
+                  size: 20.0,
+                ),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -174,8 +182,11 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                           padding: const EdgeInsets.only(left: 8),
                                           child: Row(
                                             children: [
-                                              const Icon(Icons.phone_outlined,
-                                                  size: 16, color: Colors.grey),
+                                              const HugeIcon(
+                                                icon: HugeIcons.strokeRoundedCall,
+                                                color: Colors.grey,
+                                                size: 16.0,
+                                              ),
                                               const SizedBox(width: 8),
                                               Expanded(
                                                 child: Text(
@@ -194,10 +205,11 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                             padding: const EdgeInsets.only(left: 8),
                                             child: Row(
                                               children: [
-                                                const Icon(
-                                                    Icons.phone_forwarded_outlined,
-                                                    size: 16,
-                                                    color: Colors.grey),
+                                                const HugeIcon(
+                                                  icon: HugeIcons.strokeRoundedCall,
+                                                  color: Colors.grey,
+                                                  size: 16.0,
+                                                ),
                                                 const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Text(
@@ -217,10 +229,11 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                             padding: const EdgeInsets.only(left: 8),
                                             child: Row(
                                               children: [
-                                                const Icon(
-                                                    Icons.email_outlined,
-                                                    size: 16,
-                                                    color: Colors.grey),
+                                                const HugeIcon(
+                                                  icon: HugeIcons.strokeRoundedMail01,
+                                                  color: Colors.grey,
+                                                  size: 16.0,
+                                                ),
                                                 const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Text(
@@ -241,10 +254,11 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                             padding: const EdgeInsets.only(left: 8),
                                             child: Row(
                                               children: [
-                                                const Icon(
-                                                    Icons.location_on_outlined,
-                                                    size: 16,
-                                                    color: Colors.grey),
+                                                const HugeIcon(
+                                                  icon: HugeIcons.strokeRoundedLocation01,
+                                                  color: Colors.grey,
+                                                  size: 16.0,
+                                                ),
                                                 const SizedBox(width: 8),
                                                 Expanded(
                                                   child: Text(

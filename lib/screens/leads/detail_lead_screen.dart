@@ -3047,8 +3047,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.grey.shade300),
                             ),
-                            child: const Icon(Icons.phone,
-                                size: 18, color: Color(0xFF6B7280)),
+                            child: const HugeIcon(
+                              icon: HugeIcons.strokeRoundedCall,
+                              color: Color(0xFF6B7280),
+                              size: 18.0,
+                            ),
                           ),
                         ),
                       const SizedBox(width: 8),
@@ -3063,8 +3066,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.grey.shade300),
                             ),
-                            child: const Icon(Icons.comment,
-                                size: 18, color: Color(0xFF6B7280)),
+                            child: const HugeIcon(
+                              icon: HugeIcons.strokeRoundedComment01,
+                              color: Color(0xFF6B7280),
+                              size: 18.0,
+                            ),
                           ),
                         ),
                       const SizedBox(width: 8),
@@ -3079,8 +3085,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.grey.shade300),
                             ),
-                            child: const Icon(Icons.email,
-                                size: 18, color: Color(0xFF6B7280)),
+                            child: const HugeIcon(
+                              icon: HugeIcons.strokeRoundedMail01,
+                              color: Color(0xFF6B7280),
+                              size: 18.0,
+                            ),
                           ),
                         ),
                     ],
@@ -3094,8 +3103,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       children: [
                         SizedBox(
                           width: 22,
-                          child: Icon(Icons.design_services,
-                              size: 16, color: Colors.grey[600]),
+                          child: HugeIcon(
+                            icon: HugeIcons.strokeRoundedCustomerService,
+                            color: Colors.grey[600]!,
+                            size: 16.0,
+                          ),
                         ),
                         Expanded(
                           child: Text(
@@ -3120,8 +3132,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       children: [
                         SizedBox(
                           width: 22,
-                          child: Icon(Icons.chat_bubble_outline,
-                              size: 16, color: Colors.grey[400]),
+                          child: HugeIcon(
+                            icon: HugeIcons.strokeRoundedChatting01,
+                            color: Colors.grey[400]!,
+                            size: 16.0,
+                          ),
                         ),
                         Expanded(
                           child: Text(
@@ -3174,8 +3189,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       children: [
                         SizedBox(
                           width: 22,
-                          child: Icon(Icons.schedule,
-                              size: 16, color: Colors.grey[600]),
+                          child: HugeIcon(
+                            icon: HugeIcons.strokeRoundedClock01,
+                            color: Colors.grey[600]!,
+                            size: 16.0,
+                          ),
                         ),
                         Expanded(
                           child: Text(

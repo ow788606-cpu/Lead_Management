@@ -177,14 +177,20 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                                         ),
                                       );
                                     },
-                                    child: const Icon(Icons.edit,
-                                        size: 18, color: Colors.blue),
+                                    child: const HugeIcon(
+                                      icon: HugeIcons.strokeRoundedEdit02,
+                                      color: Colors.blue,
+                                      size: 18.0,
+                                    ),
                                   ),
                                   const SizedBox(width: 8),
                                   InkWell(
                                     onTap: () => _deleteTask(task.id),
-                                    child: const Icon(Icons.delete,
-                                        size: 18, color: Colors.red),
+                                    child: const HugeIcon(
+                                      icon: HugeIcons.strokeRoundedDelete02,
+                                      color: Colors.red,
+                                      size: 18.0,
+                                    ),
                                   ),
                                 ],
                               ),
