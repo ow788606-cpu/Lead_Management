@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../managers/contact_manager.dart';
 import '../../models/contact.dart';
 
@@ -67,6 +68,16 @@ class _AddContactScreenState extends State<AddContactScreen> {
       appBar: AppBar(
         title: const Text('Add New Contact'),
         backgroundColor: const Color(0xFFF8F9FA),
+        actions: [
+          IconButton(
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -105,7 +116,11 @@ class _AddContactScreenState extends State<AddContactScreen> {
                   controller: _nameController,
                   decoration: InputDecoration(
                     hintText: 'Full Name',
-                    prefixIcon: const Icon(Icons.person_outline, size: 20),
+                    prefixIcon: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedUser,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -129,7 +144,11 @@ class _AddContactScreenState extends State<AddContactScreen> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     hintText: 'Email',
-                    prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                    prefixIcon: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedMail01,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -161,7 +180,11 @@ class _AddContactScreenState extends State<AddContactScreen> {
                   controller: _contactNumber1Controller,
                   decoration: InputDecoration(
                     hintText: 'Primary Contact Number',
-                    prefixIcon: const Icon(Icons.phone_outlined, size: 20),
+                    prefixIcon: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedCall,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -196,7 +219,11 @@ class _AddContactScreenState extends State<AddContactScreen> {
                     hintText: 'Address',
                     prefixIcon: const Padding(
                       padding: EdgeInsets.only(bottom: 40),
-                      child: Icon(Icons.location_on_outlined, size: 20),
+                      child: HugeIcon(
+                        icon: HugeIcons.strokeRoundedLocation01,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
                     ),
                     filled: true,
                     fillColor: Colors.white,

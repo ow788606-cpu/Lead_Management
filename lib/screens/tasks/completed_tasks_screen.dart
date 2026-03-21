@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../managers/task_manager.dart';
 import '../../widgets/app_drawer.dart';
 import 'edit_task_screen.dart';
@@ -83,7 +84,11 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
         title: const Text('Complete Task'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () {},
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../managers/contact_manager.dart';
 import '../../models/contact.dart';
 import '../../widgets/app_drawer.dart';
@@ -89,7 +90,11 @@ class _NewContactScreenState extends State<NewContactScreen> {
         title: const Text('New Contact'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () {},
           ),
         ],

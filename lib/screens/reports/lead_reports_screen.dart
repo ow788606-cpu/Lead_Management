@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_const
 
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../managers/lead_manager.dart';
 import '../../models/lead.dart';
 import '../../widgets/app_drawer.dart';
@@ -250,7 +251,11 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
         title: const Text('Lead Reports'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () {},
           ),
         ],

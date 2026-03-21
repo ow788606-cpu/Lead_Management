@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_const
 
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../managers/contact_manager.dart';
 import '../../managers/auth_manager.dart';
 import '../../models/contact.dart';
@@ -84,7 +85,11 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
         title: const Text('New Lead'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () {},
           ),
         ],

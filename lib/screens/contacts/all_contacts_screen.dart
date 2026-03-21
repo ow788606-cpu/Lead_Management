@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import '../../managers/contact_manager.dart';
 import '../../widgets/app_drawer.dart';
 import 'view_contact_screen.dart';
@@ -79,7 +80,11 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
         title: const Text('All Contacts'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () {},
           ),
         ],
