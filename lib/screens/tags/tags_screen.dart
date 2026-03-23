@@ -41,7 +41,7 @@ class _TagsScreenState extends State<TagsScreen> {
 
   Color _parseColor(String hex) {
     final normalized = hex.replaceFirst('#', '').toUpperCase();
-    if (normalized.length != 6) return const Color(0xFF0B5CFF);
+    if (normalized.length != 6) return const Color(0xFF131416);
     return Color(int.parse('FF$normalized', radix: 16));
   }
 
@@ -176,7 +176,7 @@ class _TagsScreenState extends State<TagsScreen> {
                                     IconButton(
                                       icon: const HugeIcon(
                                         icon: HugeIcons.strokeRoundedPencilEdit02,
-                                        color: Color(0xFF0B5CFF),
+                                        color: Color(0xFF131416),
                                         size: 18,
                                       ),
                                       padding: const EdgeInsets.all(4),

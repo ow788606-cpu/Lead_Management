@@ -45,7 +45,7 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
 
   Color _parseColor(String hex) {
     final normalized = hex.replaceFirst('#', '').toUpperCase();
-    if (normalized.length != 6) return const Color(0xFF0B5CFF);
+    if (normalized.length != 6) return const Color(0xFF131416);
     return Color(int.parse('FF$normalized', radix: 16));
   }
 
@@ -90,7 +90,7 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: const Icon(Icons.phone, size: 18, color: Color(0xFF6B7280)),
+                    child: const HugeIcon(icon: HugeIcons.strokeRoundedCall, color: Color(0xFF6B7280), size: 18.0),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -100,7 +100,7 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: const Icon(Icons.comment, size: 18, color: Color(0xFF6B7280)),
+                    child: const HugeIcon(icon: HugeIcons.strokeRoundedComment01, color: Color(0xFF6B7280), size: 18.0),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -110,7 +110,7 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.grey.shade300),
                     ),
-                    child: const Icon(Icons.email, size: 18, color: Color(0xFF6B7280)),
+                    child: const HugeIcon(icon: HugeIcons.strokeRoundedMail01, color: Color(0xFF6B7280), size: 18.0),
                   ),
                 ],
               ),
@@ -118,7 +118,7 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
               if (lead.service != null)
                 Row(
                   children: [
-                    Icon(Icons.design_services, size: 16, color: Colors.grey[600]),
+                    HugeIcon(icon: HugeIcons.strokeRoundedCustomerService, color: Colors.grey[600]!, size: 16.0),
                     const SizedBox(width: 6),
                     Text('${lead.service}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[700])),
@@ -128,7 +128,7 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[400]),
+                    HugeIcon(icon: HugeIcons.strokeRoundedChatting01, color: Colors.grey[400]!, size: 16.0),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text('${lead.notes}',
@@ -244,7 +244,7 @@ class _LeadReportsScreenState extends State<LeadReportsScreen> {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const HugeIcon(icon: HugeIcons.strokeRoundedMenu01, color: Colors.black, size: 24.0),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),

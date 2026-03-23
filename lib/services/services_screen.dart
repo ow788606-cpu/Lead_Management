@@ -114,7 +114,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF0B5CFF),
+                                      color: const Color(0xFF131416),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Center(
@@ -123,7 +123,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                               fontFamily: 'Inter',
-                                              color: const Color(0xFF0B5CFF))),
+                                              color: const Color(0xFF131416))),
                                     ),
                                   ),
                                   const SizedBox(width: 16),
@@ -135,7 +135,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                   IconButton(
                                     icon: const HugeIcon(
                                       icon: HugeIcons.strokeRoundedPencilEdit02,
-                                      color: Color(0xFF0B5CFF),
+                                      color: Color(0xFF131416),
                                       size: 18,
                                     ),
                                     onPressed: () async {

@@ -222,7 +222,7 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                                 child: Row(
                                   children: [
                                     const Icon(Icons.event_available_outlined,
-                                        size: 16, color: Color(0xFF0B5CFF)),
+                                        size: 16, color: Color(0xFF131416)),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
@@ -230,7 +230,7 @@ class _CompletedTasksScreenState extends State<CompletedTasksScreen> {
                                           style: const TextStyle(
                                               fontSize: 14,
                                               fontFamily: 'Inter',
-                                              color: Color(0xFF0B5CFF))),
+                                              color: Color(0xFF131416))),
                                     ),
                                   ],
                                 ),

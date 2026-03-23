@@ -178,7 +178,7 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                               Row(
                                 children: [
                                   // const Icon(Icons.task_alt_outlined,
-                                  //     size: 18, color: Color(0xFF0B5CFF)),
+                                  //     size: 18, color: Color(0xFF131416)),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(task.title,
@@ -308,7 +308,7 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                   children: [
                                     const HugeIcon(
                                       icon: HugeIcons.strokeRoundedClock01,
-                                      color: Color(0xFF0B5CFF),
+                                      color: Color(0xFF131416),
                                       size: 16.0,
                                     ),
                                     const SizedBox(width: 8),
@@ -318,7 +318,7 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                                           style: const TextStyle(
                                               fontSize: 14,
                                               fontFamily: 'Inter',
-                                              color: Color(0xFF0B5CFF))),
+                                              color: Color(0xFF131416))),
                                     ),
                                   ],
                                 ),
@@ -354,7 +354,7 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
       case 'High':
         return Colors.orange;
       case 'Medium':
-        return const Color(0xFF0B5CFF);
+        return const Color(0xFF131416);
       case 'Low':
         return Colors.green;
       default:

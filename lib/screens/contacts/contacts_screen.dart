@@ -17,9 +17,9 @@ class ContactsScreen extends StatelessWidget {
             Container(
               color: Colors.white,
               child: const TabBar(
-                labelColor: Color(0xFF0B5CFF),
+                labelColor: Color(0xFF131416),
                 unselectedLabelColor: Colors.grey,
-                indicatorColor: Color(0xFF0B5CFF),
+                indicatorColor: Color(0xFF131416),
                 tabs: [
                   Tab(text: 'All Contacts'),
                   Tab(text: 'New Contact'),

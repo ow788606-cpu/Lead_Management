@@ -618,7 +618,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0b5cff),
+                backgroundColor: const Color(0xFF131416),
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -956,7 +956,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0b5cff),
+                backgroundColor: const Color(0xFF131416),
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -1087,7 +1087,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                         focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF0b5cff)),
+                          borderSide: BorderSide(color: Color(0xFF131416)),
                         ),
                         hintText: 'Enter task title...',
                         contentPadding:
@@ -1117,7 +1117,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                         focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF0b5cff)),
+                          borderSide: BorderSide(color: Color(0xFF131416)),
                         ),
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -1267,7 +1267,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                         focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF0b5cff)),
+                          borderSide: BorderSide(color: Color(0xFF131416)),
                         ),
                         hintText: 'Enter description...',
                         contentPadding: const EdgeInsets.all(10),
@@ -1374,7 +1374,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0b5cff),
+                backgroundColor: const Color(0xFF131416),
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -1479,7 +1479,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: isBold
-                                  ? const Color(0xFF0b5cff)
+                                  ? const Color(0xFF131416)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -1500,7 +1500,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: isItalic
-                                  ? const Color(0xFF0b5cff)
+                                  ? const Color(0xFF131416)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -1521,7 +1521,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: isUnderline
-                                  ? const Color(0xFF0b5cff)
+                                  ? const Color(0xFF131416)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -1619,7 +1619,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         borderSide: BorderSide(color: Colors.grey.shade300),
                       ),
                       focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFF0b5cff)),
+                        borderSide: BorderSide(color: Color(0xFF131416)),
                       ),
                       hintText: 'Add your notes here...',
                       contentPadding: const EdgeInsets.all(12),
@@ -1693,7 +1693,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0b5cff),
+                backgroundColor: const Color(0xFF131416),
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -1836,7 +1836,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                             width: 80,
                             height: 80,
                             decoration: const BoxDecoration(
-                              color: Color(0xFF0b5cff),
+                              color: Color(0xFF131416),
                               shape: BoxShape.circle,
                             ),
                             child: Center(
@@ -2165,12 +2165,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0b5cff).withValues(alpha: 0.1),
+                  color: const Color(0xFF131416).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Icon(activity['icon'],
-                      color: const Color(0xFF0b5cff), size: 24),
+                      color: const Color(0xFF131416), size: 24),
                 ),
               ),
               const SizedBox(width: 16),
@@ -3228,9 +3228,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               ),
               child: TabBar(
                 controller: _tabController,
-                labelColor: const Color(0xFF0b5cff),
+                labelColor: const Color(0xFF131416),
                 unselectedLabelColor: Colors.grey,
-                indicatorColor: const Color(0xFF0b5cff),
+                indicatorColor: const Color(0xFF131416),
                 tabs: const [
                   Tab(text: 'Activity'),
                   Tab(text: 'Notes'),
@@ -3321,8 +3321,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   label: const Text('Send Message'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: const BorderSide(color: Color(0xFF0B5CFF)),
-                    foregroundColor: const Color(0xFF0B5CFF),
+                    side: const BorderSide(color: Color(0xFF131416)),
+                    foregroundColor: const Color(0xFF131416),
                   ),
                 ),
               ),
@@ -3338,7 +3338,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   label: const Text('Make a Call'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    backgroundColor: const Color(0xFF0B5CFF),
+                    backgroundColor: const Color(0xFF131416),
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -3348,7 +3348,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0B5CFF),
+                  color: const Color(0xFF131416),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: IconButton(
@@ -3383,19 +3383,19 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       case 0: // Activity tab
         return FloatingActionButton(
           onPressed: _showAddActivityDialog,
-          backgroundColor: const Color(0xFF0B5CFF),
+          backgroundColor: const Color(0xFF131416),
           child: const Icon(Icons.add, color: Colors.white),
         );
       case 1: // Notes tab
         return FloatingActionButton(
           onPressed: _showAddNoteDialog,
-          backgroundColor: const Color(0xFF0B5CFF),
+          backgroundColor: const Color(0xFF131416),
           child: const Icon(Icons.note_add, color: Colors.white),
         );
       case 2: // Tasks tab
         return FloatingActionButton(
           onPressed: _showAddTaskDialog,
-          backgroundColor: const Color(0xFF0B5CFF),
+          backgroundColor: const Color(0xFF131416),
           child: const Icon(Icons.task_alt, color: Colors.white),
         );
       default:

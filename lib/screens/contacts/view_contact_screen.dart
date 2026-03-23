@@ -67,7 +67,7 @@ class ViewContactScreen extends StatelessWidget {
                           children: [
                             CircleAvatar(
                               radius: 40,
-                              backgroundColor: const Color(0xFF0B5CFF),
+                              backgroundColor: const Color(0xFF131416),
                               child: Text(
                                 contact.name[0].toUpperCase(),
                                 style: const TextStyle(
@@ -82,7 +82,7 @@ class ViewContactScreen extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: const BoxDecoration(
-                                  color: Color(0xFF0B5CFF),
+                                  color: Color(0xFF131416),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(Icons.camera_alt,
@@ -136,7 +136,7 @@ class ViewContactScreen extends StatelessWidget {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0B5CFF),
+                          backgroundColor: const Color(0xFF131416),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
@@ -235,13 +235,13 @@ class ViewContactScreen extends StatelessWidget {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF0B5CFF),
+                                        color: const Color(0xFF131416),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: const Text('New Lead',
                                           style: TextStyle(
                                               fontSize: 11,
-                                              color: Color(0xFF0B5CFF),
+                                              color: Color(0xFF131416),
                                               fontFamily: 'Inter')),
                                     ),
                                   ],
@@ -276,7 +276,7 @@ class ViewContactScreen extends StatelessWidget {
                                 Text(_formatDateTime(lead.createdAt),
                                     style: const TextStyle(
                                         fontSize: 13,
-                                        color: Color(0xFF0B5CFF),
+                                        color: Color(0xFF131416),
                                         fontFamily: 'Inter')),
                               ],
                             ),

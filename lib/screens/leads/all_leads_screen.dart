@@ -96,7 +96,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
 
   Color _parseColor(String hex) {
     final normalized = hex.replaceFirst('#', '').toUpperCase();
-    if (normalized.length != 6) return const Color(0xFF0B5CFF);
+    if (normalized.length != 6) return const Color(0xFF131416);
     return Color(int.parse('FF$normalized', radix: 16));
   }
 
@@ -108,7 +108,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
       SnackBar(
         content: Text('Reminder: Follow-up with ${lead.contactName} in 5 minutes'),
         duration: const Duration(seconds: 5),
-        backgroundColor: const Color(0xFF0B5CFF),
+        backgroundColor: const Color(0xFF131416),
         action: SnackBarAction(
           label: 'View',
           textColor: Colors.white,
@@ -227,9 +227,9 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   controller: _tabController,
                   isScrollable: true,
                   tabAlignment: TabAlignment.start,
-                  labelColor: const Color(0xFF0B5CFF),
+                  labelColor: const Color(0xFF131416),
                   unselectedLabelColor: Colors.grey,
-                  indicatorColor: const Color(0xFF0B5CFF),
+                  indicatorColor: const Color(0xFF131416),
                   dividerColor: Colors.transparent,
                   tabs: const [
                     Tab(text: 'All Leads'),

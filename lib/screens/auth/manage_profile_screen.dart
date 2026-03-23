@@ -198,7 +198,7 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                               children: [
                                 const CircleAvatar(
                                   radius: 50,
-                                  backgroundColor: Color(0xFF0B5CFF),
+                                  backgroundColor: Color(0xFF131416),
                                   child: Icon(Icons.person,
                                       size: 50, color: Colors.white),
                                 ),
@@ -208,7 +208,7 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: const BoxDecoration(
-                                      color: Color(0xFF0B5CFF),
+                                      color: Color(0xFF131416),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(Icons.camera_alt,
@@ -254,7 +254,7 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                             child: ElevatedButton(
                               onPressed: _isSaving ? null : _saveProfile,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0B5CFF),
+                                backgroundColor: const Color(0xFF131416),
                                 foregroundColor: Colors.white,
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 14),
@@ -312,7 +312,7 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: Color(0xFF0B5CFF)),
+              borderSide: const BorderSide(color: Color(0xFF131416)),
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 14),

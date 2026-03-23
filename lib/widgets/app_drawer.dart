@@ -23,7 +23,7 @@ class AppDrawer extends StatelessWidget {
     required this.onItemSelected,
   });
 
-  static const Color _activeBgColor = Color(0xFF0B5CFF);
+  static const Color _activeBgColor = Color(0xFF131416);
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +63,7 @@ class AppDrawer extends StatelessWidget {
                       fontWeight: FontWeight.w600)),
             ),
             _DrawerItem(HugeIcons.strokeRoundedDashboardSquare01, 'Dashboard', 0, selectedIndex,
-                () => openMainTab(0), const Color(0xFF0B5CFF), _activeBgColor),
+                () => openMainTab(0), const Color(0xFF131416), _activeBgColor),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Text('LET\'S CLOOP',
@@ -122,7 +122,7 @@ class AppDrawer extends StatelessWidget {
                 2,
                 selectedIndex,
                 () => openMainTab(2),
-                const Color(0xFF0B5CFF),
+                const Color(0xFF131416),
                 _activeBgColor),
             _ExpandableDrawerItem(HugeIcons.strokeRoundedUserMultiple, 'Contacts', 3,
                 selectedIndex, () => onItemSelected(3), _activeBgColor, [
@@ -173,10 +173,10 @@ class AppDrawer extends StatelessWidget {
                 5,
                 selectedIndex,
                 () => openMainTab(5),
-                const Color(0xFF0B5CFF),
+                const Color(0xFF131416),
                 _activeBgColor),
             _DrawerItem(HugeIcons.strokeRoundedTag01, 'Tags', 6, selectedIndex,
-                () => openMainTab(6), const Color(0xFF0B5CFF), _activeBgColor),
+                () => openMainTab(6), const Color(0xFF131416), _activeBgColor),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Text('REPORTS',
@@ -227,7 +227,7 @@ class AppDrawer extends StatelessWidget {
               leading: const HugeIcon(
                 icon: HugeIcons.strokeRoundedLogout01,
                 size: 18,
-                color: Color(0xFF0B5CFF),
+                color: Color(0xFF131416),
               ),
               title: const Text('Logout', style: TextStyle(fontSize: 13)),
               onTap: () {
@@ -303,7 +303,7 @@ class _ExpandableDrawerItemState extends State<_ExpandableDrawerItem> {
         ListTile(
           leading: HugeIcon(
             icon: widget.icon,
-            color: isSelected ? Colors.white : const Color(0xFF0B5CFF),
+            color: isSelected ? Colors.white : const Color(0xFF131416),
             size: 18,
           ),
           title: Text(widget.title,

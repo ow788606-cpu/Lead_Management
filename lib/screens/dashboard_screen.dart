@@ -110,7 +110,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       freshLeads.toString(),
                       'Fresh Leads',
                       Icons.phone_in_talk_outlined,
-                      const Color(0xFF0B5CFF), onTap: () {
+                      const Color(0xFF131416), onTap: () {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 1)),
@@ -122,7 +122,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       scheduledAppointments.toString(),
                       'Scheduled Appointments',
                       Icons.calendar_today_outlined,
-                      const Color(0xFF0B5CFF), onTap: () {
+                      const Color(0xFF131416), onTap: () {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 2)),
@@ -138,7 +138,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       followUpLeads.toString(),
                       'Followup Leads',
                       Icons.access_time_outlined,
-                      const Color(0xFF0B5CFF), onTap: () {
+                      const Color(0xFF131416), onTap: () {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 2)),
@@ -150,7 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       overdueLeads.toString(),
                       'Overdue Leads',
                       Icons.warning_amber_outlined,
-                      const Color(0xFF0B5CFF), onTap: () {
+                      const Color(0xFF131416), onTap: () {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 3)),
@@ -163,11 +163,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                   child: _StatCard(lostLeads.toString(), 'Lost Leads',
-                      Icons.person_off_outlined, const Color(0xFF0B5CFF))),
+                      Icons.person_off_outlined, const Color(0xFF131416))),
               const SizedBox(width: 16),
               Expanded(
                   child: _StatCard(convertedLeads.toString(), 'Converted Leads',
-                      Icons.star_outline, const Color(0xFF0B5CFF))),
+                      Icons.star_outline, const Color(0xFF131416))),
             ],
           ),
           const SizedBox(height: 24),
@@ -199,7 +199,7 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const brandBlue = Color(0xFF0B5CFF);
+    const brandBlue = Color(0xFF131416);
     final iconColor =
         bgColor.toARGB32() == brandBlue.toARGB32() ? Colors.white : brandBlue;
     return Material(
@@ -452,14 +452,14 @@ class _WeeklyReportCard extends StatelessWidget {
                       FlSpot(3, 1.6),
                     ],
                     isCurved: false,
-                    color: const Color(0xFF0B5CFF),
+                    color: const Color(0xFF131416),
                     barWidth: 2,
                     dotData: FlDotData(
                       show: true,
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 3,
-                          color: const Color(0xFF0B5CFF),
+                          color: const Color(0xFF131416),
                           strokeWidth: 2,
                           strokeColor: Colors.white,
                         );
@@ -524,7 +524,7 @@ class _MonthlyReportCard extends StatelessWidget {
                     height: 12,
                     child: DecoratedBox(
                         decoration: BoxDecoration(
-                            color: Color(0xFF0B5CFF), shape: BoxShape.circle))),
+                            color: Color(0xFF131416), shape: BoxShape.circle))),
                 const SizedBox(width: 6),
                 Text('Won ($wonLeads)', style: const TextStyle(fontSize: 11))
               ]),
@@ -585,7 +585,7 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
 
   Color _parseColor(String hex) {
     final normalized = hex.replaceFirst('#', '').toUpperCase();
-    if (normalized.length != 6) return const Color(0xFF0B5CFF);
+    if (normalized.length != 6) return const Color(0xFF131416);
     return Color(int.parse('FF$normalized', radix: 16));
   }
 
@@ -907,7 +907,7 @@ class _TabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const brandBlue = Color(0xFF0B5CFF);
+    const brandBlue = Color(0xFF131416);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(

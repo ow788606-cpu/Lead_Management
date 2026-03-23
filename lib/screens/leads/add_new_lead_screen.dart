@@ -920,7 +920,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                               child: ElevatedButton(
                                 onPressed: _createLead,
                                 style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF0B5CFF),
+                                    backgroundColor: const Color(0xFF131416),
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(8))),
@@ -942,7 +942,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
         type: BottomNavigationBarType.fixed,
         currentIndex: 1, // Leads section
         onTap: (index) => _onBottomNavTap(context, index),
-        selectedItemColor: const Color(0xFF0B5CFF),
+        selectedItemColor: const Color(0xFF131416),
         unselectedItemColor: Colors.grey,
         selectedFontSize: 12,
         unselectedFontSize: 10,

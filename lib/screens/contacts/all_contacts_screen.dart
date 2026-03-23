@@ -53,7 +53,7 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         tooltip: 'Add New Contact',
         onPressed: () {
@@ -93,37 +93,70 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            TextField(
-              onChanged: (value) => setState(() => _searchQuery = value),
-              decoration: InputDecoration(
-                hintText: 'Search contacts by name, phone, email, location...',
-                prefixIcon: const HugeIcon(
-                  icon: HugeIcons.strokeRoundedSearch01,
-                  color: Colors.grey,
-                  size: 20.0,
-                ),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      body: Column(
+        children: [
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 12),
+                    child: HugeIcon(
+                      icon: HugeIcons.strokeRoundedSearch01,
+                      color: Colors.grey,
+                      size: 20.0,
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) => setState(() => _searchQuery = value),
+                      decoration: const InputDecoration(
+                        hintText: 'Search',
+                        hintStyle: TextStyle(color: Colors.grey),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: IconButton(
+                      icon: const HugeIcon(
+                        icon: HugeIcons.strokeRoundedFilterHorizontal,
+                        color: Colors.grey,
+                        size: 20.0,
+                      ),
+                      onPressed: () {},
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            Expanded(
+          ),
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(top: 16),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF4F6FA),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _error != null
@@ -145,6 +178,7 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                       fontSize: 14,
                                       fontFamily: 'Inter')))
                           : ListView.builder(
+                              padding: const EdgeInsets.all(16),
                               itemCount: filteredContacts.length,
                               itemBuilder: (context, index) {
                                 final contact = filteredContacts[index];
@@ -164,13 +198,11 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
-                                      border:
-                                          Border.all(color: Colors.grey[300]!),
+                                      border: Border.all(color: Colors.grey[300]!),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(contact.name,
                                             style: const TextStyle(
@@ -189,8 +221,7 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                               ),
                                               const SizedBox(width: 8),
                                               Expanded(
-                                                child: Text(
-                                                    contact.phone,
+                                                child: Text(contact.phone,
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         fontFamily: 'Inter',
@@ -212,8 +243,7 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Expanded(
-                                                  child: Text(
-                                                      contact.phone2!,
+                                                  child: Text(contact.phone2!,
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           fontFamily: 'Inter',
@@ -236,8 +266,7 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 Expanded(
-                                                  child: Text(
-                                                      contact.email!,
+                                                  child: Text(contact.email!,
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           fontFamily: 'Inter',
@@ -279,8 +308,8 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                               },
                             ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -30,7 +30,7 @@ class CloopApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const brandBlue = Color(0xFF0B5CFF);
+    const brandBlue = Color(0xFF131416);
     return MaterialApp(
       title: 'Cloop',
       debugShowCheckedModeBanner: false,

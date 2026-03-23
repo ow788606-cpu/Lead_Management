@@ -24,7 +24,7 @@ class TagItem {
       id: int.tryParse(json['id'].toString()) ?? 0,
       name: (json['name'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
-      colorHex: rawColor.isEmpty ? '#0B5CFF' : rawColor,
+      colorHex: rawColor.isEmpty ? '#131416' : rawColor,
     );
   }
 }

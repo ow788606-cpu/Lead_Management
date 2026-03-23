@@ -44,7 +44,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            color: const Color(0xFF0B5CFF),
+            color: const Color(0xFF131416),
             borderRadius: BorderRadius.circular(8),
           ),
           child: IconButton(
@@ -141,7 +141,7 @@ void _showNotificationStatus() {
       builder: (context) => AlertDialog(
         title: const Row(
           children: [
-            Icon(Icons.notifications_active, color: Color(0xFF0B5CFF)),
+            Icon(Icons.notifications_active, color: Color(0xFF131416)),
             SizedBox(width: 8),
             Text('Notification Status'),
           ],
@@ -515,7 +515,7 @@ void _showNotificationStatus() {
           backgroundColor: Colors.white,
           currentIndex: _getBottomNavIndex(),
           onTap: _onBottomNavTap,
-          selectedItemColor: const Color(0xFF0B5CFF),
+          selectedItemColor: const Color(0xFF131416),
           unselectedItemColor: Colors.grey,
           selectedFontSize: 12,
           unselectedFontSize: 10,
@@ -523,27 +523,27 @@ void _showNotificationStatus() {
           items: const [
             BottomNavigationBarItem(
               icon: HugeIcon(icon: HugeIcons.strokeRoundedCalendar03, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedCalendar03, color: Color(0xFF0B5CFF), size: 24.0),
+              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedCalendar03, color: Color(0xFF131416), size: 24.0),
               label: 'Appts',
             ),
             BottomNavigationBarItem(
               icon: HugeIcon(icon: HugeIcons.strokeRoundedCall, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedCall, color: Color(0xFF0B5CFF), size: 24.0),
+              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedCall, color: Color(0xFF131416), size: 24.0),
               label: 'Leads',
             ),
             BottomNavigationBarItem(
               icon: HugeIcon(icon: HugeIcons.strokeRoundedHome01, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedHome01, color: Color(0xFF0B5CFF), size: 24.0),
+              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedHome01, color: Color(0xFF131416), size: 24.0),
               label: 'Home',
             ),
             BottomNavigationBarItem(
               icon: HugeIcon(icon: HugeIcons.strokeRoundedTaskEdit01, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedTaskEdit01, color: Color(0xFF0B5CFF), size: 24.0),
+              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedTaskEdit01, color: Color(0xFF131416), size: 24.0),
               label: 'Tasks',
             ),
             BottomNavigationBarItem(
               icon: HugeIcon(icon: HugeIcons.strokeRoundedSettings01, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedSettings01, color: Color(0xFF0B5CFF), size: 24.0),
+              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedSettings01, color: Color(0xFF131416), size: 24.0),
               label: 'Settings',
             ),
           ],
@@ -665,7 +665,7 @@ class _AddServiceDialogState extends State<_AddServiceDialog> {
                     Navigator.pop(context, name);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
+                    backgroundColor: const Color(0xFF131416),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -697,7 +697,7 @@ class _AddTagDialog extends StatefulWidget {
 class _AddTagDialogState extends State<_AddTagDialog> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  Color _selectedColor = const Color(0xFF0B5CFF);
+  Color _selectedColor = const Color(0xFF131416);
   bool _isSaving = false;
 
   String get _selectedHexColor =>
