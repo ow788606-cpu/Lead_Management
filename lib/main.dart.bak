@@ -160,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen> {
         taskManager.loadTasks(),
       ]);
     } catch (e) {
-      debugPrint('Data loading failed: $e');
+      debugPrint('⚠️ Data loading failed: $e');
     }
 
     final isLoggedIn = await authManager.isLoggedIn();
