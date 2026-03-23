@@ -58,33 +58,54 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              onChanged: (value) => setState(() => _searchQuery = value),
-              decoration: InputDecoration(
-                hintText: 'Search services...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16),
+                    child: Icon(
+                      Icons.search,
+                      color: Colors.grey,
+                      size: 24.0,
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) => setState(() => _searchQuery = value),
+                      decoration: const InputDecoration(
+                        hintText: 'Search',
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(right: 16),
+                    child: Icon(
+                      Icons.tune,
+                      color: Colors.grey,
+                      size: 24.0,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: _isLoading
+          ),
+          Expanded(
+            child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _loadError != null
                       ? Center(
@@ -98,6 +119,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           ),
                         )
                       : ListView.builder(
+                          padding: const EdgeInsets.all(16),
                           itemCount: filteredServices.length,
                           itemBuilder: (context, index) {
                             return Container(
@@ -198,9 +220,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             );
                           },
                         ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

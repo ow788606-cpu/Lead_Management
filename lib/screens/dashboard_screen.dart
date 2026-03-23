@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../managers/lead_manager.dart';
+import '../managers/task_manager.dart';
 import '../managers/auth_manager.dart';
 import '../models/lead.dart';
 import 'leads/detail_lead_screen.dart';
 import '../screens/tags/tag_api.dart';
+import 'tasks/all_tasks_screen.dart';
 import 'main_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -17,14 +19,19 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final _leadManager = LeadManager();
+  final _taskManager = TaskManager();
   String _username = '';
   bool _isLoadingLeads = true;
+  int _todaysTasks = 0;
+  int _overdueTasks = 0;
+  int _activeTasks = 0;
 
   @override
   void initState() {
     super.initState();
     _loadUsername();
     _loadLeads();
+    _loadTasks();
   }
 
   void _loadUsername() async {
@@ -44,6 +51,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
     if (!mounted) return;
     setState(() => _isLoadingLeads = false);
+  }
+
+  Future<void> _loadTasks() async {
+    try {
+      await _taskManager.loadTasks(forceRefresh: true);
+      if (!mounted) return;
+      
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      
+      _todaysTasks = _taskManager.pendingTasks.where((task) {
+        final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+        return taskDate.isAtSameMomentAs(today);
+      }).length;
+      
+      _overdueTasks = _taskManager.pendingTasks.where((task) {
+        final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+        return taskDate.isBefore(today);
+      }).length;
+      
+      _activeTasks = _taskManager.pendingTasks.where((task) {
+        final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+        return taskDate.isAtSameMomentAs(today) || taskDate.isAfter(today);
+      }).length;
+      
+      setState(() {});
+    } catch (e) {
+      // Keep dashboard usable if task loading fails
+    }
   }
 
   String _getGreeting() {
@@ -74,17 +110,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final convertedLeads = allLeads
         .where(
             (lead) => lead.tags?.toLowerCase().contains('converted') ?? false)
-        .length;
-    final todaysTasks = allLeads
-        .where((lead) =>
-            lead.followUpDate != null &&
-            lead.followUpDate!.year == DateTime.now().year &&
-            lead.followUpDate!.month == DateTime.now().month &&
-            lead.followUpDate!.day == DateTime.now().day)
-        .length;
-    final overdueTasks = overdueLeads;
-    final activeTasks = allLeads
-        .where((lead) => !lead.isCompleted && lead.followUpDate != null)
         .length;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -172,9 +197,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 24),
           _TaskManagementCard(
-              todaysTasks: todaysTasks,
-              overdueTasks: overdueTasks,
-              activeTasks: activeTasks),
+              todaysTasks: _todaysTasks,
+              overdueTasks: _overdueTasks,
+              activeTasks: _activeTasks),
           const SizedBox(height: 16),
           const _WeeklyReportCard(),
           const SizedBox(height: 16),
@@ -302,15 +327,46 @@ class _TaskManagementCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                  child:
-                      _buildTaskRow(todaysTasks.toString(), 'Today\'s Tasks')),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AllTasksScreen(initialTabIndex: 0, filter: 'today'),
+                      ),
+                    );
+                  },
+                  child: _buildTaskRow(todaysTasks.toString(), 'Today\'s Tasks'),
+                ),
+              ),
               const SizedBox(width: 16),
               Expanded(
-                  child:
-                      _buildTaskRow(overdueTasks.toString(), 'Overdue Tasks')),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AllTasksScreen(initialTabIndex: 0, filter: 'overdue'),
+                      ),
+                    );
+                  },
+                  child: _buildTaskRow(overdueTasks.toString(), 'Overdue Tasks'),
+                ),
+              ),
               const SizedBox(width: 16),
               Expanded(
-                  child: _buildTaskRow(activeTasks.toString(), 'Active Tasks')),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AllTasksScreen(initialTabIndex: 0, filter: 'active'),
+                      ),
+                    );
+                  },
+                  child: _buildTaskRow(activeTasks.toString(), 'Active Tasks'),
+                ),
+              ),
             ],
           ),
         ],
@@ -319,14 +375,17 @@ class _TaskManagementCard extends StatelessWidget {
   }
 
   Widget _buildTaskRow(String value, String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(value,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 2),
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 10)),
-      ],
+    return Container(
+      color: Colors.transparent,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(value,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 2),
+          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 10)),
+        ],
+      ),
     );
   }
 

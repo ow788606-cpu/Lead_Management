@@ -7,8 +7,9 @@ import 'new_task_screen.dart';
 
 class AllTasksScreen extends StatefulWidget {
   final int initialTabIndex;
+  final String? filter;
 
-  const AllTasksScreen({super.key, this.initialTabIndex = 0});
+  const AllTasksScreen({super.key, this.initialTabIndex = 0, this.filter});
 
   @override
   State<AllTasksScreen> createState() => _AllTasksScreenState();
@@ -140,9 +141,38 @@ class _AllTasksScreenState extends State<AllTasksScreen>
         .toList();
   }
 
+  List<dynamic> _getTasksByFilter(String filter) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    List<dynamic> tasks = [...taskManager.pendingTasks, ...taskManager.completedTasks];
+    
+    switch (filter) {
+      case 'today':
+        return tasks.where((task) {
+          final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+          return taskDate.isAtSameMomentAs(today) && !task.isCompleted;
+        }).toList();
+      case 'overdue':
+        return tasks.where((task) {
+          final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+          return taskDate.isBefore(today) && !task.isCompleted;
+        }).toList();
+      case 'active':
+        return tasks.where((task) {
+          final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+          return (taskDate.isAtSameMomentAs(today) || taskDate.isAfter(today)) && !task.isCompleted;
+        }).toList();
+      default:
+        return tasks;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filteredTasks = _getFilteredTasks();
+    final filteredTasks = widget.filter != null 
+        ? _getTasksByFilter(widget.filter!)
+        : _getFilteredTasks();
 
     return Scaffold(
       backgroundColor: Colors.white,
