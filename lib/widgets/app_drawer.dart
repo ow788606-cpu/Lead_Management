@@ -10,7 +10,7 @@ import '../screens/contacts/all_contacts_screen.dart';
 import '../screens/contacts/new_contact_screen.dart';
 import '../screens/contacts/bulk_upload_screen.dart';
 import '../screens/tasks/new_task_screen.dart';
-import '../screens/tasks/completed_tasks_screen.dart';
+import '../screens/tasks/all_tasks_screen.dart';
 import '../screens/reports/lead_reports_screen.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -153,18 +153,23 @@ class AppDrawer extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => const NewTaskScreen()));
               }),
+              _SubItem('All Tasks', () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AllTasksScreen(initialTabIndex: 0)));
+              }),
               _SubItem('Pending Tasks', () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 4)),
-                  (route) => false,
-                );
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AllTasksScreen(initialTabIndex: 1)));
               }),
               _SubItem('Completed Tasks', () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const CompletedTasksScreen()));
+                        builder: (context) => const AllTasksScreen(initialTabIndex: 2)));
               }),
             ]),
             _DrawerItem(

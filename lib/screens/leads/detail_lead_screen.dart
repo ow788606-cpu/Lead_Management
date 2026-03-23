@@ -214,6 +214,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
         title: const Row(
           children: [
@@ -289,6 +290,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: Colors.white,
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
           title: Row(
             children: [
@@ -635,6 +637,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
         title: Row(
           children: [
@@ -714,6 +717,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: Colors.white,
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
           title: Row(
             children: [
@@ -1040,6 +1044,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: Colors.white,
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
           title: Row(
             children: [
@@ -1398,6 +1403,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: Colors.white,
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
           title: Row(
             children: [
