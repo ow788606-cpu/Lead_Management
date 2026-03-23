@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../widgets/app_drawer.dart';
 import '../../managers/auth_manager.dart';
 import '../../services/api_config.dart';
@@ -24,11 +28,92 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
   final _countryController = TextEditingController();
   bool _isLoading = true;
   bool _isSaving = false;
+  String? _profileImagePath;
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      if (!mounted) return;
+      
+      final source = await showDialog<ImageSource>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext dialogContext) => AlertDialog(
+          title: const Text('Choose Image Source'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedCamera01,
+                  color: Color(0xFF131416),
+                  size: 24.0,
+                ),
+                title: const Text('Camera'),
+                onTap: () => Navigator.of(dialogContext).pop(ImageSource.camera),
+              ),
+              ListTile(
+                leading: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedImage02,
+                  color: Color(0xFF131416),
+                  size: 24.0,
+                ),
+                title: const Text('Gallery'),
+                onTap: () => Navigator.of(dialogContext).pop(ImageSource.gallery),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (source == null || !mounted) return;
+
+      if (source == ImageSource.camera) {
+        final status = await Permission.camera.request();
+        if (!status.isGranted) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Camera permission is required')),
+            );
+          }
+          return;
+        }
+      }
+
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: source,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 75,
+        preferredCameraDevice: CameraDevice.rear,
+      );
+      
+      if (image != null && mounted) {
+        setState(() {
+          _profileImagePath = image.path;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile picture updated'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to pick image: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   Future<void> _loadProfile() async {
@@ -162,7 +247,11 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedMenu01,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -196,23 +285,42 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                           Center(
                             child: Stack(
                               children: [
-                                const CircleAvatar(
+                                CircleAvatar(
                                   radius: 50,
-                                  backgroundColor: Color(0xFF131416),
-                                  child: Icon(Icons.person,
-                                      size: 50, color: Colors.white),
+                                  backgroundColor: const Color(0xFF131416),
+                                  child: _profileImagePath != null
+                                      ? ClipOval(
+                                          child: Image.file(
+                                            File(_profileImagePath!),
+                                            width: 100,
+                                            height: 100,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return const Icon(Icons.person,
+                                                  size: 50, color: Colors.white);
+                                            },
+                                          ),
+                                        )
+                                      : const Icon(Icons.person,
+                                          size: 50, color: Colors.white),
                                 ),
                                 Positioned(
                                   bottom: 0,
                                   right: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF131416),
-                                      shape: BoxShape.circle,
+                                  child: GestureDetector(
+                                    onTap: _pickImage,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const HugeIcon(
+                                        icon: HugeIcons.strokeRoundedCamera01,
+                                        color: Color(0xFF131416),
+                                        size: 16,
+                                      ),
                                     ),
-                                    child: const Icon(Icons.camera_alt,
-                                        size: 16, color: Colors.white),
                                   ),
                                 ),
                               ],

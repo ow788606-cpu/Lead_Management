@@ -1,3 +1,5 @@
+// Bulk Upload Screen - Commented out
+/*
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../managers/contact_manager.dart';
@@ -285,3 +287,4 @@ class _BulkUploadScreenState extends State<BulkUploadScreen> {
     );
   }
 }
+*/

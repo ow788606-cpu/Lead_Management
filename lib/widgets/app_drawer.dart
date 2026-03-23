@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../screens/main_screen.dart';
 import '../screens/auth/login_screen.dart';
-import '../screens/auth/billing_screen.dart';
+// import '../screens/auth/billing_screen.dart';
 import '../screens/auth/manage_profile_screen.dart';
 import '../screens/auth/change_password_screen.dart';
 import '../screens/leads/add_new_lead_screen.dart';
 import '../screens/contacts/all_contacts_screen.dart';
 import '../screens/contacts/new_contact_screen.dart';
-import '../screens/contacts/bulk_upload_screen.dart';
+// import '../screens/contacts/bulk_upload_screen.dart';
 import '../screens/tasks/new_task_screen.dart';
 import '../screens/tasks/all_tasks_screen.dart';
-import '../screens/reports/lead_reports_screen.dart';
+// import '../screens/reports/lead_reports_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   final int selectedIndex;
@@ -49,8 +49,9 @@ class AppDrawer extends StatelessWidget {
               child: Center(
                 child: Image.asset(
                   'assets/images/logo-dark.png',
-                  height: 60,
+                  height: 25,
                   fit: BoxFit.contain,
+                  alignment: Alignment.topLeft,
                 ),
               ),
             ),
@@ -62,8 +63,14 @@ class AppDrawer extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.w600)),
             ),
-            _DrawerItem(HugeIcons.strokeRoundedDashboardSquare01, 'Dashboard', 0, selectedIndex,
-                () => openMainTab(0), const Color(0xFF131416), _activeBgColor),
+            _DrawerItem(
+                HugeIcons.strokeRoundedDashboardSquare01,
+                'Dashboard',
+                0,
+                selectedIndex,
+                () => openMainTab(0),
+                const Color(0xFF131416),
+                _activeBgColor),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Text('LET\'S CLOOP',
@@ -83,35 +90,40 @@ class AppDrawer extends StatelessWidget {
               _SubItem('All Leads', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 0)),
+                      builder: (context) => const MainScreen(
+                          initialIndex: 1, initialLeadTabIndex: 0)),
                   (route) => false,
                 );
               }),
               _SubItem('Fresh Leads', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 1)),
+                      builder: (context) => const MainScreen(
+                          initialIndex: 1, initialLeadTabIndex: 1)),
                   (route) => false,
                 );
               }),
               _SubItem('Follow-Ups', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 2)),
+                      builder: (context) => const MainScreen(
+                          initialIndex: 1, initialLeadTabIndex: 2)),
                   (route) => false,
                 );
               }),
               _SubItem('Overdue', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 3)),
+                      builder: (context) => const MainScreen(
+                          initialIndex: 1, initialLeadTabIndex: 3)),
                   (route) => false,
                 );
               }),
               _SubItem('Completed', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
-                      builder: (context) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 4)),
+                      builder: (context) => const MainScreen(
+                          initialIndex: 1, initialLeadTabIndex: 4)),
                   (route) => false,
                 );
               }),
@@ -124,8 +136,13 @@ class AppDrawer extends StatelessWidget {
                 () => openMainTab(2),
                 const Color(0xFF131416),
                 _activeBgColor),
-            _ExpandableDrawerItem(HugeIcons.strokeRoundedUserMultiple, 'Contacts', 3,
-                selectedIndex, () => onItemSelected(3), _activeBgColor, [
+            _ExpandableDrawerItem(
+                HugeIcons.strokeRoundedUserMultiple,
+                'Contacts',
+                3,
+                selectedIndex,
+                () => onItemSelected(3),
+                _activeBgColor, [
               _SubItem('All Contacts', () {
                 Navigator.push(
                     context,
@@ -138,12 +155,12 @@ class AppDrawer extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => const NewContactScreen()));
               }),
-              _SubItem('Bulk Upload', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const BulkUploadScreen()));
-              }),
+              // _SubItem('Bulk Upload', () {
+              //   Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //           builder: (context) => const BulkUploadScreen()));
+              // }),
             ]),
             _ExpandableDrawerItem(HugeIcons.strokeRoundedTask01, 'Tasks', 4,
                 selectedIndex, () => onItemSelected(4), _activeBgColor, [
@@ -157,19 +174,22 @@ class AppDrawer extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const AllTasksScreen(initialTabIndex: 0)));
+                        builder: (context) =>
+                            const AllTasksScreen(initialTabIndex: 0)));
               }),
               _SubItem('Pending Tasks', () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const AllTasksScreen(initialTabIndex: 1)));
+                        builder: (context) =>
+                            const AllTasksScreen(initialTabIndex: 1)));
               }),
               _SubItem('Completed Tasks', () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const AllTasksScreen(initialTabIndex: 2)));
+                        builder: (context) =>
+                            const AllTasksScreen(initialTabIndex: 2)));
               }),
             ]),
             _DrawerItem(
@@ -182,23 +202,23 @@ class AppDrawer extends StatelessWidget {
                 _activeBgColor),
             _DrawerItem(HugeIcons.strokeRoundedTag01, 'Tags', 6, selectedIndex,
                 () => openMainTab(6), const Color(0xFF131416), _activeBgColor),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
-              child: Text('REPORTS',
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600)),
-            ),
-            _ExpandableDrawerItem(HugeIcons.strokeRoundedAnalytics01, 'Reports', -1,
-                selectedIndex, () {}, _activeBgColor, [
-              _SubItem('Lead Reports', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LeadReportsScreen()));
-              }),
-            ]),
+            // const Padding(
+            //   padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
+            //   child: Text('REPORTS',
+            //       style: TextStyle(
+            //           color: Colors.grey,
+            //           fontSize: 10,
+            //           fontWeight: FontWeight.w600)),
+            // ),
+            // _ExpandableDrawerItem(HugeIcons.strokeRoundedAnalytics01, 'Reports',
+            //     -1, selectedIndex, () {}, _activeBgColor, [
+            //   _SubItem('Lead Reports', () {
+            //     Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //             builder: (context) => const LeadReportsScreen()));
+            //   }),
+            // ]),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 10, 16, 6),
               child: Text('MY ACCOUNT',
@@ -209,12 +229,12 @@ class AppDrawer extends StatelessWidget {
             ),
             _ExpandableDrawerItem(HugeIcons.strokeRoundedUser, 'Profile', -2,
                 selectedIndex, () {}, _activeBgColor, [
-              _SubItem('Billing', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const BillingScreen()));
-              }),
+              // _SubItem('Billing', () {
+              //   Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //           builder: (context) => const BillingScreen()));
+              // }),
               _SubItem('Manage Profile', () {
                 Navigator.push(
                     context,

@@ -10,6 +10,7 @@ import '../../managers/lead_manager.dart';
 import '../../widgets/app_drawer.dart';
 import '../main_screen.dart';
 import '../tags/tag_api.dart';
+import 'detail_lead_screen.dart';
 
 class AddNewLeadScreen extends StatefulWidget {
   const AddNewLeadScreen({super.key});
@@ -78,7 +79,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const Icon(Icons.menu, size: 28),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -162,6 +163,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+
                             RichText(
                               text: const TextSpan(
                                 text: 'Contact ',
@@ -177,7 +179,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
                             if (_selectedContact != null &&
                                 _selectedContact != 'add_new') ...
                               [
@@ -185,31 +187,33 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 14),
                                   decoration: BoxDecoration(
-                                    color: Colors.grey[100],
+                                    color: Colors.white,
                                     border: Border.all(color: Colors.grey[300]!),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        _contactManager.allContacts
-                                            .firstWhere(
-                                              (c) => c.id == _selectedContact,
-                                              orElse: () => Contact(
-                                                id: '',
-                                                name: '',
-                                                phone: '',
-                                                address: '',
-                                                createdAt: DateTime.now(),
-                                              ),
-                                            )
-                                            .name,
-                                        style: const TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 14,
-                                            color: Colors.black),
+                                      const Icon(Icons.person_outline, size: 20, color: Colors.grey),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          _contactManager.allContacts
+                                              .firstWhere(
+                                                (c) => c.id == _selectedContact,
+                                                orElse: () => Contact(
+                                                  id: '',
+                                                  name: '',
+                                                  phone: '',
+                                                  address: '',
+                                                  createdAt: DateTime.now(),
+                                                ),
+                                              )
+                                              .name,
+                                          style: const TextStyle(
+                                              fontFamily: 'Inter',
+                                              fontSize: 14,
+                                              color: Colors.black),
+                                        ),
                                       ),
                                       IconButton(
                                         icon: const Icon(Icons.close, size: 18),
@@ -225,72 +229,126 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 ),
                               ]
                             else
-                              DropdownButtonFormField<String>(
-                                initialValue: _selectedContact,
-                                style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                    color: Colors.black,
-                                    fontSize: 14),
-                                decoration: InputDecoration(
-                                  hintText: 'Select Contact or Add New',
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                      fontFamily: 'Inter'),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
-                                ),
-                                selectedItemBuilder: (context) => [
-                                  const Text('Add New Contact',
-                                      style: TextStyle(fontFamily: 'Inter')),
-                                  ..._contactManager.allContacts.map(
-                                    (contact) => Text(
-                                      contact.name,
-                                      style: const TextStyle(fontFamily: 'Inter'),
-                                    ),
-                                  ),
-                                ],
-                                items: [
-                                  const DropdownMenuItem(
-                                      value: 'add_new',
-                                      child: Text('Add New Contact',
-                                          style:
-                                              TextStyle(fontFamily: 'Inter'))),
-                                  ..._contactManager.allContacts.map(
-                                    (contact) => DropdownMenuItem(
-                                      value: contact.id,
-                                      child: Text(contact.name,
-                                          style: const TextStyle(
-                                              fontFamily: 'Inter')),
-                                    ),
-                                  ),
-                                ],
-                                onChanged: (value) {
+                              Autocomplete<String>(
+                                optionsBuilder: (textEditingValue) {
+                                  if (textEditingValue.text.isEmpty) {
+                                    return ['add_new', ..._contactManager.allContacts.map((c) => c.id)];
+                                  }
+                                  return _contactManager.allContacts
+                                      .where((contact) => contact.name
+                                          .toLowerCase()
+                                          .contains(textEditingValue.text.toLowerCase()))
+                                      .map((c) => c.id)
+                                      .toList();
+                                },
+                                displayStringForOption: (contactId) {
+                                  if (contactId == 'add_new') return 'Add New Contact';
+                                  final contact = _contactManager.allContacts
+                                      .firstWhere((c) => c.id == contactId,
+                                          orElse: () => Contact(
+                                                id: '',
+                                                name: '',
+                                                phone: '',
+                                                address: '',
+                                                createdAt: DateTime.now(),
+                                              ));
+                                  return contact.name;
+                                },
+                                onSelected: (value) {
                                   setState(() {
                                     _selectedContact = value;
                                     _showContactForm = value == 'add_new';
                                   });
                                 },
+                                fieldViewBuilder: (context, controller, focusNode,
+                                    onEditingComplete) {
+                                  return TextField(
+                                    controller: controller,
+                                    focusNode: focusNode,
+                                    readOnly: true,
+                                    onTap: () {
+                                      if (focusNode.hasFocus) {
+                                        focusNode.unfocus();
+                                      } else {
+                                        focusNode.requestFocus();
+                                      }
+                                    },
+                                    style: const TextStyle(
+                                        fontFamily: 'Inter',
+                                        fontSize: 14,
+                                        color: Colors.black),
+                                    decoration: InputDecoration(
+                                      hintText: 'Search or select contact',
+                                      prefixIcon: const Icon(Icons.person_outline, size: 20, color: Colors.grey),
+                                      hintStyle: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                          fontFamily: 'Inter'),
+                                      suffixIcon: const Icon(Icons.arrow_drop_down),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey[300]!)),
+                                      enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          borderSide:
+                                              BorderSide(color: Colors.grey[300]!)),
+                                      contentPadding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 14),
+                                    ),
+                                  );
+                                },
+                                optionsViewBuilder: (context, onSelected, options) {
+                                  return Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Material(
+                                      elevation: 4,
+                                      color: Colors.white,
+                                      child: Container(
+                                        constraints: const BoxConstraints(maxHeight: 200),
+                                        width: MediaQuery.of(context).size.width - 64,
+                                        color: Colors.white,
+                                        child: ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          itemCount: options.length,
+                                          itemBuilder: (context, index) {
+                                            final contactId = options.elementAt(index);
+                                            final displayName = contactId == 'add_new'
+                                                ? 'Add New Contact'
+                                                : _contactManager.allContacts
+                                                    .firstWhere((c) => c.id == contactId,
+                                                        orElse: () => Contact(
+                                                              id: '',
+                                                              name: '',
+                                                              phone: '',
+                                                              address: '',
+                                                              createdAt: DateTime.now(),
+                                                            ))
+                                                    .name;
+                                            return ListTile(
+                                              title: Text(displayName,
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Inter', fontSize: 14)),
+                                              onTap: () => onSelected(contactId),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             if (_showContactForm) ...[
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 16),
                               const Text('Name',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 8),
                               TextField(
                                 controller: _nameController,
                                 style: const TextStyle(
@@ -298,7 +356,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 decoration: InputDecoration(
                                   hintText: 'Full Name',
                                   prefixIcon: const Icon(Icons.person_outline,
-                                      size: 20),
+                                      size: 20, color: Colors.grey),
                                   hintStyle: const TextStyle(
                                       color: Colors.grey,
                                       fontSize: 14,
@@ -317,14 +375,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       horizontal: 16, vertical: 14),
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 16),
                               const Text('Email',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 8),
                               TextField(
                                 controller: _emailController,
                                 style: const TextStyle(
@@ -332,7 +390,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 decoration: InputDecoration(
                                   hintText: 'Email',
                                   prefixIcon: const Icon(Icons.email_outlined,
-                                      size: 20),
+                                      size: 20, color: Colors.grey),
                                   hintStyle: const TextStyle(
                                       color: Colors.grey,
                                       fontSize: 14,
@@ -351,14 +409,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       horizontal: 16, vertical: 14),
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 16),
                               const Text('Contact Number',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'Inter')),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 8),
                               TextField(
                                 controller: _contactNumber1Controller,
                                 keyboardType: TextInputType.phone,
@@ -367,7 +425,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 decoration: InputDecoration(
                                   hintText: 'Primary Contact Number',
                                   prefixIcon: const Icon(Icons.phone_outlined,
-                                      size: 20),
+                                      size: 20, color: Colors.grey),
                                   hintStyle: const TextStyle(
                                       color: Colors.grey,
                                       fontSize: 14,
@@ -386,283 +444,565 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       horizontal: 16, vertical: 14),
                                 ),
                               ),
-                              const SizedBox(height: 24),
-                              const Text('Contact Number 2',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Inter')),
-                              const SizedBox(height: 16),
-                              TextField(
-                                controller: _contactNumber2Controller,
-                                keyboardType: TextInputType.phone,
-                                style: const TextStyle(
-                                    fontFamily: 'Inter', fontSize: 14),
-                                decoration: InputDecoration(
-                                  hintText: 'Alternate Contact Number',
-                                  prefixIcon: const Icon(Icons.phone_outlined,
-                                      size: 20),
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                      fontFamily: 'Inter'),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              const Text('Address',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Inter')),
-                              const SizedBox(height: 16),
-                              TextField(
-                                controller: _addressController,
-                                maxLines: 3,
-                                style: const TextStyle(
-                                    fontFamily: 'Inter', fontSize: 14),
-                                decoration: InputDecoration(
-                                  hintText: 'Address',
-                                  prefixIcon: const Padding(
-                                      padding: EdgeInsets.only(bottom: 40),
-                                      child: Icon(Icons.location_on_outlined,
-                                          size: 20)),
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                      fontFamily: 'Inter'),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  contentPadding: const EdgeInsets.all(16),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              const Text('Country',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Inter')),
-                              const SizedBox(height: 16),
-                              DropdownButtonFormField<String>(
-                                decoration: InputDecoration(
-                                  hintText: 'Select Country',
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                      fontFamily: 'Inter'),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
-                                ),
-                                items: const [
-                                  DropdownMenuItem(
-                                      value: 'Australia',
-                                      child: Text('Australia',
-                                          style:
-                                              TextStyle(fontFamily: 'Inter'))),
-                                  DropdownMenuItem(
-                                      value: 'Canada',
-                                      child: Text('Canada',
-                                          style:
-                                              TextStyle(fontFamily: 'Inter'))),
-                                  DropdownMenuItem(
-                                      value: 'United Kingdom',
-                                      child: Text('United Kingdom',
-                                          style:
-                                              TextStyle(fontFamily: 'Inter'))),
-                                  DropdownMenuItem(
-                                      value: 'United States',
-                                      child: Text('United States',
-                                          style:
-                                              TextStyle(fontFamily: 'Inter'))),
-                                  DropdownMenuItem(
-                                      value: 'Other',
-                                      child: Text('Other',
-                                          style:
-                                              TextStyle(fontFamily: 'Inter'))),
-                                ],
-                                onChanged: (value) =>
-                                    setState(() => _selectedCountry = value),
-                              ),
-                              const SizedBox(height: 24),
-                              const Text('State',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Inter')),
-                              const SizedBox(height: 16),
-                              TextField(
-                                controller: _stateController,
-                                style: const TextStyle(
-                                    fontFamily: 'Inter', fontSize: 14),
-                                decoration: InputDecoration(
-                                  hintText: 'State',
-                                  prefixIcon:
-                                      const Icon(Icons.map_outlined, size: 20),
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                      fontFamily: 'Inter'),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              const Text('City',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Inter')),
-                              const SizedBox(height: 16),
-                              TextField(
-                                controller: _cityController,
-                                style: const TextStyle(
-                                    fontFamily: 'Inter', fontSize: 14),
-                                decoration: InputDecoration(
-                                  hintText: 'City',
-                                  prefixIcon: const Icon(
-                                      Icons.location_city_outlined,
-                                      size: 20),
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                      fontFamily: 'Inter'),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              const Text('Zip',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Inter')),
-                              const SizedBox(height: 16),
-                              TextField(
-                                controller: _zipController,
-                                style: const TextStyle(
-                                    fontFamily: 'Inter', fontSize: 14),
-                                decoration: InputDecoration(
-                                  hintText: 'Zip Code',
-                                  prefixIcon:
-                                      const Icon(Icons.pin_outlined, size: 20),
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 14,
-                                      fontFamily: 'Inter'),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide:
-                                          BorderSide(color: Colors.grey[300]!)),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
-                                ),
-                              ),
+                              // const SizedBox(height: 16),
+                              // const Text('Contact Number 2',
+                              //     style: TextStyle(
+                              //         color: Colors.black,
+                              //         fontSize: 14,
+                              //         fontWeight: FontWeight.bold,
+                              //         fontFamily: 'Inter')),
+                              // const SizedBox(height: 8),
+                              // TextField(
+                              //   controller: _contactNumber2Controller,
+                              //   keyboardType: TextInputType.phone,
+                              //   style: const TextStyle(
+                              //       fontFamily: 'Inter', fontSize: 14),
+                              //   decoration: InputDecoration(
+                              //     hintText: 'Alternate Contact Number',
+                              //     prefixIcon: const Icon(Icons.phone_outlined,
+                              //         size: 20),
+                              //     hintStyle: const TextStyle(
+                              //         color: Colors.grey,
+                              //         fontSize: 14,
+                              //         fontFamily: 'Inter'),
+                              //     filled: true,
+                              //     fillColor: Colors.white,
+                              //     border: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     enabledBorder: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     contentPadding: const EdgeInsets.symmetric(
+                              //         horizontal: 16, vertical: 14),
+                              //   ),
+                              // ),
+                              // const SizedBox(height: 16),
+                              // const Text('Address',
+                              //     style: TextStyle(
+                              //         color: Colors.black,
+                              //         fontSize: 14,
+                              //         fontWeight: FontWeight.bold,
+                              //         fontFamily: 'Inter')),
+                              // const SizedBox(height: 8),
+                              // TextField(
+                              //   controller: _addressController,
+                              //   maxLines: 3,
+                              //   style: const TextStyle(
+                              //       fontFamily: 'Inter', fontSize: 14),
+                              //   decoration: InputDecoration(
+                              //     hintText: 'Address',
+                              //     prefixIcon: const Padding(
+                              //         padding: EdgeInsets.only(bottom: 40),
+                              //         child: Icon(Icons.location_on_outlined,
+                              //             size: 20)),
+                              //     hintStyle: const TextStyle(
+                              //         color: Colors.grey,
+                              //         fontSize: 14,
+                              //         fontFamily: 'Inter'),
+                              //     filled: true,
+                              //     fillColor: Colors.white,
+                              //     border: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     enabledBorder: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     contentPadding: const EdgeInsets.all(16),
+                              //   ),
+                              // ),
+                              // const SizedBox(height: 16),
+                              // const Text('Country',
+                              //     style: TextStyle(
+                              //         color: Colors.black,
+                              //         fontSize: 14,
+                              //         fontWeight: FontWeight.bold,
+                              //         fontFamily: 'Inter')),
+                              // const SizedBox(height: 8),
+                              // DropdownButtonFormField<String>(
+                              //   decoration: InputDecoration(
+                              //     hintText: 'Select Country',
+                              //     hintStyle: const TextStyle(
+                              //         color: Colors.grey,
+                              //         fontSize: 14,
+                              //         fontFamily: 'Inter'),
+                              //     filled: true,
+                              //     fillColor: Colors.white,
+                              //     border: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     enabledBorder: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     contentPadding: const EdgeInsets.symmetric(
+                              //         horizontal: 16, vertical: 14),
+                              //   ),
+                              //   items: const [
+                              //     DropdownMenuItem(
+                              //         value: 'Australia',
+                              //         child: Text('Australia',
+                              //             style:
+                              //                 TextStyle(fontFamily: 'Inter'))),
+                              //     DropdownMenuItem(
+                              //         value: 'Canada',
+                              //         child: Text('Canada',
+                              //             style:
+                              //                 TextStyle(fontFamily: 'Inter'))),
+                              //     DropdownMenuItem(
+                              //         value: 'United Kingdom',
+                              //         child: Text('United Kingdom',
+                              //             style:
+                              //                 TextStyle(fontFamily: 'Inter'))),
+                              //     DropdownMenuItem(
+                              //         value: 'United States',
+                              //         child: Text('United States',
+                              //             style:
+                              //                 TextStyle(fontFamily: 'Inter'))),
+                              //     DropdownMenuItem(
+                              //         value: 'Other',
+                              //         child: Text('Other',
+                              //             style:
+                              //                 TextStyle(fontFamily: 'Inter'))),
+                              //   ],
+                              //   onChanged: (value) =>
+                              //       setState(() => _selectedCountry = value),
+                              // ),
+                              // const SizedBox(height: 16),
+                              // const Text('State',
+                              //     style: TextStyle(
+                              //         color: Colors.black,
+                              //         fontSize: 14,
+                              //         fontWeight: FontWeight.bold,
+                              //         fontFamily: 'Inter')),
+                              // const SizedBox(height: 8),
+                              // TextField(
+                              //   controller: _stateController,
+                              //   style: const TextStyle(
+                              //       fontFamily: 'Inter', fontSize: 14),
+                              //   decoration: InputDecoration(
+                              //     hintText: 'State',
+                              //     prefixIcon:
+                              //         const Icon(Icons.map_outlined, size: 20),
+                              //     hintStyle: const TextStyle(
+                              //         color: Colors.grey,
+                              //         fontSize: 14,
+                              //         fontFamily: 'Inter'),
+                              //     filled: true,
+                              //     fillColor: Colors.white,
+                              //     border: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     enabledBorder: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     contentPadding: const EdgeInsets.symmetric(
+                              //         horizontal: 16, vertical: 14),
+                              //   ),
+                              // ),
+                              // const SizedBox(height: 16),
+                              // const Text('City',
+                              //     style: TextStyle(
+                              //         color: Colors.black,
+                              //         fontSize: 14,
+                              //         fontWeight: FontWeight.bold,
+                              //         fontFamily: 'Inter')),
+                              // const SizedBox(height: 8),
+                              // TextField(
+                              //   controller: _cityController,
+                              //   style: const TextStyle(
+                              //       fontFamily: 'Inter', fontSize: 14),
+                              //   decoration: InputDecoration(
+                              //     hintText: 'City',
+                              //     prefixIcon: const Icon(
+                              //         Icons.location_city_outlined,
+                              //         size: 20),
+                              //     hintStyle: const TextStyle(
+                              //         color: Colors.grey,
+                              //         fontSize: 14,
+                              //         fontFamily: 'Inter'),
+                              //     filled: true,
+                              //     fillColor: Colors.white,
+                              //     border: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     enabledBorder: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     contentPadding: const EdgeInsets.symmetric(
+                              //         horizontal: 16, vertical: 14),
+                              //   ),
+                              // ),
+                              // const SizedBox(height: 16),
+                              // const Text('Zip',
+                              //     style: TextStyle(
+                              //         color: Colors.black,
+                              //         fontSize: 14,
+                              //         fontWeight: FontWeight.bold,
+                              //         fontFamily: 'Inter')),
+                              // const SizedBox(height: 8),
+                              // TextField(
+                              //   controller: _zipController,
+                              //   style: const TextStyle(
+                              //       fontFamily: 'Inter', fontSize: 14),
+                              //   decoration: InputDecoration(
+                              //     hintText: 'Zip Code',
+                              //     prefixIcon:
+                              //         const Icon(Icons.pin_outlined, size: 20),
+                              //     hintStyle: const TextStyle(
+                              //         color: Colors.grey,
+                              //         fontSize: 14,
+                              //         fontFamily: 'Inter'),
+                              //     filled: true,
+                              //     fillColor: Colors.white,
+                              //     border: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     enabledBorder: OutlineInputBorder(
+                              //         borderRadius: BorderRadius.circular(8),
+                              //         borderSide:
+                              //             BorderSide(color: Colors.grey[300]!)),
+                              //     contentPadding: const EdgeInsets.symmetric(
+                              //         horizontal: 16, vertical: 14),
+                              //   ),
+                              // ),
                             ],
-                            const SizedBox(height: 24),
+                            // const SizedBox(height: 16),
+                            // const Text('Service Interested in',
+                            //     style: TextStyle(
+                            //         color: Colors.black,
+                            //         fontSize: 14,
+                            //         fontWeight: FontWeight.bold,
+                            //         fontFamily: 'Inter')),
+                            // const SizedBox(height: 8),
+                            // Autocomplete<String>(
+                            //     optionsBuilder: (textEditingValue) {
+                            //       if (textEditingValue.text.isEmpty) {
+                            //         return _serviceManager.services;
+                            //       }
+                            //       return _serviceManager.services.where(
+                            //           (service) => service.toLowerCase().contains(
+                            //               textEditingValue.text.toLowerCase()));
+                            //     },
+                            //     onSelected: (value) =>
+                            //         setState(() => _selectedService = value),
+                            //     fieldViewBuilder: (context, controller, focusNode,
+                            //         onEditingComplete) {
+                            //       _serviceController.text = controller.text;
+                            //       return TextField(
+                            //         controller: controller,
+                            //         focusNode: focusNode,
+                            //         readOnly: true,
+                            //         onTap: () {
+                            //           if (focusNode.hasFocus) {
+                            //             focusNode.unfocus();
+                            //           } else {
+                            //             focusNode.requestFocus();
+                            //           }
+                            //         },
+                            //         style: const TextStyle(
+                            //             fontFamily: 'Inter', fontSize: 14),
+                            //         decoration: InputDecoration(
+                            //           hintText: 'Service Interested in',
+                            //           prefixIcon: Icon(Icons.business_center_outlined, size: 20, color: Colors.grey[600]),
+                            //           hintStyle: const TextStyle(
+                            //               color: Colors.grey,
+                            //               fontSize: 14,
+                            //               fontFamily: 'Inter'),
+                            //           suffixIcon:
+                            //               _selectedService != null
+                            //                   ? IconButton(
+                            //                       icon: const Icon(Icons.close, size: 18),
+                            //                       onPressed: () => setState(() {
+                            //                         _selectedService = null;
+                            //                         _serviceController.clear();
+                            //                       }),
+                            //                     )
+                            //                   : const Icon(Icons.arrow_drop_down),
+                            //           filled: true,
+                            //           fillColor: Colors.white,
+                            //           border: OutlineInputBorder(
+                            //               borderRadius: BorderRadius.circular(8),
+                            //               borderSide: BorderSide(
+                            //                   color: Colors.grey[300]!)),
+                            //           enabledBorder: OutlineInputBorder(
+                            //               borderRadius: BorderRadius.circular(8),
+                            //               borderSide: BorderSide(
+                            //                   color: Colors.grey[300]!)),
+                            //           contentPadding: const EdgeInsets.symmetric(
+                            //               horizontal: 16, vertical: 14),
+                            //         ),
+                            //         onChanged: (value) =>
+                            //             setState(() => _selectedService = value),
+                            //       );
+                            //     },
+                            //     optionsViewBuilder: (context, onSelected, options) {
+                            //       return Align(
+                            //         alignment: Alignment.topLeft,
+                            //         child: Material(
+                            //           elevation: 4,
+                            //           color: Colors.white,
+                            //           child: Container(
+                            //             constraints: const BoxConstraints(maxHeight: 200),
+                            //             width: MediaQuery.of(context).size.width - 64,
+                            //             color: Colors.white,
+                            //             child: ListView.builder(
+                            //               padding: EdgeInsets.zero,
+                            //               itemCount: options.length,
+                            //               itemBuilder: (context, index) {
+                            //                 final service = options.elementAt(index);
+                            //                 return ListTile(
+                            //                   title: Text(service,
+                            //                       style: const TextStyle(
+                            //                           fontFamily: 'Inter', fontSize: 14)),
+                            //                   onTap: () => onSelected(service),
+                            //                 );
+                            //               },
+                            //             ),
+                            //           ),
+                            //         ),
+                            //       );
+                            //     },
+                            //   ),
+                            // const SizedBox(height: 16),
+                            // const Text('Tags',
+                            //     style: TextStyle(
+                            //         color: Colors.black,
+                            //         fontSize: 14,
+                            //         fontWeight: FontWeight.bold,
+                            //         fontFamily: 'Inter')),
+                            // const SizedBox(height: 8),
+                            // Autocomplete<String>(
+                            //     optionsBuilder: (textEditingValue) {
+                            //       final tagNames = _tags.map((t) => t.name).toList();
+                            //       if (textEditingValue.text.isEmpty) {
+                            //         return tagNames;
+                            //       }
+                            //       return tagNames.where((name) => name
+                            //           .toLowerCase()
+                            //           .contains(textEditingValue.text.toLowerCase()));
+                            //     },
+                            //     onSelected: (value) {
+                            //       final tag = _tags.firstWhere((t) => t.name == value);
+                            //       setState(() {
+                            //         _selectedTag = value;
+                            //         _tagsController.text = tag.id.toString();
+                            //       });
+                            //     },
+                            //     fieldViewBuilder: (context, controller, focusNode,
+                            //         onEditingComplete) {
+                            //       return TextField(
+                            //         controller: controller,
+                            //         focusNode: focusNode,
+                            //         readOnly: true,
+                            //         onTap: () {
+                            //           if (focusNode.hasFocus) {
+                            //             focusNode.unfocus();
+                            //           } else {
+                            //             focusNode.requestFocus();
+                            //           }
+                            //         },
+                            //         style: const TextStyle(
+                            //             fontFamily: 'Inter', fontSize: 14),
+                            //         decoration: InputDecoration(
+                            //           hintText: 'Tags',
+                            //           prefixIcon: Icon(Icons.label_outline, size: 20, color: Colors.grey[600]),
+                            //           hintStyle: const TextStyle(
+                            //               color: Colors.grey,
+                            //               fontSize: 14,
+                            //               fontFamily: 'Inter'),
+                            //           suffixIcon:
+                            //               _selectedTag != null
+                            //                   ? IconButton(
+                            //                       icon: const Icon(Icons.close, size: 18),
+                            //                       onPressed: () => setState(() {
+                            //                         _selectedTag = null;
+                            //                         _tagsController.clear();
+                            //                       }),
+                            //                     )
+                            //                   : const Icon(Icons.arrow_drop_down),
+                            //           filled: true,
+                            //           fillColor: Colors.white,
+                            //           border: OutlineInputBorder(
+                            //               borderRadius: BorderRadius.circular(8),
+                            //               borderSide: BorderSide(
+                            //                   color: Colors.grey[300]!)),
+                            //           enabledBorder: OutlineInputBorder(
+                            //               borderRadius: BorderRadius.circular(8),
+                            //               borderSide: BorderSide(
+                            //                   color: Colors.grey[300]!)),
+                            //           contentPadding: const EdgeInsets.symmetric(
+                            //               horizontal: 16, vertical: 14),
+                            //         ),
+                            //       );
+                            //     },
+                            //     optionsViewBuilder: (context, onSelected, options) {
+                            //       return Align(
+                            //         alignment: Alignment.topLeft,
+                            //         child: Material(
+                            //           elevation: 4,
+                            //           color: Colors.white,
+                            //           child: Container(
+                            //             constraints: const BoxConstraints(maxHeight: 200),
+                            //             width: MediaQuery.of(context).size.width - 64,
+                            //             color: Colors.white,
+                            //             child: ListView.builder(
+                            //               padding: EdgeInsets.zero,
+                            //               itemCount: options.length,
+                            //               itemBuilder: (context, index) {
+                            //                 final tagName = options.elementAt(index);
+                            //                 return ListTile(
+                            //                   title: Text(tagName,
+                            //                       style: const TextStyle(
+                            //                           fontFamily: 'Inter', fontSize: 14)),
+                            //                   onTap: () => onSelected(tagName),
+                            //                 );
+                            //               },
+                            //             ),
+                            //           ),
+                            //         ),
+                            //       );
+                            //     },
+                            //   ),
+                            // const SizedBox(height: 16),
+                            // const Text('Notes',
+                            //     style: TextStyle(
+                            //         color: Colors.black,
+                            //         fontSize: 14,
+                            //         fontWeight: FontWeight.bold,
+                            //         fontFamily: 'Inter')),
+                            // const SizedBox(height: 8),
+                            // TextField(
+                            //   controller: _notesController,
+                            //   maxLines: 4,
+                            //   style: const TextStyle(
+                            //       fontFamily: 'Inter', fontSize: 14),
+                            //   decoration: InputDecoration(
+                            //     hintText: 'Notes',
+                            //     prefixIcon: Padding(
+                            //       padding: const EdgeInsets.only(bottom: 60),
+                            //       child: Icon(Icons.note_outlined, size: 20, color: Colors.grey[600]),
+                            //     ),
+                            //     hintStyle: const TextStyle(
+                            //         color: Colors.grey,
+                            //         fontSize: 14,
+                            //         fontFamily: 'Inter'),
+                            //     filled: true,
+                            //     fillColor: Colors.white,
+                            //     border: OutlineInputBorder(
+                            //         borderRadius: BorderRadius.circular(8),
+                            //         borderSide:
+                            //             BorderSide(color: Colors.grey[300]!)),
+                            //     enabledBorder: OutlineInputBorder(
+                            //         borderRadius: BorderRadius.circular(8),
+                            //         borderSide:
+                            //             BorderSide(color: Colors.grey[300]!)),
+                            //     contentPadding: const EdgeInsets.all(16),
+                            //   ),
+                            // ),
+                            // const SizedBox(height: 16),
+                            // const Text('Follow-up Date',
+                            //     style: TextStyle(
+                            //         color: Colors.black,
+                            //         fontSize: 14,
+                            //         fontWeight: FontWeight.bold,
+                            //         fontFamily: 'Inter')),
+                            // const SizedBox(height: 8),
+                            // InkWell(
+                            //   onTap: () async {
+                            //     final date = await showDatePicker(
+                            //         context: context,
+                            //         initialDate: DateTime.now(),
+                            //         firstDate: DateTime.now(),
+                            //         lastDate: DateTime(2100));
+                            //     if (date != null) {
+                            //       setState(() => _followUpDate = date);
+                            //     }
+                            //   },
+                            //   child: Container(
+                            //     padding: const EdgeInsets.symmetric(
+                            //         horizontal: 16, vertical: 14),
+                            //     decoration: BoxDecoration(
+                            //         color: Colors.white,
+                            //         border:
+                            //             Border.all(color: Colors.grey[300]!),
+                            //         borderRadius: BorderRadius.circular(8)),
+                            //     child: Row(
+                            //       children: [
+                            //         Icon(Icons.calendar_today,
+                            //             size: 18, color: Colors.grey[600]),
+                            //         const SizedBox(width: 12),
+                            //         Text(
+                            //             _followUpDate != null
+                            //                 ? '${_followUpDate!.day}/${_followUpDate!.month}/${_followUpDate!.year}'
+                            //                 : '',
+                            //             style: const TextStyle(
+                            //                 fontSize: 14, fontFamily: 'Inter')),
+                            //       ],
+                            //     ),
+                            //   ),
+                            // ),
+                            // const SizedBox(height: 16),
+                            // const Text('Follow-up Time',
+                            //     style: TextStyle(
+                            //         color: Colors.black,
+                            //         fontSize: 14,
+                            //         fontWeight: FontWeight.bold,
+                            //         fontFamily: 'Inter')),
+                            // const SizedBox(height: 8),
+                            // InkWell(
+                            //   onTap: () async {
+                            //     final time = await showTimePicker(
+                            //         context: context,
+                            //         initialTime: TimeOfDay.now());
+                            //     if (time != null) {
+                            //       setState(() => _followUpTime = time);
+                            //     }
+                            //   },
+                            //   child: Container(
+                            //     padding: const EdgeInsets.symmetric(
+                            //         horizontal: 16, vertical: 14),
+                            //     decoration: BoxDecoration(
+                            //         color: Colors.white,
+                            //         border:
+                            //             Border.all(color: Colors.grey[300]!),
+                            //         borderRadius: BorderRadius.circular(8)),
+                            //     child: Row(
+                            //       children: [
+                            //         Icon(Icons.access_time,
+                            //             size: 18, color: Colors.grey[600]),
+                            //         const SizedBox(width: 12),
+                            //         Text(
+                            //             _followUpTime != null
+                            //                 ? _followUpTime!.format(context)
+                            //                 : '--:--',
+                            //             style: const TextStyle(
+                            //                 fontSize: 14, fontFamily: 'Inter')),
+
+                            //       ],
+                            //     ),
+                            //   ),
+                            // ),
+                            if (!_showContactForm) ...[
+                            const SizedBox(height: 16),
                             const Text('Service Interested in',
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 16),
-                            if (_selectedService != null) ...
-                              [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    border: Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        _selectedService!,
-                                        style: const TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 14,
-                                            color: Colors.black),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.close, size: 18),
-                                        onPressed: () => setState(() {
-                                          _selectedService = null;
-                                          _serviceController.clear();
-                                        }),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ]
-                            else
-                              Autocomplete<String>(
+                            const SizedBox(height: 8),
+                            Autocomplete<String>(
                                 optionsBuilder: (textEditingValue) {
                                   if (textEditingValue.text.isEmpty) {
                                     return _serviceManager.services;
@@ -679,16 +1019,33 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                   return TextField(
                                     controller: controller,
                                     focusNode: focusNode,
+                                    readOnly: true,
+                                    onTap: () {
+                                      if (focusNode.hasFocus) {
+                                        focusNode.unfocus();
+                                      } else {
+                                        focusNode.requestFocus();
+                                      }
+                                    },
                                     style: const TextStyle(
                                         fontFamily: 'Inter', fontSize: 14),
                                     decoration: InputDecoration(
-                                      hintText: 'Type or select service',
+                                      hintText: 'Service Interested in',
+                                      prefixIcon: const Icon(Icons.business_center_outlined, size: 20, color: Colors.grey),
                                       hintStyle: const TextStyle(
                                           color: Colors.grey,
                                           fontSize: 14,
                                           fontFamily: 'Inter'),
                                       suffixIcon:
-                                          const Icon(Icons.arrow_drop_down),
+                                          _selectedService != null
+                                              ? IconButton(
+                                                  icon: const Icon(Icons.close, size: 18),
+                                                  onPressed: () => setState(() {
+                                                    _selectedService = null;
+                                                    _serviceController.clear();
+                                                  }),
+                                                )
+                                              : const Icon(Icons.arrow_drop_down),
                                       filled: true,
                                       fillColor: Colors.white,
                                       border: OutlineInputBorder(
@@ -706,51 +1063,43 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                         setState(() => _selectedService = value),
                                   );
                                 },
+                                optionsViewBuilder: (context, onSelected, options) {
+                                  return Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Material(
+                                      elevation: 4,
+                                      color: Colors.white,
+                                      child: Container(
+                                        constraints: const BoxConstraints(maxHeight: 200),
+                                        width: MediaQuery.of(context).size.width - 64,
+                                        color: Colors.white,
+                                        child: ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          itemCount: options.length,
+                                          itemBuilder: (context, index) {
+                                            final service = options.elementAt(index);
+                                            return ListTile(
+                                              title: Text(service,
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Inter', fontSize: 14)),
+                                              onTap: () => onSelected(service),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 16),
                             const Text('Tags',
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 16),
-                            if (_selectedTag != null) ...
-                              [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 14),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    border: Border.all(color: Colors.grey[300]!),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        _selectedTag!,
-                                        style: const TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 14,
-                                            color: Colors.black),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.close, size: 18),
-                                        onPressed: () => setState(() {
-                                          _selectedTag = null;
-                                          _tagsController.clear();
-                                        }),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ]
-                            else
-                              Autocomplete<String>(
+                            const SizedBox(height: 8),
+                            Autocomplete<String>(
                                 optionsBuilder: (textEditingValue) {
                                   final tagNames = _tags.map((t) => t.name).toList();
                                   if (textEditingValue.text.isEmpty) {
@@ -772,16 +1121,33 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                   return TextField(
                                     controller: controller,
                                     focusNode: focusNode,
+                                    readOnly: true,
+                                    onTap: () {
+                                      if (focusNode.hasFocus) {
+                                        focusNode.unfocus();
+                                      } else {
+                                        focusNode.requestFocus();
+                                      }
+                                    },
                                     style: const TextStyle(
                                         fontFamily: 'Inter', fontSize: 14),
                                     decoration: InputDecoration(
-                                      hintText: 'Select tag',
+                                      hintText: 'Tags',
+                                      prefixIcon: const Icon(Icons.label_outline, size: 20, color: Colors.grey),
                                       hintStyle: const TextStyle(
                                           color: Colors.grey,
                                           fontSize: 14,
                                           fontFamily: 'Inter'),
                                       suffixIcon:
-                                          const Icon(Icons.arrow_drop_down),
+                                          _selectedTag != null
+                                              ? IconButton(
+                                                  icon: const Icon(Icons.close, size: 18),
+                                                  onPressed: () => setState(() {
+                                                    _selectedTag = null;
+                                                    _tagsController.clear();
+                                                  }),
+                                                )
+                                              : const Icon(Icons.arrow_drop_down),
                                       filled: true,
                                       fillColor: Colors.white,
                                       border: OutlineInputBorder(
@@ -797,22 +1163,53 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                     ),
                                   );
                                 },
+                                optionsViewBuilder: (context, onSelected, options) {
+                                  return Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Material(
+                                      elevation: 4,
+                                      color: Colors.white,
+                                      child: Container(
+                                        constraints: const BoxConstraints(maxHeight: 200),
+                                        width: MediaQuery.of(context).size.width - 64,
+                                        color: Colors.white,
+                                        child: ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          itemCount: options.length,
+                                          itemBuilder: (context, index) {
+                                            final tagName = options.elementAt(index);
+                                            return ListTile(
+                                              title: Text(tagName,
+                                                  style: const TextStyle(
+                                                      fontFamily: 'Inter', fontSize: 14)),
+                                              onTap: () => onSelected(tagName),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 16),
                             const Text('Notes',
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
                             TextField(
                               controller: _notesController,
                               maxLines: 4,
                               style: const TextStyle(
                                   fontFamily: 'Inter', fontSize: 14),
                               decoration: InputDecoration(
-                                hintText: 'Description or Notes',
+                                hintText: 'Notes',
+                                prefixIcon: const Padding(
+                                  padding: EdgeInsets.only(bottom: 60),
+                                  child: Icon(Icons.note_outlined, size: 20, color: Colors.grey),
+                                ),
                                 hintStyle: const TextStyle(
                                     color: Colors.grey,
                                     fontSize: 14,
@@ -830,14 +1227,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 contentPadding: const EdgeInsets.all(16),
                               ),
                             ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 16),
                             const Text('Follow-up Date',
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
                             InkWell(
                               onTap: () async {
                                 final date = await showDatePicker(
@@ -872,14 +1269,14 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 16),
                             const Text('Follow-up Time',
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Inter')),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
                             InkWell(
                               onTap: () async {
                                 final time = await showTimePicker(
@@ -913,6 +1310,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                 ),
                               ),
                             ),
+                            ],
                             const SizedBox(height: 32),
                             SizedBox(
                               width: double.infinity,
@@ -1001,11 +1399,10 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
 
     if (_showContactForm &&
         (_nameController.text.trim().isEmpty ||
-            _contactNumber1Controller.text.trim().isEmpty ||
-            _addressController.text.trim().isEmpty)) {
+            _contactNumber1Controller.text.trim().isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Name, contact number and address are required')),
+            content: Text('Name and contact number are required')),
       );
       return;
     }
@@ -1033,23 +1430,23 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
               ? null
               : _emailController.text.trim(),
           phone: _contactNumber1Controller.text.trim(),
-          phone2: _contactNumber2Controller.text.trim().isEmpty
-              ? null
-              : _contactNumber2Controller.text.trim(),
-          address: _addressController.text.trim(),
-          country: _selectedCountry,
-          state: _stateController.text.trim().isEmpty
-              ? null
-              : _stateController.text.trim(),
-          city: _cityController.text.trim().isEmpty
-              ? null
-              : _cityController.text.trim(),
-          zip: _zipController.text.trim().isEmpty
-              ? null
-              : _zipController.text.trim(),
-          remark: _notesController.text.trim().isEmpty
-              ? null
-              : _notesController.text.trim(),
+          // phone2: _contactNumber2Controller.text.trim().isEmpty
+          //     ? null
+          //     : _contactNumber2Controller.text.trim(),
+          address: '',
+          // country: _selectedCountry,
+          // state: _stateController.text.trim().isEmpty
+          //     ? null
+          //     : _stateController.text.trim(),
+          // city: _cityController.text.trim().isEmpty
+          //     ? null
+          //     : _cityController.text.trim(),
+          // zip: _zipController.text.trim().isEmpty
+          //     ? null
+          //     : _zipController.text.trim(),
+          // remark: _notesController.text.trim().isEmpty
+          //     ? null
+          //     : _notesController.text.trim(),
           createdAt: DateTime.now(),
         );
         contactId = await _contactManager.addContact(contact);
@@ -1064,10 +1461,34 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
       );
 
       if (!mounted) return;
+      
+      // Reload leads to get the newly created lead
+      await _leadManager.loadLeads();
+      
+      // Get the most recently created lead (should be the one we just created)
+      final newLead = _leadManager.allLeads.isNotEmpty 
+        ? _leadManager.allLeads.reduce((a, b) => 
+            a.createdAt.isAfter(b.createdAt) ? a : b)
+        : null;
+      
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Lead created successfully!')),
       );
-      Navigator.pop(context, true);
+      
+      if (newLead != null) {
+        // Navigate to detail screen instead of just popping
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailLeadScreen(lead: newLead),
+          ),
+        );
+      } else {
+        // Fallback: just pop if we can't find the lead
+        Navigator.pop(context, true);
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

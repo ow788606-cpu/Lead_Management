@@ -1,22 +1,114 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../models/contact.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../managers/lead_manager.dart';
+import '../../models/contact.dart';
 import '../../widgets/app_drawer.dart';
+import '../leads/detail_lead_screen.dart';
 import 'edit_contact_screen.dart';
 
-class ViewContactScreen extends StatelessWidget {
+class ViewContactScreen extends StatefulWidget {
   final Contact contact;
 
   const ViewContactScreen({super.key, required this.contact});
 
   @override
+  State<ViewContactScreen> createState() => _ViewContactScreenState();
+}
+
+class _ViewContactScreenState extends State<ViewContactScreen> {
+  String? _profileImagePath;
+
+  Future<void> _pickImage() async {
+    try {
+      if (!mounted) return;
+      
+      final source = await showDialog<ImageSource>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext dialogContext) => AlertDialog(
+          title: const Text('Choose Image Source'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedCamera01,
+                  color: Color(0xFF131416),
+                  size: 24.0,
+                ),
+                title: const Text('Camera'),
+                onTap: () => Navigator.of(dialogContext).pop(ImageSource.camera),
+              ),
+              ListTile(
+                leading: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedImage02,
+                  color: Color(0xFF131416),
+                  size: 24.0,
+                ),
+                title: const Text('Gallery'),
+                onTap: () => Navigator.of(dialogContext).pop(ImageSource.gallery),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (source == null || !mounted) return;
+
+      if (source == ImageSource.camera) {
+        final status = await Permission.camera.request();
+        if (!status.isGranted) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Camera permission is required')),
+            );
+          }
+          return;
+        }
+      }
+
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: source,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 75,
+        preferredCameraDevice: CameraDevice.rear,
+      );
+      
+      if (image != null && mounted) {
+        setState(() {
+          _profileImagePath = image.path;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile picture updated'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to pick image: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final leadManager = LeadManager();
     final activeLeads = leadManager.allLeads
-        .where((lead) => lead.contactName == contact.name && !lead.isCompleted)
+        .where((lead) => lead.contactName == widget.contact.name && !lead.isCompleted)
         .toList();
     final closedLeads = leadManager.allLeads
-        .where((lead) => lead.contactName == contact.name && lead.isCompleted)
+        .where((lead) => lead.contactName == widget.contact.name && lead.isCompleted)
         .toList();
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -27,14 +119,22 @@ class ViewContactScreen extends StatelessWidget {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedMenu01,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         title: const Text('Client Profile'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedNotification03,
+              color: Colors.black,
+              size: 24.0,
+            ),
             onPressed: () {},
           ),
         ],
@@ -68,25 +168,49 @@ class ViewContactScreen extends StatelessWidget {
                             CircleAvatar(
                               radius: 40,
                               backgroundColor: const Color(0xFF131416),
-                              child: Text(
-                                contact.name[0].toUpperCase(),
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold),
-                              ),
+                              child: _profileImagePath != null
+                                  ? ClipOval(
+                                      child: Image.file(
+                                        File(_profileImagePath!),
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Text(
+                                            widget.contact.name[0].toUpperCase(),
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 28,
+                                                fontWeight: FontWeight.bold),
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : Text(
+                                      widget.contact.name[0].toUpperCase(),
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                             ),
                             Positioned(
                               bottom: 0,
                               right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF131416),
-                                  shape: BoxShape.circle,
+                              child: GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const HugeIcon(
+                                    icon: HugeIcons.strokeRoundedCamera01,
+                                    color: Color(0xFF131416),
+                                    size: 16.0,
+                                  ),
                                 ),
-                                child: const Icon(Icons.camera_alt,
-                                    color: Colors.white, size: 16),
                               ),
                             ),
                           ],
@@ -98,7 +222,7 @@ class ViewContactScreen extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  Text(contact.name,
+                                  Text(widget.contact.name,
                                       style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -109,7 +233,7 @@ class ViewContactScreen extends StatelessWidget {
                                 ],
                               ),
                               Text(
-                                  '${contact.city ?? ''}${contact.city != null ? ', ' : ''}',
+                                  '${widget.contact.city ?? ''}${widget.contact.city != null ? ', ' : ''}',
                                   style: const TextStyle(
                                       color: Colors.grey,
                                       fontSize: 13,
@@ -117,39 +241,28 @@ class ViewContactScreen extends StatelessWidget {
                             ],
                           ),
                         ),
+                        IconButton(
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    EditContactScreen(contact: widget.contact),
+                              ),
+                            );
+                            if (result == true && context.mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                          icon: const HugeIcon(
+                            icon: HugeIcons.strokeRoundedPencilEdit01,
+                            color: Color(0xFF131416),
+                            size: 24.0,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  EditContactScreen(contact: contact),
-                            ),
-                          );
-                          if (result == true && context.mounted) {
-                            Navigator.pop(context);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF131416),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: const Text('Edit Profile',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Inter')),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
                     const Text('Personal Details',
                         style: TextStyle(
                             fontSize: 16,
@@ -157,20 +270,26 @@ class ViewContactScreen extends StatelessWidget {
                             fontFamily: 'Inter')),
                     const SizedBox(height: 16),
                     _buildDetailRow(
-                        Icons.location_on_outlined, contact.address),
+                        HugeIcons.strokeRoundedLocation01, widget.contact.address),
                     const SizedBox(height: 12),
-                    if (contact.email != null)
-                      _buildDetailRow(Icons.email_outlined, contact.email!),
-                    if (contact.email != null) const SizedBox(height: 12),
-                    _buildDetailRow(Icons.phone_outlined,
-                        '${contact.phone}${contact.phone2 != null ? ' , ${contact.phone2}' : ''}'),
+                    if (widget.contact.email != null)
+                      _buildDetailRow(HugeIcons.strokeRoundedMail01, widget.contact.email!),
+                    if (widget.contact.email != null) const SizedBox(height: 12),
+                    _buildDetailRow(HugeIcons.strokeRoundedCall,
+                        '${widget.contact.phone}${widget.contact.phone2 != null ? ' , ${widget.contact.phone2}' : ''}'),
                     const SizedBox(height: 12),
-                    _buildDetailRow(Icons.access_time_outlined,
-                        'Joined on ${_formatDate(contact.createdAt)}'),
+                    _buildDetailRow(HugeIcons.strokeRoundedClock01,
+                        'Joined on ${_formatDate(widget.contact.createdAt)}'),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              const Text('Active Leads',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter')),
+              const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -187,38 +306,41 @@ class ViewContactScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Active Leads (${activeLeads.length})',
+                    Text('(${activeLeads.length})',
                         style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.grey,
                             fontFamily: 'Inter')),
                     const SizedBox(height: 16),
                     if (activeLeads.isEmpty)
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Center(
-                          child: Text('No active leads for this contact.',
-                              style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 13,
-                                  fontFamily: 'Inter')),
-                        ),
+                      const Center(
+                        child: Text('No active leads for this contact.',
+                            style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                                fontFamily: 'Inter')),
                       )
                     else
-                      ...activeLeads.map((lead) => Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[50],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                      ...activeLeads.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final lead = entry.value;
+                        return InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailLeadScreen(
+                                    lead: lead,
+                                    startInEditMode: false,
+                                    initialTabIndex: 0,
+                                  ),
+                                ),
+                              );
+                            },
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                if (index > 0) const Divider(height: 24, thickness: 0.5),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -241,7 +363,7 @@ class ViewContactScreen extends StatelessWidget {
                                       child: const Text('New Lead',
                                           style: TextStyle(
                                               fontSize: 11,
-                                              color: Color(0xFF131416),
+                                              color: Colors.white,
                                               fontFamily: 'Inter')),
                                     ),
                                   ],
@@ -255,7 +377,9 @@ class ViewContactScreen extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Text(lead.service ?? 'N/A',
                                     style: const TextStyle(
-                                        fontSize: 13, fontFamily: 'Inter')),
+                                        fontSize: 13,
+                                        color: Colors.black,
+                                        fontFamily: 'Inter')),
                                 const SizedBox(height: 12),
                                 const Text('Remark',
                                     style: TextStyle(
@@ -265,7 +389,9 @@ class ViewContactScreen extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Text(lead.notes ?? 'N/A',
                                     style: const TextStyle(
-                                        fontSize: 13, fontFamily: 'Inter')),
+                                        fontSize: 13,
+                                        color: Colors.black,
+                                        fontFamily: 'Inter')),
                                 const SizedBox(height: 12),
                                 const Text('Last Updated',
                                     style: TextStyle(
@@ -276,15 +402,22 @@ class ViewContactScreen extends StatelessWidget {
                                 Text(_formatDateTime(lead.createdAt),
                                     style: const TextStyle(
                                         fontSize: 13,
-                                        color: Color(0xFF131416),
+                                        color: Colors.black,
                                         fontFamily: 'Inter')),
                               ],
                             ),
-                          )),
+                          );
+                      }),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              const Text('Closed Leads',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Inter')),
+              const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -301,26 +434,108 @@ class ViewContactScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Closed Leads (${closedLeads.length})',
+                    Text('(${closedLeads.length})',
                         style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.grey,
                             fontFamily: 'Inter')),
                     const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Center(
+                    if (closedLeads.isEmpty)
+                      const Center(
                         child: Text('No closed leads for this contact.',
                             style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 13,
                                 fontFamily: 'Inter')),
-                      ),
-                    ),
+                      )
+                    else
+                      ...closedLeads.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final lead = entry.value;
+                        return InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailLeadScreen(
+                                    lead: lead,
+                                    startInEditMode: false,
+                                    initialTabIndex: 0,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (index > 0) const Divider(height: 24, thickness: 0.5),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                          'Lead Created at ${_formatDate(lead.createdAt)}',
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'Inter')),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Text('Completed',
+                                          style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.white,
+                                              fontFamily: 'Inter')),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                const Text('Services',
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 12,
+                                        fontFamily: 'Inter')),
+                                const SizedBox(height: 4),
+                                Text(lead.service ?? 'N/A',
+                                    style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.black,
+                                        fontFamily: 'Inter')),
+                                const SizedBox(height: 12),
+                                const Text('Remark',
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 12,
+                                        fontFamily: 'Inter')),
+                                const SizedBox(height: 4),
+                                Text(lead.notes ?? 'N/A',
+                                    style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.black,
+                                        fontFamily: 'Inter')),
+                                const SizedBox(height: 12),
+                                const Text('Last Updated',
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 12,
+                                        fontFamily: 'Inter')),
+                                const SizedBox(height: 4),
+                                Text(_formatDateTime(lead.createdAt),
+                                    style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.black,
+                                        fontFamily: 'Inter')),
+                              ],
+                            ),
+                          );
+                      }),
                   ],
                 ),
               ),
@@ -334,7 +549,7 @@ class ViewContactScreen extends StatelessWidget {
   Widget _buildDetailRow(IconData icon, String text) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: Colors.grey),
+        HugeIcon(icon: icon, size: 20, color: Colors.grey),
         const SizedBox(width: 12),
         Expanded(
           child: Text(text,

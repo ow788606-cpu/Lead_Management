@@ -35,7 +35,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
     setState(() {});
   }
 
-  Future<void> _loadServices() async {
+  Future<void> _loadServices() async { 
     setState(() {
       _isLoading = true;
       _loadError = null;
@@ -139,13 +139,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                       color: const Color(0xFF131416),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: Center(
-                                      child: Text('${index + 1}',
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Inter',
-                                              color: const Color(0xFF131416))),
+                                    child: const Center(
+                                      child: HugeIcon(
+                                        icon: HugeIcons.strokeRoundedBriefcase01,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 16),
@@ -154,66 +153,72 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                         style: const TextStyle(
                                             fontSize: 14, fontFamily: 'Inter')),
                                   ),
-                                  IconButton(
-                                    icon: const HugeIcon(
-                                      icon: HugeIcons.strokeRoundedPencilEdit02,
-                                      color: Color(0xFF131416),
-                                      size: 18,
-                                    ),
-                                    onPressed: () async {
-                                      final controller = TextEditingController(
-                                          text: filteredServices[index]);
-                                      final result = await showDialog<String>(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: const Text('Edit Service'),
-                                          content: TextField(
-                                            controller: controller,
-                                            decoration: const InputDecoration(
-                                              hintText: 'Service name',
-                                              border: OutlineInputBorder(),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          final controller = TextEditingController(
+                                              text: filteredServices[index]);
+                                          final result = await showDialog<String>(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text('Edit Service'),
+                                              content: TextField(
+                                                controller: controller,
+                                                decoration: const InputDecoration(
+                                                  hintText: 'Service name',
+                                                  border: OutlineInputBorder(),
+                                                ),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(
+                                                      context, controller.text),
+                                                  child: const Text('Save'),
+                                                ),
+                                              ],
                                             ),
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(context),
-                                              child: const Text('Cancel'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(
-                                                  context, controller.text),
-                                              child: const Text('Save'),
-                                            ),
-                                          ],
+                                          );
+                                          if (result != null && result.trim().isNotEmpty) {
+                                            final originalIndex = _serviceManager
+                                                .services
+                                                .indexOf(filteredServices[index]);
+                                            if (originalIndex != -1) {
+                                              await _serviceManager.updateService(
+                                                  originalIndex, result.trim());
+                                            }
+                                          }
+                                          controller.dispose();
+                                        },
+                                        child: const HugeIcon(
+                                          icon: HugeIcons.strokeRoundedPencilEdit02,
+                                          color: Color(0xFF131416),
+                                          size: 18,
                                         ),
-                                      );
-                                      if (result != null && result.trim().isNotEmpty) {
-                                        final originalIndex = _serviceManager
-                                            .services
-                                            .indexOf(filteredServices[index]);
-                                        if (originalIndex != -1) {
-                                          await _serviceManager.updateService(
-                                              originalIndex, result.trim());
-                                        }
-                                      }
-                                      controller.dispose();
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const HugeIcon(
-                                      icon: HugeIcons.strokeRoundedDelete02,
-                                      color: Colors.red,
-                                      size: 18,
-                                    ),
-                                    onPressed: () async {
-                                      final originalIndex = _serviceManager
-                                          .services
-                                          .indexOf(filteredServices[index]);
-                                      if (originalIndex != -1) {
-                                        await _serviceManager
-                                            .removeService(originalIndex);
-                                      }
-                                    },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          final originalIndex = _serviceManager
+                                              .services
+                                              .indexOf(filteredServices[index]);
+                                          if (originalIndex != -1) {
+                                            await _serviceManager
+                                                .removeService(originalIndex);
+                                          }
+                                        },
+                                        child: const HugeIcon(
+                                          icon: HugeIcons.strokeRoundedDelete02,
+                                          color: Colors.red,
+                                          size: 18,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),

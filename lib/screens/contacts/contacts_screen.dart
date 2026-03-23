@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'all_contacts_screen.dart';
 import 'new_contact_screen.dart';
-import 'bulk_upload_screen.dart';
+// import 'bulk_upload_screen.dart';
 
 class ContactsScreen extends StatelessWidget {
   const ContactsScreen({super.key});
@@ -9,7 +9,7 @@ class ContactsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         backgroundColor: const Color(0xFFF8F9FA),
         body: Column(
@@ -23,7 +23,7 @@ class ContactsScreen extends StatelessWidget {
                 tabs: [
                   Tab(text: 'All Contacts'),
                   Tab(text: 'New Contact'),
-                  Tab(text: 'Bulk Upload'),
+                  // Tab(text: 'Bulk Upload'),
                 ],
               ),
             ),
@@ -32,7 +32,7 @@ class ContactsScreen extends StatelessWidget {
                 children: [
                   AllContactsScreen(),
                   NewContactScreen(),
-                  BulkUploadScreen(),
+                  // BulkUploadScreen(),
                 ],
               ),
             ),

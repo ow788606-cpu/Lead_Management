@@ -172,7 +172,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF5F5F5),
@@ -230,7 +230,8 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   labelColor: const Color(0xFF131416),
                   unselectedLabelColor: Colors.grey,
                   indicatorColor: const Color(0xFF131416),
-                  dividerColor: Colors.transparent,
+                  dividerColor: Colors.grey.shade300,
+                  dividerHeight: 1,
                   tabs: const [
                     Tab(text: 'All Leads'),
                     Tab(text: 'Fresh Leads'),
@@ -245,7 +246,6 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
           // Gray section with rounded top corners containing the lead cards
           Expanded(
             child: Container(
-              margin: const EdgeInsets.only(top: 16),
               decoration: const BoxDecoration(
                 color: Color(0xFFF4F6FA),
                 borderRadius: BorderRadius.only(
@@ -317,44 +317,41 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                             color: Colors.black)),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
                     ),
                     child: const HugeIcon(
                       icon: HugeIcons.strokeRoundedCall,
                       color: Color(0xFF6B7280),
-                      size: 18.0,
+                      size: 16.0,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
                     ),
                     child: const HugeIcon(
                       icon: HugeIcons.strokeRoundedComment01,
                       color: Color(0xFF6B7280),
-                      size: 18.0,
+                      size: 16.0,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
                     ),
                     child: const HugeIcon(
                       icon: HugeIcons.strokeRoundedMail01,
                       color: Color(0xFF6B7280),
-                      size: 18.0,
+                      size: 16.0,
                     ),
                   ),
                 ],
@@ -363,30 +360,30 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
               if (lead.service != null)
                 Row(
                   children: [
-                    HugeIcon(
-                      icon: HugeIcons.strokeRoundedCustomerService,
-                      color: Colors.grey[600]!,
+                    const HugeIcon(
+                      icon: HugeIcons.strokeRoundedPencilEdit01,
+                      color: Color(0xFF131416),
                       size: 16.0,
                     ),
                     const SizedBox(width: 6),
                     Text('${lead.service}',
-                        style: TextStyle(
-                            fontSize: 14, color: Colors.grey[700])),
+                        style: const TextStyle(
+                            fontSize: 14, color: Color(0xFF131416))),
                   ],
                 ),
               if (lead.notes != null) ...[
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    HugeIcon(
+                    const HugeIcon(
                       icon: HugeIcons.strokeRoundedChatting01,
-                      color: Colors.grey[400]!,
+                      color: Color(0xFF131416),
                       size: 16.0,
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text('${lead.notes}',
-                          style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                          style: const TextStyle(fontSize: 13, color: Color(0xFF131416)),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis),
                     ),

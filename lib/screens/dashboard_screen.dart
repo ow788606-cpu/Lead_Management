@@ -259,7 +259,7 @@ class _StatCard extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                         color: bgColor, borderRadius: BorderRadius.circular(8)),
-                    child: Icon(icon, color: iconColor, size: 20),
+                    child: Icon(icon, color: iconColor, size: 16),
                   ),
                 ],
               ),

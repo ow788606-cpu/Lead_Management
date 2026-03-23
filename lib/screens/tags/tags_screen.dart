@@ -73,7 +73,7 @@ class _TagsScreenState extends State<TagsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -128,7 +128,7 @@ class _TagsScreenState extends State<TagsScreen> {
                       : RefreshIndicator(
                           onRefresh: _loadTags,
                           child: ListView.builder(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                             itemCount: filteredTags.length,
                             itemBuilder: (context, index) {
                               final tag = filteredTags[index];
@@ -144,16 +144,16 @@ class _TagsScreenState extends State<TagsScreen> {
                                 child: Row(
                                   children: [
                                     Container(
-                                      width: 48,
-                                      height: 48,
+                                      width: 36,
+                                      height: 36,
                                       decoration: BoxDecoration(
                                         color: tagColor.withValues(alpha: 0.2),
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Icon(
                                         Icons.label,
                                         color: tagColor,
-                                        size: 24,
+                                        size: 20,
                                       ),
                                     ),
                                     const SizedBox(width: 12),
@@ -178,32 +178,12 @@ class _TagsScreenState extends State<TagsScreen> {
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 3),
-                                      decoration: BoxDecoration(
-                                        color: tagColor.withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        tag.colorHex,
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            fontFamily: 'Inter',
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.grey[700]),
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: const HugeIcon(
-                                        icon: HugeIcons.strokeRoundedPencilEdit02,
-                                        color: Color(0xFF131416),
-                                        size: 18,
-                                      ),
-                                      padding: const EdgeInsets.all(4),
-                                      constraints: const BoxConstraints(),
-                                      onPressed: () async {
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap:
+                                          () async {
                                         if (!mounted) return;
                                         final messenger = ScaffoldMessenger.of(context);
                                         final nameController = TextEditingController(text: tag.name);
@@ -311,17 +291,23 @@ class _TagsScreenState extends State<TagsScreen> {
                                         }
                                         nameController.dispose();
                                         descController.dispose();
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const HugeIcon(
-                                        icon: HugeIcons.strokeRoundedDelete02,
-                                        color: Colors.red,
-                                        size: 18,
-                                      ),
-                                      padding: const EdgeInsets.all(4),
-                                      constraints: const BoxConstraints(),
-                                      onPressed: () => _deleteTag(tag),
+                                          },
+                                          child: const HugeIcon(
+                                            icon: HugeIcons.strokeRoundedPencilEdit02,
+                                            color: Color(0xFF131416),
+                                            size: 18,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        GestureDetector(
+                                          onTap: () => _deleteTag(tag),
+                                          child: const HugeIcon(
+                                            icon: HugeIcons.strokeRoundedDelete02,
+                                            color: Colors.red,
+                                            size: 18,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),

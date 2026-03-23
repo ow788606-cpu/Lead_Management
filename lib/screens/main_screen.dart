@@ -25,7 +25,8 @@ class MainScreen extends StatefulWidget {
   final int initialIndex;
   final int initialLeadTabIndex;
 
-  const MainScreen({super.key, this.initialIndex = 0, this.initialLeadTabIndex = 0});
+  const MainScreen(
+      {super.key, this.initialIndex = 0, this.initialLeadTabIndex = 0});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -129,7 +130,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
   }
 
-void _showNotificationStatus() {
+  void _showNotificationStatus() {
     final leadManager = LeadManager();
     final upcomingLeads = leadManager.followUpLeads
         .where((lead) => !lead.isCompleted && lead.followUpDate != null)
@@ -152,7 +153,8 @@ void _showNotificationStatus() {
           children: [
             const Text(
               '✅ Notification system is active',
-              style: TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
+              style:
+                  TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 12),
             Text(
@@ -161,7 +163,8 @@ void _showNotificationStatus() {
             ),
             const SizedBox(height: 8),
             if (upcomingLeads.isEmpty)
-              const Text('No upcoming follow-ups', style: TextStyle(color: Colors.grey))
+              const Text('No upcoming follow-ups',
+                  style: TextStyle(color: Colors.grey))
             else
               ...upcomingLeads.map((lead) {
                 final followUpDate = lead.followUpDate!;
@@ -190,7 +193,6 @@ void _showNotificationStatus() {
                   duration: Duration(seconds: 2),
                 ),
               );
-
             },
             child: const Text('Test'),
           ),
@@ -254,15 +256,23 @@ void _showNotificationStatus() {
     // Build global tasks
     final allTasks = <Map<String, dynamic>>[
       ...taskManager.pendingTasks.map((t) => {
-        'id': t.id, 'title': t.title, 'description': t.description,
-        'dueDate': t.dueDate, 'dueTime': t.dueTime,
-        'isCompleted': t.isCompleted, 'priority': t.priority,
-      }),
+            'id': t.id,
+            'title': t.title,
+            'description': t.description,
+            'dueDate': t.dueDate,
+            'dueTime': t.dueTime,
+            'isCompleted': t.isCompleted,
+            'priority': t.priority,
+          }),
       ...taskManager.completedTasks.map((t) => {
-        'id': t.id, 'title': t.title, 'description': t.description,
-        'dueDate': t.dueDate, 'dueTime': t.dueTime,
-        'isCompleted': t.isCompleted, 'priority': t.priority,
-      }),
+            'id': t.id,
+            'title': t.title,
+            'description': t.description,
+            'dueDate': t.dueDate,
+            'dueTime': t.dueTime,
+            'isCompleted': t.isCompleted,
+            'priority': t.priority,
+          }),
     ];
 
     // Load per-lead tasks and activities in parallel
@@ -277,7 +287,9 @@ void _showNotificationStatus() {
               'title': task['title'] ?? '',
               'description': task['description'] ?? '',
               'dueDate': DateTime.parse(task['due_date'] ??
-                  DateTime.now().add(const Duration(days: 1)).toIso8601String()),
+                  DateTime.now()
+                      .add(const Duration(days: 1))
+                      .toIso8601String()),
               'dueTime': task['due_time'] ?? '12:00 PM',
               'isCompleted': (task['is_completed'] ?? 0) == 1,
               'priority': task['priority'] ?? 'Medium',
@@ -308,12 +320,14 @@ void _showNotificationStatus() {
             }
           }
         } catch (e) {
-          debugPrint('❌ Error loading activities for lead ${lead.contactName}: $e');
+          debugPrint(
+              '❌ Error loading activities for lead ${lead.contactName}: $e');
         }
       }),
     );
 
-    debugPrint('📋 Tasks: ${allTasks.length}, Activities: ${allActivities.length}');
+    debugPrint(
+        '📋 Tasks: ${allTasks.length}, Activities: ${allActivities.length}');
 
     // Start monitoring only after ALL data is fully loaded
     _notificationService.startMonitoring(
@@ -355,14 +369,16 @@ void _showNotificationStatus() {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DetailLeadScreen(lead: lead, startInEditMode: false, initialTabIndex: 0),
+          builder: (context) => DetailLeadScreen(
+              lead: lead, startInEditMode: false, initialTabIndex: 0),
         ),
       );
     } catch (e) {
       debugPrint('Lead not found: $leadId');
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const AllLeadsScreen(initialTabIndex: 0)),
+        MaterialPageRoute(
+            builder: (context) => const AllLeadsScreen(initialTabIndex: 0)),
       );
     }
   }
@@ -374,7 +390,8 @@ void _showNotificationStatus() {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DetailLeadScreen(lead: lead, startInEditMode: false, initialTabIndex: 2),
+          builder: (context) => DetailLeadScreen(
+              lead: lead, startInEditMode: false, initialTabIndex: 2),
         ),
       );
     } catch (e) {
@@ -390,14 +407,16 @@ void _showNotificationStatus() {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DetailLeadScreen(lead: lead, startInEditMode: false, initialTabIndex: 0),
+          builder: (context) => DetailLeadScreen(
+              lead: lead, startInEditMode: false, initialTabIndex: 0),
         ),
       );
     } catch (e) {
       debugPrint('Lead not found for activity: $leadId');
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const AllLeadsScreen(initialTabIndex: 0)),
+        MaterialPageRoute(
+            builder: (context) => const AllLeadsScreen(initialTabIndex: 0)),
       );
     }
   }
@@ -415,22 +434,26 @@ void _showNotificationStatus() {
       final leadManager = LeadManager();
       final taskManager = TaskManager();
 
-      final allTasks = [...taskManager.pendingTasks, ...taskManager.completedTasks].map((task) => {
-        'id': task.id,
-        'title': task.title,
-        'description': task.description,
-        'dueDate': task.dueDate,
-        'dueTime': task.dueTime,
-        'isCompleted': task.isCompleted,
-        'priority': task.priority,
-      }).toList();
+      final allTasks =
+          [...taskManager.pendingTasks, ...taskManager.completedTasks]
+              .map((task) => {
+                    'id': task.id,
+                    'title': task.title,
+                    'description': task.description,
+                    'dueDate': task.dueDate,
+                    'dueTime': task.dueTime,
+                    'isCompleted': task.isCompleted,
+                    'priority': task.priority,
+                  })
+              .toList();
 
       final allActivities = <Map<String, dynamic>>[];
       for (final lead in leadManager.allLeads) {
         try {
           final activities = await LeadActivityApi.getActivities(lead.id);
           for (final activity in activities) {
-            if (activity['scheduled_at'] != null && activity['scheduled_at'].toString().isNotEmpty) {
+            if (activity['scheduled_at'] != null &&
+                activity['scheduled_at'].toString().isNotEmpty) {
               allActivities.add({
                 'id': activity['id'],
                 'title': activity['activity_type'] ?? 'Activity',
@@ -477,7 +500,7 @@ void _showNotificationStatus() {
         title: _selectedIndex == 0
             ? Image.asset(
                 'assets/images/logo-dark.png',
-                height: 32,
+                height: 20,
                 fit: BoxFit.contain,
               )
             : Text(_getAppBarTitle(),
@@ -522,28 +545,58 @@ void _showNotificationStatus() {
           elevation: 0,
           items: const [
             BottomNavigationBarItem(
-              icon: HugeIcon(icon: HugeIcons.strokeRoundedCalendar03, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedCalendar03, color: Color(0xFF131416), size: 24.0),
+              icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedCalendar03,
+                  color: Colors.grey,
+                  size: 24.0),
+              activeIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedCalendar03,
+                  color: Color(0xFF131416),
+                  size: 24.0),
               label: 'Appts',
             ),
             BottomNavigationBarItem(
-              icon: HugeIcon(icon: HugeIcons.strokeRoundedCall, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedCall, color: Color(0xFF131416), size: 24.0),
+              icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedCall,
+                  color: Colors.grey,
+                  size: 24.0),
+              activeIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedCall,
+                  color: Color(0xFF131416),
+                  size: 24.0),
               label: 'Leads',
             ),
             BottomNavigationBarItem(
-              icon: HugeIcon(icon: HugeIcons.strokeRoundedHome01, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedHome01, color: Color(0xFF131416), size: 24.0),
+              icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedHome01,
+                  color: Colors.grey,
+                  size: 24.0),
+              activeIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedHome01,
+                  color: Color(0xFF131416),
+                  size: 24.0),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: HugeIcon(icon: HugeIcons.strokeRoundedTaskEdit01, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedTaskEdit01, color: Color(0xFF131416), size: 24.0),
+              icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedTaskEdit01,
+                  color: Colors.grey,
+                  size: 24.0),
+              activeIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedTaskEdit01,
+                  color: Color(0xFF131416),
+                  size: 24.0),
               label: 'Tasks',
             ),
             BottomNavigationBarItem(
-              icon: HugeIcon(icon: HugeIcons.strokeRoundedSettings01, color: Colors.grey, size: 24.0),
-              activeIcon: HugeIcon(icon: HugeIcons.strokeRoundedSettings01, color: Color(0xFF131416), size: 24.0),
+              icon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedSettings01,
+                  color: Colors.grey,
+                  size: 24.0),
+              activeIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedSettings01,
+                  color: Color(0xFF131416),
+                  size: 24.0),
               label: 'Settings',
             ),
           ],
@@ -554,28 +607,42 @@ void _showNotificationStatus() {
 
   int _getBottomNavIndex() {
     switch (_selectedIndex) {
-      case 2: return 0;
-      case 1: return 1;
-      case 0: return 2;
-      case 4: return 3;
-      default: return 2;
+      case 2:
+        return 0;
+      case 1:
+        return 1;
+      case 0:
+        return 2;
+      case 4:
+        return 3;
+      default:
+        return 2;
     }
   }
 
   void _onBottomNavTap(int index) {
     int screenIndex;
     switch (index) {
-      case 0: screenIndex = 2; break;
-      case 1: screenIndex = 1; break;
-      case 2: screenIndex = 0; break;
-      case 3: screenIndex = 4; break;
+      case 0:
+        screenIndex = 2;
+        break;
+      case 1:
+        screenIndex = 1;
+        break;
+      case 2:
+        screenIndex = 0;
+        break;
+      case 3:
+        screenIndex = 4;
+        break;
       case 4:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ManageProfileScreen()),
         );
         return;
-      default: screenIndex = 0;
+      default:
+        screenIndex = 0;
     }
     setState(() => _selectedIndex = screenIndex);
   }
@@ -766,9 +833,7 @@ class _AddTagDialogState extends State<_AddTagDialog> {
               decoration: InputDecoration(
                 hintText: 'Enter tag name',
                 hintStyle: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    color: Colors.grey[400]),
+                    fontFamily: 'Inter', fontSize: 14, color: Colors.grey[400]),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -777,8 +842,8 @@ class _AddTagDialogState extends State<_AddTagDialog> {
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
                     borderSide: BorderSide(color: Colors.grey[300]!)),
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               ),
             ),
             const SizedBox(height: 16),
@@ -795,9 +860,7 @@ class _AddTagDialogState extends State<_AddTagDialog> {
               decoration: InputDecoration(
                 hintText: 'Enter description',
                 hintStyle: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    color: Colors.grey[400]),
+                    fontFamily: 'Inter', fontSize: 14, color: Colors.grey[400]),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -806,8 +869,8 @@ class _AddTagDialogState extends State<_AddTagDialog> {
                 enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(4),
                     borderSide: BorderSide(color: Colors.grey[300]!)),
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               ),
             ),
             const SizedBox(height: 16),
