@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../../widgets/app_drawer.dart';
 import '../../managers/auth_manager.dart';
 import '../../services/api_config.dart';
+import '../camera_screen.dart';
 
 class ManageProfileScreen extends StatefulWidget {
   const ManageProfileScreen({super.key});
@@ -37,82 +37,62 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-    try {
-      if (!mounted) return;
-      
-      final source = await showDialog<ImageSource>(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext dialogContext) => AlertDialog(
-          title: const Text('Choose Image Source'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const HugeIcon(
-                  icon: HugeIcons.strokeRoundedCamera01,
-                  color: Color(0xFF131416),
-                  size: 24.0,
-                ),
-                title: const Text('Camera'),
-                onTap: () => Navigator.of(dialogContext).pop(ImageSource.camera),
+    if (!mounted) return;
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const HugeIcon(
+                icon: HugeIcons.strokeRoundedCamera01,
+                color: Color(0xFF131416),
+                size: 24.0,
               ),
-              ListTile(
-                leading: const HugeIcon(
-                  icon: HugeIcons.strokeRoundedImage02,
-                  color: Color(0xFF131416),
-                  size: 24.0,
-                ),
-                title: const Text('Gallery'),
-                onTap: () => Navigator.of(dialogContext).pop(ImageSource.gallery),
+              title: const Text('Camera'),
+              onTap: () => Navigator.pop(context, 'camera'),
+            ),
+            ListTile(
+              leading: const HugeIcon(
+                icon: HugeIcons.strokeRoundedImage02,
+                color: Color(0xFF131416),
+                size: 24.0,
               ),
-            ],
-          ),
+              title: const Text('Gallery'),
+              onTap: () => Navigator.pop(context, 'gallery'),
+            ),
+          ],
         ),
+      ),
+    );
+    if (choice == null || !mounted) return;
+
+    String? imagePath;
+
+    if (choice == 'camera') {
+      imagePath = await Navigator.push<String>(
+        context,
+        MaterialPageRoute(builder: (_) => const CameraScreen()),
       );
-
-      if (source == null || !mounted) return;
-
-      if (source == ImageSource.camera) {
-        final status = await Permission.camera.request();
-        if (!status.isGranted) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Camera permission is required')),
-            );
-          }
-          return;
-        }
-      }
-
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: source,
+    } else {
+      final XFile? image = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
         maxWidth: 512,
         maxHeight: 512,
         imageQuality: 75,
-        preferredCameraDevice: CameraDevice.rear,
       );
-      
-      if (image != null && mounted) {
-        setState(() {
-          _profileImagePath = image.path;
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile picture updated'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick image: ${e.toString()}')),
-        );
-      }
+      imagePath = image?.path;
+    }
+
+    if (imagePath != null && mounted) {
+      setState(() => _profileImagePath = imagePath);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile picture updated'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 

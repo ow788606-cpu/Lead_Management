@@ -230,8 +230,8 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   labelColor: const Color(0xFF131416),
                   unselectedLabelColor: Colors.grey,
                   indicatorColor: const Color(0xFF131416),
-                  dividerColor: Colors.grey.shade300,
-                  dividerHeight: 1,
+                  dividerColor: Colors.transparent,
+                  dividerHeight: 0,
                   tabs: const [
                     Tab(text: 'All Leads'),
                     Tab(text: 'Fresh Leads'),

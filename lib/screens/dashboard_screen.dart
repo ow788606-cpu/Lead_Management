@@ -782,44 +782,41 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                             color: Colors.black)),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
                     ),
                     child: const HugeIcon(
                       icon: HugeIcons.strokeRoundedCall,
                       color: Color(0xFF6B7280),
-                      size: 18.0,
+                      size: 16.0,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
                     ),
                     child: const HugeIcon(
                       icon: HugeIcons.strokeRoundedComment01,
                       color: Color(0xFF6B7280),
-                      size: 18.0,
+                      size: 16.0,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey.shade300),
                     ),
                     child: const HugeIcon(
                       icon: HugeIcons.strokeRoundedMail01,
                       color: Color(0xFF6B7280),
-                      size: 18.0,
+                      size: 16.0,
                     ),
                   ),
                 ],
