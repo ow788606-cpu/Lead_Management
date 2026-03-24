@@ -783,8 +783,8 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                   ),
                   Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F5F5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
                       shape: BoxShape.circle,
                     ),
                     child: const HugeIcon(
@@ -796,8 +796,8 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F5F5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
                       shape: BoxShape.circle,
                     ),
                     child: const HugeIcon(
@@ -809,8 +809,8 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF5F5F5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
                       shape: BoxShape.circle,
                     ),
                     child: const HugeIcon(
@@ -825,29 +825,30 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
               if (lead.service != null)
                 Row(
                   children: [
-                    HugeIcon(
-                      icon: HugeIcons.strokeRoundedCustomerService,
-                      color: Colors.grey[600]!,
+                    const HugeIcon(
+                      icon: HugeIcons.strokeRoundedPencilEdit01,
+                      color: Color(0xFF131416),
                       size: 16.0,
                     ),
                     const SizedBox(width: 6),
                     Text('${lead.service}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+                        style: const TextStyle(
+                            fontSize: 14, color: Color(0xFF131416))),
                   ],
                 ),
               if (lead.notes != null) ...[
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    HugeIcon(
+                    const HugeIcon(
                       icon: HugeIcons.strokeRoundedChatting01,
-                      color: Colors.grey[400]!,
+                      color: Color(0xFF131416),
                       size: 16.0,
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text('${lead.notes}',
-                          style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                          style: const TextStyle(fontSize: 13, color: Color(0xFF131416)),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis),
                     ),
