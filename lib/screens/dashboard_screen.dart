@@ -145,7 +145,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Expanded(
                   child: _StatCard(
                       scheduledAppointments.toString(),
-                      'Scheduled Appointments',
+                      'Appointments',
                       Icons.calendar_today_outlined,
                       const Color(0xFF131416), onTap: () {
                 Navigator.pushReplacement(
@@ -660,24 +660,27 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                     !lead.isCompleted)
                 .toList()
             : widget.leads.where((lead) => lead.followUpDate != null).toList();
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Leads Overview',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Leads Overview',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2))
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -728,8 +731,10 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
               itemCount: filteredLeads.length > 5 ? 5 : filteredLeads.length,
               itemBuilder: (context, index) => _buildLeadCard(filteredLeads[index]),
             ),
-        ],
+          ],
+        ),
       ),
+      ],
     );
   }
 
@@ -748,210 +753,206 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
       statusColor = Colors.blue;
     }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 0,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DetailLeadScreen(
-                lead: lead,
-                startInEditMode: false,
-                initialTabIndex: 0,
+    return Column(
+      children: [
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailLeadScreen(
+                  lead: lead,
+                  startInEditMode: false,
+                  initialTabIndex: 0,
+                ),
               ),
-            ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(lead.contactName,
-                        style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black)),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(lead.contactName,
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const HugeIcon(
+                        icon: HugeIcons.strokeRoundedCall,
+                        color: Color(0xFF6B7280),
+                        size: 16.0,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const HugeIcon(
+                        icon: HugeIcons.strokeRoundedComment01,
+                        color: Color(0xFF6B7280),
+                        size: 16.0,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const HugeIcon(
+                        icon: HugeIcons.strokeRoundedMail01,
+                        color: Color(0xFF6B7280),
+                        size: 16.0,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                if (lead.service != null)
+                  Row(
+                    children: [
+                      const HugeIcon(
+                        icon: HugeIcons.strokeRoundedPencilEdit01,
+                        color: Color(0xFF131416),
+                        size: 16.0,
+                      ),
+                      const SizedBox(width: 6),
+                      Text('${lead.service}',
+                          style: const TextStyle(
+                              fontSize: 14, color: Color(0xFF131416))),
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const HugeIcon(
-                      icon: HugeIcons.strokeRoundedCall,
-                      color: Color(0xFF6B7280),
-                      size: 16.0,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const HugeIcon(
-                      icon: HugeIcons.strokeRoundedComment01,
-                      color: Color(0xFF6B7280),
-                      size: 16.0,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const HugeIcon(
-                      icon: HugeIcons.strokeRoundedMail01,
-                      color: Color(0xFF6B7280),
-                      size: 16.0,
-                    ),
+                if (lead.notes != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const HugeIcon(
+                        icon: HugeIcons.strokeRoundedChatting01,
+                        color: Color(0xFF131416),
+                        size: 16.0,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text('${lead.notes}',
+                            style: const TextStyle(fontSize: 13, color: Color(0xFF131416)),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-              const SizedBox(height: 8),
-              if (lead.service != null)
-                Row(
-                  children: [
-                    const HugeIcon(
-                      icon: HugeIcons.strokeRoundedPencilEdit01,
-                      color: Color(0xFF131416),
-                      size: 16.0,
-                    ),
-                    const SizedBox(width: 6),
-                    Text('${lead.service}',
-                        style: const TextStyle(
-                            fontSize: 14, color: Color(0xFF131416))),
-                  ],
-                ),
-              if (lead.notes != null) ...[
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const HugeIcon(
-                      icon: HugeIcons.strokeRoundedChatting01,
-                      color: Color(0xFF131416),
-                      size: 16.0,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text('${lead.notes}',
-                          style: const TextStyle(fontSize: 13, color: Color(0xFF131416)),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis),
-                    ),
-                  ],
-                ),
-              ],
-              if (lead.tags != null && lead.tags!.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: lead.tags!.split(',').map((tag) {
-                    final trimmedTag = tag.trim();
-                    if (trimmedTag.isEmpty) return const SizedBox.shrink();
+                if (lead.tags != null && lead.tags!.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: lead.tags!.split(',').map((tag) {
+                      final trimmedTag = tag.trim();
+                      if (trimmedTag.isEmpty) return const SizedBox.shrink();
 
-                    String mappedTag = trimmedTag;
-                    if (trimmedTag == 'bh') {
-                      mappedTag = '15';
-                    }
+                      String mappedTag = trimmedTag;
+                      if (trimmedTag == 'bh') {
+                        mappedTag = '15';
+                      }
 
-                    Color? tagColor;
-                    String? tagName;
+                      Color? tagColor;
+                      String? tagName;
 
-                    if (_tagColors.containsKey(mappedTag)) {
-                      tagColor = _tagColors[mappedTag];
-                      final matchingTag = _tags.firstWhere(
-                        (t) => t.id.toString() == mappedTag,
-                        orElse: () => TagItem(
-                            id: 0, name: mappedTag, description: '', colorHex: ''),
-                      );
-                      tagName = matchingTag.name.isNotEmpty ? matchingTag.name : mappedTag;
-                    } else {
-                      for (final entry in _tagColors.entries) {
-                        if (entry.key.toLowerCase() == mappedTag.toLowerCase()) {
-                          tagColor = entry.value;
-                          tagName = mappedTag;
-                          break;
+                      if (_tagColors.containsKey(mappedTag)) {
+                        tagColor = _tagColors[mappedTag];
+                        final matchingTag = _tags.firstWhere(
+                          (t) => t.id.toString() == mappedTag,
+                          orElse: () => TagItem(
+                              id: 0, name: mappedTag, description: '', colorHex: ''),
+                        );
+                        tagName = matchingTag.name.isNotEmpty ? matchingTag.name : mappedTag;
+                      } else {
+                        for (final entry in _tagColors.entries) {
+                          if (entry.key.toLowerCase() == mappedTag.toLowerCase()) {
+                            tagColor = entry.value;
+                            tagName = mappedTag;
+                            break;
+                          }
                         }
                       }
-                    }
 
-                    Color textColor;
-                    Color backgroundColor;
+                      Color textColor;
+                      Color backgroundColor;
 
-                    if (tagColor == null) {
-                      textColor = const Color(0xFF6B46C1);
-                      backgroundColor = const Color(0xFF6B46C1).withValues(alpha: 0.1);
-                      tagName = trimmedTag;
-                    } else {
-                      textColor = tagColor;
-                      backgroundColor = tagColor.withValues(alpha: 0.1);
-                    }
+                      if (tagColor == null) {
+                        textColor = const Color(0xFF6B46C1);
+                        backgroundColor = const Color(0xFF6B46C1).withValues(alpha: 0.1);
+                        tagName = trimmedTag;
+                      } else {
+                        textColor = tagColor;
+                        backgroundColor = tagColor.withValues(alpha: 0.1);
+                      }
 
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: backgroundColor,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        tagName ?? trimmedTag,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: textColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-              if (lead.followUpDate != null || statusTag.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E7EB)),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (lead.followUpDate != null)
-                      Text(
-                        'Follow-up : ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? '10:00 AM'}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    if (statusTag.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          color: backgroundColor,
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Text(statusTag,
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: statusColor,
-                                fontWeight: FontWeight.w500)),
-                      ),
-                  ],
-                ),
+                        child: Text(
+                          tagName ?? trimmedTag,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: textColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+                if (lead.followUpDate != null || statusTag.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (lead.followUpDate != null)
+                        Text(
+                          'Follow-up : ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? '10:00 AM'}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                      if (statusTag.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(statusTag,
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w500)),
+                        ),
+                    ],
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
+        const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E7EB)),
+      ],
     );
   }
 }

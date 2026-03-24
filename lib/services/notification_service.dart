@@ -330,7 +330,9 @@ class NotificationService {
     switch (type) {
       case 'Called - Call Later': return 'Time to call back $name';
       case 'Called - Appointment Scheduled': return 'Appointment with $name is due';
-      case 'Called - Ringing – No Response': return 'Retry calling $name';
+      case 'Called - Ringing – No Response':
+      case 'Called - Ringing - No Response':
+        return 'Retry calling $name';
       case 'Called - Busy': return 'Retry calling $name (was busy)';
       case 'Called - Switched Off / Unavailable': return 'Retry calling $name (unavailable)';
       case 'SMS Sent': return 'Follow up on SMS sent to $name';

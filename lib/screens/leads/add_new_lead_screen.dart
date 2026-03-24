@@ -77,6 +77,8 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
+        toolbarHeight: 56,
+        centerTitle: true,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, size: 28),
@@ -99,6 +101,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
         selectedIndex: -1,
         onItemSelected: (_) {},
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: _isLoadingDependencies
@@ -1206,10 +1209,7 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                   fontFamily: 'Inter', fontSize: 14),
                               decoration: InputDecoration(
                                 hintText: 'Notes',
-                                prefixIcon: const Padding(
-                                  padding: EdgeInsets.only(bottom: 60),
-                                  child: Icon(Icons.note_outlined, size: 20, color: Colors.grey),
-                                ),
+                                prefixIcon: const Icon(Icons.note_outlined, size: 20, color: Colors.grey),
                                 hintStyle: const TextStyle(
                                     color: Colors.grey,
                                     fontSize: 14,

@@ -143,7 +143,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                       child: HugeIcon(
                                         icon: HugeIcons.strokeRoundedBriefcase01,
                                         color: Colors.white,
-                                        size: 20,
+                                        size: 15,
                                       ),
                                     ),
                                   ),
