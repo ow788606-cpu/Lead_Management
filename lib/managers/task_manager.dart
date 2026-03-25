@@ -28,9 +28,10 @@ class TaskManager extends ChangeNotifier {
       taskData['lead_id'] = int.tryParse(task.leadId!) ?? 0;
     }
     
+    final headers = await AuthManager().authHeaders();
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/tasks.php'),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode(taskData),
     );
 
@@ -45,9 +46,10 @@ class TaskManager extends ChangeNotifier {
 
   Future<void> completeTask(String id) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders();
     final response = await http.put(
       Uri.parse('${ApiConfig.baseUrl}/tasks.php'),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'id': id,
         'user_id': userId,
@@ -66,9 +68,10 @@ class TaskManager extends ChangeNotifier {
 
   Future<void> updateTask(Task task) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders();
     final response = await http.put(
       Uri.parse('${ApiConfig.baseUrl}/tasks.php'),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         ...task.toJson(),
         'user_id': userId,
@@ -86,8 +89,10 @@ class TaskManager extends ChangeNotifier {
 
   Future<void> deleteTask(String id) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders(includeContentType: false);
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/tasks.php?id=$id&user_id=$userId'),
+      headers: headers,
     );
 
     if (response.statusCode == 200) {
@@ -103,8 +108,10 @@ class TaskManager extends ChangeNotifier {
     if (_isLoaded && !forceRefresh) return;
     try {
       final userId = await AuthManager().getUserId() ?? 0;
+      final headers = await AuthManager().authHeaders(includeContentType: false);
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/tasks.php?user_id=$userId'),
+        headers: headers,
       );
 
       if (response.statusCode == 200) {
@@ -128,8 +135,10 @@ class TaskManager extends ChangeNotifier {
   Future<List<Task>> getTasksByLeadId(String leadId) async {
     try {
       final userId = await AuthManager().getUserId() ?? 0;
+      final headers = await AuthManager().authHeaders(includeContentType: false);
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/tasks.php?lead_id=$leadId&user_id=$userId'),
+        headers: headers,
       );
 
       if (response.statusCode == 200) {

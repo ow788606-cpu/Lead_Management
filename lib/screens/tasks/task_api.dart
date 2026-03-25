@@ -12,7 +12,8 @@ class TaskApi {
 
   static Future<List<Task>> fetchTasks() async {
     final userId = await AuthManager().getUserId() ?? 0;
-    final response = await http.get(_tasksUri(userId: userId));
+    final headers = await AuthManager().authHeaders();
+    final response = await http.get(_tasksUri(userId: userId), headers: headers);
     if (response.statusCode != 200) {
       throw Exception(
         'Failed to load tasks (HTTP ${response.statusCode}): ${response.body}',
@@ -45,9 +46,10 @@ class TaskApi {
       _parseMinute(task.dueTime),
     );
 
+    final headers = await AuthManager().authHeaders();
     final response = await http.post(
       _tasksUri(),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'user_id': effectiveUserId,
         'title': task.title,
@@ -64,9 +66,10 @@ class TaskApi {
 
   static Future<void> completeTask(String id) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders();
     final response = await http.patch(
       _tasksUri(),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'id': int.tryParse(id) ?? 0,
         'user_id': userId,
@@ -82,8 +85,10 @@ class TaskApi {
   static Future<void> deleteTask(String id) async {
     final taskId = int.tryParse(id) ?? 0;
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders(includeContentType: false);
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/tasks.php?id=$taskId&user_id=$userId'),
+      headers: headers,
     );
 
     if (response.statusCode != 200) {

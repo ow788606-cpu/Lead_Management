@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/api_config.dart';
@@ -9,6 +10,8 @@ class AuthManager {
   static final AuthManager _instance = AuthManager._internal();
   factory AuthManager() => _instance;
   AuthManager._internal();
+
+  static const String appToken = 'CloopApp@2026#SecretKey!XyZ';
 
   static const String _isLoggedInKey = 'isLoggedIn';
   static const String _usernameKey = 'username';
@@ -51,6 +54,22 @@ class AuthManager {
     return prefs.getInt(_userIdKey);
   }
 
+  Future<Map<String, String>> authHeaders({bool includeContentType = true}) async {
+    final headers = <String, String>{};
+    if (includeContentType) {
+      headers['Content-Type'] = 'application/json';
+    }
+    headers['Authorization'] = 'Bearer $appToken';
+    headers['X-Api-Token'] = appToken;
+
+    final userId = await getUserId();
+    if (userId != null && userId > 0) {
+      headers['X-User-Id'] = userId.toString();
+    }
+
+    return headers;
+  }
+
   Future<bool> login({
     required String identifier,
     required String password,
@@ -65,16 +84,28 @@ class AuthManager {
         }),
       );
 
+      if (kDebugMode) {
+        debugPrint('Login URL: ${ApiConfig.baseUrl}/login.php');
+        debugPrint('Login status: ${response.statusCode}');
+        debugPrint('Login body: ${response.body}');
+      }
+
       if (response.statusCode != 200) {
         return false;
       }
 
       final decoded = jsonDecode(response.body);
       if (decoded is! Map<String, dynamic>) {
+        if (kDebugMode) {
+          debugPrint('Login decode failed: ${response.body}');
+        }
         return false;
       }
 
       if (decoded['success'] != true) {
+        if (kDebugMode) {
+          debugPrint('Login success=false: ${response.body}');
+        }
         return false;
       }
 

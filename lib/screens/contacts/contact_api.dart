@@ -18,7 +18,8 @@ class ContactApi {
       final userId = await AuthManager().getUserId() ?? 0;
       final uri = _contactsUri(userId: userId);
       
-      final response = await http.get(uri);
+      final headers = await AuthManager().authHeaders();
+      final response = await http.get(uri, headers: headers);
       
       if (response.statusCode != 200) {
         throw Exception('Failed to load contacts - Status: ${response.statusCode}');
@@ -44,9 +45,10 @@ class ContactApi {
 
   static Future<String> addContact(Contact contact, {int userId = 1}) async {
     final effectiveUserId = await AuthManager().getUserId() ?? userId;
+    final headers = await AuthManager().authHeaders();
     final response = await http.post(
       _contactsUri(),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'user_id': effectiveUserId,
         'name': contact.name,
@@ -79,9 +81,10 @@ class ContactApi {
 
   static Future<void> updateContact(Contact contact) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders();
     final response = await http.put(
       _contactsUri(),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'user_id': userId,
         'id': int.tryParse(contact.id) ?? 0,
@@ -107,8 +110,10 @@ class ContactApi {
   static Future<void> deleteContact(String id) async {
     final contactId = int.tryParse(id) ?? 0;
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders(includeContentType: false);
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/contacts.php?id=$contactId&user_id=$userId'),
+      headers: headers,
     );
 
     if (response.statusCode != 200) {
@@ -123,6 +128,8 @@ class ContactApi {
   }) async {
     final effectiveUserId = await AuthManager().getUserId() ?? userId;
     final request = http.MultipartRequest('POST', _bulkUploadUri());
+    final headers = await AuthManager().authHeaders(includeContentType: false);
+    request.headers.addAll(headers);
     request.files.add(
       http.MultipartFile.fromBytes(
         'file',

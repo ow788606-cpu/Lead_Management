@@ -52,11 +52,19 @@ try {
     echo "<p>✅ Dropped existing users table</p>";
     
     $sql = "CREATE TABLE users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(50) NOT NULL UNIQUE,
+        user_Id INT AUTO_INCREMENT PRIMARY KEY,
+        userName VARCHAR(50) NOT NULL,
         email VARCHAR(100) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        user_secret VARCHAR(255) NOT NULL,
+        full_name VARCHAR(100),
+        phone VARCHAR(20),
+        country VARCHAR(50),
+        company_address VARCHAR(255),
+        timezone VARCHAR(50),
+        meta TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL DEFAULT NULL
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4";
     
     $pdo->exec($sql);
@@ -68,16 +76,16 @@ try {
     echo "<p>✅ Table query successful, current count: $count</p>";
     
     // Insert default user
-    $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO users (userName, email, user_secret, full_name) VALUES (?, ?, ?, ?)");
     $hashedPassword = password_hash('admin123', PASSWORD_DEFAULT);
-    $stmt->execute(['admin', 'admin@example.com', $hashedPassword]);
+    $stmt->execute(['admin', 'admin@example.com', $hashedPassword, 'Admin User']);
     echo "<p>✅ Default admin user created successfully</p>";
     
     // Verify insertion
-    $stmt = $pdo->query("SELECT username, email FROM users");
+    $stmt = $pdo->query("SELECT userName, email FROM users");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($users as $user) {
-        echo "<p>User: {$user['username']} ({$user['email']})</p>";
+        echo "<p>User: {$user['userName']} ({$user['email']})</p>";
     }
     
 } catch (Exception $e) {
@@ -89,11 +97,19 @@ try {
         $pdo->exec("DROP TABLE IF EXISTS users");
         
         $sql = "CREATE TABLE users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(50) NOT NULL UNIQUE,
+            user_Id INT AUTO_INCREMENT PRIMARY KEY,
+            userName VARCHAR(50) NOT NULL,
             email VARCHAR(100) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            user_secret VARCHAR(255) NOT NULL,
+            full_name VARCHAR(100),
+            phone VARCHAR(20),
+            country VARCHAR(50),
+            company_address VARCHAR(255),
+            timezone VARCHAR(50),
+            meta TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+            deleted_at TIMESTAMP NULL DEFAULT NULL
         )";
         
         $pdo->exec($sql);
@@ -104,9 +120,9 @@ try {
         $count = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
         echo "<p>✅ Table query successful</p>";
         
-        $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO users (userName, email, user_secret, full_name) VALUES (?, ?, ?, ?)");
         $hashedPassword = password_hash('admin123', PASSWORD_DEFAULT);
-        $stmt->execute(['admin', 'admin@example.com', $hashedPassword]);
+        $stmt->execute(['admin', 'admin@example.com', $hashedPassword, 'Admin User']);
         echo "<p>✅ Default admin user created</p>";
         
     } catch (Exception $e2) {
@@ -119,14 +135,22 @@ try {
         echo "USE lead;\n";
         echo "DROP TABLE IF EXISTS users;\n";
         echo "CREATE TABLE users (\n";
-        echo "    id INT AUTO_INCREMENT PRIMARY KEY,\n";
-        echo "    username VARCHAR(50) NOT NULL UNIQUE,\n";
+        echo "    user_Id INT AUTO_INCREMENT PRIMARY KEY,\n";
+        echo "    userName VARCHAR(50) NOT NULL,\n";
         echo "    email VARCHAR(100) NOT NULL UNIQUE,\n";
-        echo "    password VARCHAR(255) NOT NULL,\n";
-        echo "    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n";
+        echo "    user_secret VARCHAR(255) NOT NULL,\n";
+        echo "    full_name VARCHAR(100),\n";
+        echo "    phone VARCHAR(20),\n";
+        echo "    country VARCHAR(50),\n";
+        echo "    company_address VARCHAR(255),\n";
+        echo "    timezone VARCHAR(50),\n";
+        echo "    meta TEXT,\n";
+        echo "    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n";
+        echo "    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,\n";
+        echo "    deleted_at TIMESTAMP NULL DEFAULT NULL\n";
         echo ");\n";
-        echo "INSERT INTO users (username, email, password) VALUES \n";
-        echo "('admin', 'admin@example.com', '" . password_hash('admin123', PASSWORD_DEFAULT) . "');\n";
+        echo "INSERT INTO users (userName, email, user_secret, full_name) VALUES \n";
+        echo "('admin', 'admin@example.com', '" . password_hash('admin123', PASSWORD_DEFAULT) . "', 'Admin User');\n";
         echo "</pre>";
     }
 }
@@ -138,14 +162,15 @@ try {
     echo "<p>✅ Users table is working! User count: $count</p>";
     
     if ($count > 0) {
-        $stmt = $pdo->query("SELECT username, email FROM users LIMIT 5");
+        $stmt = $pdo->query("SELECT userName, email FROM users LIMIT 5");
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo "<h3>Current Users:</h3>";
         foreach ($users as $user) {
-            echo "<p>- {$user['username']} ({$user['email']})</p>";
+            echo "<p>- {$user['userName']} ({$user['email']})</p>";
         }
     }
 } catch (Exception $e) {
     echo "<p>❌ Users table still not working: " . $e->getMessage() . "</p>";
 }
 ?>
+

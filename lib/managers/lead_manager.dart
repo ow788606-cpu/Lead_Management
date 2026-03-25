@@ -53,8 +53,10 @@ class LeadManager {
     final userId = await AuthManager().getUserId() ?? 0;
     
     try {
+      final headers = await AuthManager().authHeaders(includeContentType: false);
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/leads.php?user_id=$userId'),
+        headers: headers,
       ).timeout(const Duration(seconds: 10));
       
       if (response.statusCode != 200) {
@@ -96,9 +98,10 @@ class LeadManager {
     final userId = await AuthManager().getUserId() ?? 0;
     
     try {
+      final headers = await AuthManager().authHeaders();
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/leads.php'),
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode({
           'user_id': userId,
           'contact_id': int.tryParse(contactId) ?? 0,
@@ -145,9 +148,10 @@ class LeadManager {
 
   Future<void> markAsCompleted(String id) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders();
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/leads.php'),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'action': 'update_status',
         'lead_id': int.tryParse(id) ?? 0,

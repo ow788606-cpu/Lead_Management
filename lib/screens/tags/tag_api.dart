@@ -35,7 +35,8 @@ class TagApi {
 
   static Future<List<TagItem>> fetchTags() async {
     final userId = await AuthManager().getUserId() ?? 0;
-    final response = await http.get(_tagsUri(userId: userId));
+    final headers = await AuthManager().authHeaders();
+    final response = await http.get(_tagsUri(userId: userId), headers: headers);
     if (response.statusCode != 200) {
       throw Exception(
         'Failed to load tags (HTTP ${response.statusCode}): ${response.body}',
@@ -63,9 +64,10 @@ class TagApi {
     int userId = 1,
   }) async {
     final effectiveUserId = await AuthManager().getUserId() ?? userId;
+    final headers = await AuthManager().authHeaders();
     final response = await http.post(
       _tagsUri(),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'user_id': effectiveUserId,
         'name': name,
@@ -86,9 +88,10 @@ class TagApi {
     required String colorHex,
   }) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders();
     final response = await http.put(
       _tagsUri(),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'user_id': userId,
         'id': id,
@@ -105,8 +108,10 @@ class TagApi {
 
   static Future<void> deleteTag(int id) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders(includeContentType: false);
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/tags.php?id=$id&user_id=$userId'),
+      headers: headers,
     );
 
     if (response.statusCode != 200) {

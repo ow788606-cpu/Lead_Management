@@ -64,11 +64,19 @@ try {
 // Create users table if it doesn't exist
 try {
     $sql = "CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(50) NOT NULL UNIQUE,
+        user_Id INT AUTO_INCREMENT PRIMARY KEY,
+        userName VARCHAR(50) NOT NULL,
         email VARCHAR(100) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        user_secret VARCHAR(255) NOT NULL,
+        full_name VARCHAR(100),
+        phone VARCHAR(20),
+        country VARCHAR(50),
+        company_address VARCHAR(255),
+        timezone VARCHAR(50),
+        meta TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL DEFAULT NULL
     )";
     $pdo->exec($sql);
     echo "<p>✅ users table created/verified</p>";
@@ -78,9 +86,9 @@ try {
     $userCount = $stmt->fetch(PDO::FETCH_ASSOC)['count'];
     
     if ($userCount == 0) {
-        $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        $stmt->execute(['admin', 'admin@example.com', password_hash('admin123', PASSWORD_DEFAULT)]);
-        echo "<p>✅ Default admin user created</p>";
+        $stmt = $pdo->prepare("INSERT INTO users (userName, email, user_secret, full_name) VALUES (?, ?, ?, ?)");
+        $stmt->execute(['admin', 'admin@example.com', password_hash('admin123', PASSWORD_DEFAULT), 'Admin User']);
+        echo "<p>✅ Default admin user created (user: admin, password: admin123)</p>";
     }
     
 } catch (Exception $e) {

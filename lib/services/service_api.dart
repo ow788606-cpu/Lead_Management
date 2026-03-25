@@ -28,7 +28,8 @@ class ServiceApi {
 
   static Future<List<ServiceItem>> fetchServices() async {
     final userId = await AuthManager().getUserId() ?? 0;
-    final response = await http.get(_servicesUri(userId: userId));
+    final headers = await AuthManager().authHeaders();
+    final response = await http.get(_servicesUri(userId: userId), headers: headers);
     if (response.statusCode != 200) {
       throw Exception(
         'Failed to load services (HTTP ${response.statusCode}): ${response.body}',
@@ -56,9 +57,10 @@ class ServiceApi {
     int userId = 1,
   }) async {
     final effectiveUserId = await AuthManager().getUserId() ?? userId;
+    final headers = await AuthManager().authHeaders();
     final response = await http.post(
       _servicesUri(),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'user_id': effectiveUserId,
         'service_name': serviceName,
@@ -75,9 +77,10 @@ class ServiceApi {
     required String serviceName,
   }) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders();
     final response = await http.put(
       _servicesUri(),
-      headers: {'Content-Type': 'application/json'},
+      headers: headers,
       body: jsonEncode({
         'user_id': userId,
         'service_id': serviceId,
@@ -92,8 +95,10 @@ class ServiceApi {
 
   static Future<void> deleteService(int id) async {
     final userId = await AuthManager().getUserId() ?? 0;
+    final headers = await AuthManager().authHeaders(includeContentType: false);
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/services.php?id=$id&user_id=$userId'),
+      headers: headers,
     );
 
     if (response.statusCode != 200) {

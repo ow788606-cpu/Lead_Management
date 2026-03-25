@@ -16,11 +16,19 @@ try {
 // Create users table with explicit engine specification
 try {
     $sql = "CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        username VARCHAR(50) NOT NULL UNIQUE,
+        user_Id INT AUTO_INCREMENT PRIMARY KEY,
+        userName VARCHAR(50) NOT NULL,
         email VARCHAR(100) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        user_secret VARCHAR(255) NOT NULL,
+        full_name VARCHAR(100),
+        phone VARCHAR(20),
+        country VARCHAR(50),
+        company_address VARCHAR(255),
+        timezone VARCHAR(50),
+        meta TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP NULL DEFAULT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
     
     $pdo->exec($sql);
@@ -38,10 +46,10 @@ try {
         
         if ($userCount == 0) {
             // Insert default user
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO users (userName, email, user_secret, full_name) VALUES (?, ?, ?, ?)");
             $hashedPassword = password_hash('admin123', PASSWORD_DEFAULT);
-            $stmt->execute(['admin', 'admin@example.com', $hashedPassword]);
-            echo "<p>✅ Default admin user created (username: admin, password: admin123)</p>";
+            $stmt->execute(['admin', 'admin@example.com', $hashedPassword, 'Admin User']);
+            echo "<p>✅ Default admin user created (user: admin, password: admin123)</p>";
         } else {
             echo "<p>ℹ️ Users already exist, skipping default user creation</p>";
         }

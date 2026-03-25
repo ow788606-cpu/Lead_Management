@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter (API Local)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "toolArgs": [
+        "--dart-define=API_BASE_URL=http://192.168.29.159/lead/api"
+      ]
+    }
+  ]
+}

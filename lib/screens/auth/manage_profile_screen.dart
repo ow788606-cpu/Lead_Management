@@ -105,8 +105,10 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
         return;
       }
 
+      final headers = await AuthManager().authHeaders(includeContentType: false);
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/users.php?user_id=$userId'),
+        headers: headers,
       );
       if (response.statusCode != 200) {
         if (!mounted) return;
@@ -162,9 +164,10 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
         return;
       }
 
+      final headers = await AuthManager().authHeaders();
       final response = await http.put(
         Uri.parse('${ApiConfig.baseUrl}/users.php'),
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode({
           'user_id': userId,
           'name': _nameController.text.trim(),

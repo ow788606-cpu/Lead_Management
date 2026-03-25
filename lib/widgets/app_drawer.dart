@@ -5,11 +5,11 @@ import '../screens/auth/login_screen.dart';
 // import '../screens/auth/billing_screen.dart';
 import '../screens/auth/manage_profile_screen.dart';
 import '../screens/auth/change_password_screen.dart';
-import '../screens/leads/add_new_lead_screen.dart';
+
 import '../screens/contacts/all_contacts_screen.dart';
-import '../screens/contacts/new_contact_screen.dart';
+
 // import '../screens/contacts/bulk_upload_screen.dart';
-import '../screens/tasks/new_task_screen.dart';
+
 import '../screens/tasks/all_tasks_screen.dart';
 // import '../screens/reports/lead_reports_screen.dart';
 
@@ -81,49 +81,11 @@ class AppDrawer extends StatelessWidget {
             ),
             _ExpandableDrawerItem(HugeIcons.strokeRoundedCall, 'Leads', 1,
                 selectedIndex, () => onItemSelected(1), _activeBgColor, [
-              _SubItem('Add New Lead', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AddNewLeadScreen()));
-              }),
               _SubItem('All Leads', () {
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
                       builder: (context) => const MainScreen(
                           initialIndex: 1, initialLeadTabIndex: 0)),
-                  (route) => false,
-                );
-              }),
-              _SubItem('Fresh Leads', () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => const MainScreen(
-                          initialIndex: 1, initialLeadTabIndex: 1)),
-                  (route) => false,
-                );
-              }),
-              _SubItem('Follow-Ups', () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => const MainScreen(
-                          initialIndex: 1, initialLeadTabIndex: 2)),
-                  (route) => false,
-                );
-              }),
-              _SubItem('Overdue', () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => const MainScreen(
-                          initialIndex: 1, initialLeadTabIndex: 3)),
-                  (route) => false,
-                );
-              }),
-              _SubItem('Completed', () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => const MainScreen(
-                          initialIndex: 1, initialLeadTabIndex: 4)),
                   (route) => false,
                 );
               }),
@@ -149,12 +111,6 @@ class AppDrawer extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => const AllContactsScreen()));
               }),
-              _SubItem('New Contact', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NewContactScreen()));
-              }),
               // _SubItem('Bulk Upload', () {
               //   Navigator.push(
               //       context,
@@ -164,32 +120,12 @@ class AppDrawer extends StatelessWidget {
             ]),
             _ExpandableDrawerItem(HugeIcons.strokeRoundedTask01, 'Tasks', 4,
                 selectedIndex, () => onItemSelected(4), _activeBgColor, [
-              _SubItem('New Task', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NewTaskScreen()));
-              }),
               _SubItem('All Tasks', () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
                             const AllTasksScreen(initialTabIndex: 0)));
-              }),
-              _SubItem('Pending Tasks', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const AllTasksScreen(initialTabIndex: 1)));
-              }),
-              _SubItem('Completed Tasks', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const AllTasksScreen(initialTabIndex: 2)));
               }),
             ]),
             _DrawerItem(
