@@ -38,6 +38,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   late TabController _tabController;
   final _leadManager = LeadManager();
   final _notificationService = NotificationService();
+  static const double _dialogWidth = 320;
+  static const double _dialogHeight = 320;
 
   List<Map<String, dynamic>> _activities = [];
   List<Map<String, dynamic>> _notes = [];
@@ -220,30 +222,16 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
         ),
-        contentPadding: EdgeInsets.zero,
-        titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-        title: Column(
-          children: [
-            const Row(
-              children: [
-                SizedBox(width: 32), // Space equivalent to back button
-                Expanded(
-                  child: Text(
-                    'Lead Activity',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(width: 32), // Balance the spacing
-              ],
-            ),
-            const SizedBox(height: 16),
-            Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
-          ],
+        contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+        titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        title: _buildDialogTitle(
+          'Lead Activity',
+          context,
+          showDivider: true,
         ),
         content: SizedBox(
-          width: 320,
-          height: 280,
+          width: _dialogWidth,
+          height: _dialogHeight,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,7 +240,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               // Activity Options
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   children: [
                     'Called',
                     'SMS Sent',
@@ -311,42 +299,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.zero,
           ),
-          contentPadding: EdgeInsets.zero,
-          titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-          title: Column(
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(dialogContext);
-                      _showAddActivityDialog();
-                    },
-                    icon:
-                        const Icon(Icons.arrow_back, size: 20, color: Colors.black),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  Expanded(
-                    child: Text(
-                      activity,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(width: 32), // Balance the back button
-                ],
-              ),
-              const SizedBox(height: 16),
-              Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
-            ],
+          contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          title: _buildDialogTitle(
+            activity,
+            dialogContext,
+            showDivider: true,
+            onBack: () {
+              Navigator.pop(dialogContext);
+              _showAddActivityDialog();
+            },
           ),
           content: SizedBox(
-            width: 320,
-            height: 280,
+            width: _dialogWidth,
+            height: _dialogHeight,
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -682,44 +650,27 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.zero,
         ),
-        contentPadding: EdgeInsets.zero,
-        titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-        title: Column(
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _showAddActivityDialog();
-                  },
-                  icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-                const Expanded(
-                  child: Text(
-                    'Call Outcome',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(width: 32), // Balance the back button
-              ],
-            ),
-            const SizedBox(height: 16),
-            Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
-          ],
+        contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+        titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        title: _buildDialogTitle(
+          'Call Outcome',
+          context,
+          showDivider: true,
+          onBack: () {
+            Navigator.pop(context);
+            _showAddActivityDialog();
+          },
         ),
         content: SizedBox(
-          width: 320,
+          width: _dialogWidth,
+          height: _dialogHeight,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Call Outcome Options
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Column(
                     children: [
                       'Appointment Scheduled',
@@ -747,19 +698,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             ),
           ),
         ),
-        actions: [
-          Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _showAddActivityDialog();
-              },
-              child: const Text('Back', style: TextStyle(fontSize: 14)),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -777,42 +715,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.zero,
           ),
-          contentPadding: EdgeInsets.zero,
-          titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-          title: Column(
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(dialogContext);
-                      _showCallOutcomeDialog(remarksController);
-                    },
-                    icon:
-                        const Icon(Icons.arrow_back, size: 20, color: Colors.black),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                  Expanded(
-                    child: Text(
-                      outcome,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(width: 32), // Balance the back button
-                ],
-              ),
-              const SizedBox(height: 16),
-              Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
-            ],
+          contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          title: _buildDialogTitle(
+            outcome,
+            dialogContext,
+            showDivider: true,
+            onBack: () {
+              Navigator.pop(dialogContext);
+              _showCallOutcomeDialog(remarksController);
+            },
           ),
           content: SizedBox(
-            width: 320,
-            height: 300,
+            width: _dialogWidth,
+            height: _dialogHeight,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1133,28 +1051,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: Colors.white,
-          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          title: Row(
-            children: [
-              IconButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              const Expanded(
-                child: Text(
-                  'Create Task',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(width: 32),
-            ],
-          ),
+          contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          title: _buildDialogTitle('Create Task', dialogContext),
           content: SizedBox(
-            width: 320,
-            height: 320,
+            width: _dialogWidth,
+            height: _dialogHeight,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1492,28 +1394,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: Colors.white,
-          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          title: Row(
-            children: [
-              IconButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-              const Expanded(
-                child: Text(
-                  'Add Notes',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(width: 32),
-            ],
-          ),
+          contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          title: _buildDialogTitle('Add Notes', dialogContext),
           content: SizedBox(
-            width: 380, // Slightly smaller width
-            height: 350,
+            width: _dialogWidth,
+            height: _dialogHeight,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -2911,6 +2797,42 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           color: Colors.grey.shade200,
         ),
         const SizedBox(height: 4),
+      ],
+    );
+  }
+
+  Widget _buildDialogTitle(
+    String title,
+    BuildContext dialogContext, {
+    bool showDivider = false,
+    VoidCallback? onBack,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            IconButton(
+              onPressed: onBack ?? () => Navigator.pop(dialogContext),
+              icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.left,
+              ),
+            ),
+          ],
+        ),
+        if (showDivider) ...[
+          const SizedBox(height: 12),
+          Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+        ],
       ],
     );
   }
