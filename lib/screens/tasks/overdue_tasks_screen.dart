@@ -3,35 +3,23 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../managers/task_manager.dart';
 import '../../widgets/app_drawer.dart';
 import 'edit_task_screen.dart';
-import 'new_task_screen.dart';
 import 'tasks_detail_screen.dart';
+import 'new_task_screen.dart';
 
-class AllTasksScreen extends StatefulWidget {
-  final int initialTabIndex;
-  final String? filter;
-
-  const AllTasksScreen({super.key, this.initialTabIndex = 1, this.filter});
+class OverdueTasksScreen extends StatefulWidget {
+  const OverdueTasksScreen({super.key});
 
   @override
-  State<AllTasksScreen> createState() => _AllTasksScreenState();
+  State<OverdueTasksScreen> createState() => _OverdueTasksScreenState();
 }
 
-class _AllTasksScreenState extends State<AllTasksScreen>
-    with SingleTickerProviderStateMixin {
+class _OverdueTasksScreenState extends State<OverdueTasksScreen> {
   late final TaskManager taskManager;
   final _searchController = TextEditingController();
-  late TabController _tabController;
-  int _selectedTab = 0;
 
   @override
   void initState() {
     super.initState();
-    _tabController =
-        TabController(length: 4, vsync: this, initialIndex: widget.initialTabIndex);
-    _tabController.addListener(() {
-      setState(() => _selectedTab = _tabController.index);
-    });
-    _selectedTab = widget.initialTabIndex;
     taskManager = TaskManager();
     taskManager.addListener(_onTasksChanged);
     taskManager.loadTasks(forceRefresh: true);
@@ -39,7 +27,6 @@ class _AllTasksScreenState extends State<AllTasksScreen>
 
   @override
   void dispose() {
-    _tabController.dispose();
     _searchController.dispose();
     taskManager.removeListener(_onTasksChanged);
     super.dispose();
@@ -121,22 +108,15 @@ class _AllTasksScreenState extends State<AllTasksScreen>
   }
 
   List<dynamic> _getFilteredTasks() {
-    List<dynamic> tasks;
-    switch (_selectedTab) {
-      case 1:
-        tasks = taskManager.pendingTasks;
-        break;
-      case 2:
-        tasks = taskManager.completedTasks;
-        break;
-      case 3:
-        tasks = _getTasksByFilter('overdue');
-        break;
-      default:
-        tasks = [...taskManager.pendingTasks, ...taskManager.completedTasks];
-    }
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tasks = taskManager.pendingTasks.where((task) {
+      final taskDate =
+          DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+      return taskDate.isBefore(today);
+    }).toList();
 
-    final query = _searchController.text.toLowerCase();
+    final query = _searchController.text.trim().toLowerCase();
     if (query.isEmpty) return tasks;
     return tasks
         .where((t) =>
@@ -146,46 +126,15 @@ class _AllTasksScreenState extends State<AllTasksScreen>
         .toList();
   }
 
-  List<dynamic> _getTasksByFilter(String filter) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    
-    List<dynamic> tasks = [...taskManager.pendingTasks, ...taskManager.completedTasks];
-    
-    switch (filter) {
-      case 'today':
-        return tasks.where((task) {
-          final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
-          return taskDate.isAtSameMomentAs(today) && !task.isCompleted;
-        }).toList();
-      case 'overdue':
-        return tasks.where((task) {
-          final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
-          return taskDate.isBefore(today) && !task.isCompleted;
-        }).toList();
-      case 'active':
-        return tasks.where((task) {
-          final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
-          return (taskDate.isAtSameMomentAs(today) || taskDate.isAfter(today)) && !task.isCompleted;
-        }).toList();
-      default:
-        return tasks;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final filteredTasks = widget.filter != null 
-        ? _getTasksByFilter(widget.filter!)
-        : _getFilteredTasks();
+    final overdueTasks = _getFilteredTasks();
 
     return Scaffold(
       backgroundColor: Colors.white,
       drawer: AppDrawer(
         selectedIndex: 4,
-        onItemSelected: (index) {
-          Navigator.pop(context);
-        },
+        onItemSelected: (_) => Navigator.pop(context),
       ),
       appBar: AppBar(
         toolbarHeight: 56,
@@ -196,7 +145,7 @@ class _AllTasksScreenState extends State<AllTasksScreen>
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: const Text('All Tasks',
+        title: const Text('Overdue Tasks',
             style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -216,81 +165,62 @@ class _AllTasksScreenState extends State<AllTasksScreen>
         children: [
           Container(
             color: Colors.white,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(left: 12),
-                          child: HugeIcon(
-                            icon: HugeIcons.strokeRoundedSearch01,
-                            color: Colors.grey,
-                            size: 20.0,
-                          ),
-                        ),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: (_) => setState(() {}),
-                            decoration: const InputDecoration(
-                              hintText: 'Search',
-                              hintStyle: TextStyle(color: Colors.grey),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: IconButton(
-                            icon: const HugeIcon(
-                              icon: HugeIcons.strokeRoundedFilterHorizontal,
-                              color: Colors.grey,
-                              size: 20.0,
-                            ),
-                            onPressed: () {},
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  labelColor: const Color(0xFF131416),
-                  unselectedLabelColor: Colors.grey,
-                  indicatorColor: const Color(0xFF131416),
-                  dividerColor: Colors.transparent,
-                  tabs: const [
-                    Tab(text: 'All Tasks'),
-                    Tab(text: 'Pending Tasks'),
-                    Tab(text: 'Completed Tasks'),
-                    Tab(text: 'Overdue Tasks'),
+                child: Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(left: 12),
+                      child: HugeIcon(
+                        icon: HugeIcons.strokeRoundedSearch01,
+                        color: Colors.grey,
+                        size: 20.0,
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (_) => setState(() {}),
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: IconButton(
+                        icon: const HugeIcon(
+                          icon: HugeIcons.strokeRoundedFilterHorizontal,
+                          color: Colors.grey,
+                          size: 20.0,
+                        ),
+                        onPressed: () {},
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
           Expanded(
             child: Container(
-              margin: const EdgeInsets.only(top: 8),
+              margin: const EdgeInsets.only(top: 16),
               decoration: const BoxDecoration(
                 color: Color(0xFFF4F6FA),
                 borderRadius: BorderRadius.only(
@@ -298,13 +228,13 @@ class _AllTasksScreenState extends State<AllTasksScreen>
                   topRight: Radius.circular(24),
                 ),
               ),
-              child: filteredTasks.isEmpty
-                  ? const Center(child: Text('No tasks found'))
+              child: overdueTasks.isEmpty
+                  ? const Center(child: Text('No overdue tasks'))
                   : ListView.builder(
                       padding: const EdgeInsets.all(16),
-                      itemCount: filteredTasks.length,
+                      itemCount: overdueTasks.length,
                       itemBuilder: (context, index) =>
-                          _buildTaskCard(filteredTasks[index]),
+                          _buildTaskCard(overdueTasks[index]),
                     ),
             ),
           ),
@@ -366,11 +296,11 @@ class _AllTasksScreenState extends State<AllTasksScreen>
                           color: Colors.black)),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getPriorityColor(task.priority)
-                        .withValues(alpha: 0.1),
+                    color:
+                        _getPriorityColor(task.priority).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(task.priority,
@@ -388,8 +318,7 @@ class _AllTasksScreenState extends State<AllTasksScreen>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                EditTaskScreen(task: task),
+                            builder: (context) => EditTaskScreen(task: task),
                           ),
                         );
                         break;
@@ -413,8 +342,8 @@ class _AllTasksScreenState extends State<AllTasksScreen>
                           ),
                           SizedBox(width: 10),
                           Text('Edit',
-                              style: TextStyle(
-                                  fontFamily: 'Inter', fontSize: 14)),
+                              style:
+                                  TextStyle(fontFamily: 'Inter', fontSize: 14)),
                         ],
                       ),
                     ),
@@ -424,8 +353,7 @@ class _AllTasksScreenState extends State<AllTasksScreen>
                         child: Row(
                           children: [
                             HugeIcon(
-                              icon: HugeIcons
-                                  .strokeRoundedCheckmarkCircle02,
+                              icon: HugeIcons.strokeRoundedCheckmarkCircle02,
                               color: Colors.green,
                               size: 18,
                             ),
@@ -447,8 +375,8 @@ class _AllTasksScreenState extends State<AllTasksScreen>
                           ),
                           SizedBox(width: 10),
                           Text('Delete',
-                              style: TextStyle(
-                                  fontFamily: 'Inter', fontSize: 14)),
+                              style:
+                                  TextStyle(fontFamily: 'Inter', fontSize: 14)),
                         ],
                       ),
                     ),
@@ -481,8 +409,7 @@ class _AllTasksScreenState extends State<AllTasksScreen>
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(task.description,
-                        style: TextStyle(
-                            fontSize: 13, color: Colors.grey[500]),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[500]),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis),
                   ),
@@ -506,15 +433,14 @@ class _AllTasksScreenState extends State<AllTasksScreen>
                     const SizedBox(width: 6),
                     Text(
                       'Due: ${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year} ${task.dueTime}',
-                      style: TextStyle(
-                          fontSize: 12, color: Colors.grey[600]),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
                 if (isCompleted)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -533,7 +459,6 @@ class _AllTasksScreenState extends State<AllTasksScreen>
       ),
     );
   }
-
 
   Color _getPriorityColor(String priority) {
     switch (priority) {

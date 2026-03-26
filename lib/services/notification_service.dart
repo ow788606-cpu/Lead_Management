@@ -9,6 +9,7 @@ import '../models/lead.dart';
 typedef NotificationCallback = void Function(Lead lead);
 typedef TaskNotificationCallback = void Function(Map<String, dynamic> task, Lead lead);
 typedef ActivityNotificationCallback = void Function(Map<String, dynamic> activity, Lead lead);
+typedef NotificationTapCallback = void Function(String payload);
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -20,6 +21,7 @@ class NotificationService {
   final List<NotificationCallback> _callbacks = [];
   final List<TaskNotificationCallback> _taskCallbacks = [];
   final List<ActivityNotificationCallback> _activityCallbacks = [];
+  final List<NotificationTapCallback> _tapCallbacks = [];
 
   // Single timer — no duplicate online/offline timers
   Timer? _timer;
@@ -55,6 +57,14 @@ class NotificationService {
       );
       if (initialized != true) throw Exception('Plugin initialize() returned false');
 
+      final launchDetails = await _plugin.getNotificationAppLaunchDetails();
+      if (launchDetails?.didNotificationLaunchApp == true) {
+        final payload = launchDetails?.notificationResponse?.payload;
+        if (payload != null && payload.isNotEmpty) {
+          _pendingPayload = payload;
+        }
+      }
+
       final androidImpl = _plugin
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
       if (androidImpl != null) {
@@ -76,7 +86,12 @@ class NotificationService {
   void clearPendingPayload() => _pendingPayload = null;
 
   void _onTapped(NotificationResponse response) {
-    if (response.payload != null) _pendingPayload = response.payload;
+    final payload = response.payload;
+    if (payload == null || payload.isEmpty) return;
+    _pendingPayload = payload;
+    for (final cb in _tapCallbacks) {
+      cb(payload);
+    }
   }
 
   // ─── Monitoring ───────────────────────────────────────────────────────────
@@ -610,6 +625,8 @@ class NotificationService {
   void removeTaskListener(TaskNotificationCallback cb) => _taskCallbacks.remove(cb);
   void addActivityListener(ActivityNotificationCallback cb) => _activityCallbacks.add(cb);
   void removeActivityListener(ActivityNotificationCallback cb) => _activityCallbacks.remove(cb);
+  void addTapListener(NotificationTapCallback cb) => _tapCallbacks.add(cb);
+  void removeTapListener(NotificationTapCallback cb) => _tapCallbacks.remove(cb);
 
   // Legacy compat
   String? get pendingLeadId {

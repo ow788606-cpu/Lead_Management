@@ -73,11 +73,7 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const HugeIcon(
-              icon: HugeIcons.strokeRoundedMenu01,
-              color: Colors.black,
-              size: 24.0,
-            ),
+            icon: const Icon(Icons.menu, size: 28),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),

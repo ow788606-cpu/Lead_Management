@@ -37,6 +37,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   final _serviceManager = ServiceManager();
   final _notificationService = NotificationService();
   int _tagsScreenVersion = 0;
+  String? _pendingNavPayload;
 
   Widget? _buildFloatingActionButton() {
     switch (_selectedIndex) {
@@ -231,6 +232,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _selectedIndex = widget.initialIndex;
+    _notificationService.addTapListener(_handleNotificationTap);
     _startNotificationMonitoring();
   }
 
@@ -339,9 +341,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     _checkPendingNotification();
   }
 
+  void _handleNotificationTap(String payload) {
+    _pendingNavPayload = payload;
+    _checkPendingNotification();
+  }
+
   void _checkPendingNotification() {
-    final pendingPayload = _notificationService.pendingPayload;
+    final pendingPayload = _pendingNavPayload ?? _notificationService.pendingPayload;
     if (pendingPayload != null) {
+      _pendingNavPayload = null;
       _notificationService.clearPendingPayload();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (pendingPayload.startsWith('lead:')) {
@@ -426,6 +434,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _scheduleNotificationsForClosedApp();
     _notificationService.dispose();
+    _notificationService.removeTapListener(_handleNotificationTap);
     super.dispose();
   }
 

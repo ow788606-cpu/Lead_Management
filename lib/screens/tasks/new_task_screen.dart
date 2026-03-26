@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../../models/task.dart';
 import '../../managers/task_manager.dart';
@@ -17,6 +18,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   String? _selectedPriority;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
+  PlatformFile? _selectedAttachment;
 
   @override
   void dispose() {
@@ -34,13 +36,11 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         onItemSelected: (_) => Navigator.pop(context),
       ),
       appBar: AppBar(
+        toolbarHeight: 56,
+        centerTitle: true,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const HugeIcon(
-              icon: HugeIcons.strokeRoundedMenu01,
-              color: Colors.black,
-              size: 24.0,
-            ),
+            icon: const Icon(Icons.menu, size: 28),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -310,6 +310,87 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    const Text('Attachment',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Inter')),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        try {
+                          final result = await FilePicker.platform.pickFiles(
+                            allowMultiple: false,
+                            withData: false,
+                          );
+                          if (result == null || result.files.isEmpty) return;
+                          final file = result.files.first;
+                          if (file.path == null || file.path!.isEmpty) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Unable to read selected file.'),
+                              ),
+                            );
+                            return;
+                          }
+                          setState(() => _selectedAttachment = file);
+                        } catch (_) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Failed to pick attachment.'),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _selectedAttachment?.name ?? 'Add attachment',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: _selectedAttachment != null
+                                        ? Colors.black
+                                        : Colors.grey[400],
+                                    fontFamily: 'Inter'),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (_selectedAttachment != null)
+                              IconButton(
+                                icon: HugeIcon(
+                                  icon: HugeIcons.strokeRoundedCancel01,
+                                  color: Colors.grey[500]!,
+                                  size: 16.0,
+                                ),
+                                onPressed: () =>
+                                    setState(() => _selectedAttachment = null),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                              )
+                            else
+                              HugeIcon(
+                                icon: HugeIcons.strokeRoundedAttachment01,
+                                color: Colors.grey[400]!,
+                                size: 16.0,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () async {
@@ -348,7 +429,12 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
                           completedDate: isOverdue ? now : null,
                         );
 
-                        await TaskManager().addTask(task);
+                        await TaskManager().addTask(
+                          task,
+                          attachmentPath: _selectedAttachment?.path,
+                          attachmentName: _selectedAttachment?.name,
+                          attachmentBytes: _selectedAttachment?.bytes,
+                        );
                         if (!context.mounted) return;
                         Navigator.pop(context);
 

@@ -46,12 +46,13 @@ class AppDrawer extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(color: Colors.white),
-              child: Center(
+              child: Align(
+                alignment: Alignment.centerLeft,
                 child: Image.asset(
                   'assets/images/logo-dark.png',
                   height: 25,
                   fit: BoxFit.contain,
-                  alignment: Alignment.topLeft,
+                  alignment: Alignment.centerLeft,
                 ),
               ),
             ),
@@ -124,8 +125,7 @@ class AppDrawer extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            const AllTasksScreen(initialTabIndex: 0)));
+                        builder: (context) => const AllTasksScreen()));
               }),
             ]),
             _DrawerItem(

@@ -35,7 +35,7 @@ if ($method === 'GET') {
     if ($leadId > 0) {
         $stmt = $conn->prepare(
             "SELECT id, owner_user_id, created_by, assigned_to, lead_id, contact_id,
-                    title, description, status, priority, due_at, completed_at, created_at, updated_at
+                    title, description, status, priority, due_at, completed_at, meta, created_at, updated_at
              FROM tasks
              WHERE deleted_at IS NULL
                AND {$filterSql}
@@ -51,7 +51,7 @@ if ($method === 'GET') {
     } else {
         $stmt = $conn->prepare(
             "SELECT id, owner_user_id, created_by, assigned_to, lead_id, contact_id,
-                    title, description, status, priority, due_at, completed_at, created_at, updated_at
+                    title, description, status, priority, due_at, completed_at, meta, created_at, updated_at
              FROM tasks
              WHERE deleted_at IS NULL
                AND {$filterSql}
@@ -79,7 +79,10 @@ if ($method === 'GET') {
 
 // ─── POST: create task ────────────────────────────────────────────────────────
 if ($method === 'POST') {
-    $payload     = json_decode(file_get_contents('php://input'), true);
+    $payload     = !empty($_POST) ? $_POST : json_decode(file_get_contents('php://input'), true);
+    if (!is_array($payload)) {
+        $payload = [];
+    }
     $leadId      = isset($payload['lead_id']) ? (int)$payload['lead_id'] : null;
     $title       = trim((string)($payload['title'] ?? ''));
     $description = trim((string)($payload['description'] ?? ''));
@@ -105,9 +108,38 @@ if ($method === 'POST') {
         }
     }
 
+    $attachmentMeta = null;
+    if (!empty($_FILES['attachment']) && is_uploaded_file($_FILES['attachment']['tmp_name'])) {
+        $uploadDir = __DIR__ . '/uploads/tasks';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+        }
+
+        $originalName = basename((string)$_FILES['attachment']['name']);
+        $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+        $safeExt = $ext !== '' ? '.' . $ext : '';
+        $fileName = 'task_' . $authId . '_' . time() . '_' . bin2hex(random_bytes(4)) . $safeExt;
+        $destPath = $uploadDir . '/' . $fileName;
+
+        if (!move_uploaded_file($_FILES['attachment']['tmp_name'], $destPath)) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Failed to save attachment']);
+            exit;
+        }
+
+        $attachmentMeta = [
+            'name' => $originalName,
+            'path' => 'uploads/tasks/' . $fileName,
+            'size' => (int)($_FILES['attachment']['size'] ?? 0),
+            'mime' => (string)($_FILES['attachment']['type'] ?? ''),
+        ];
+    }
+
+    $metaJson = $attachmentMeta ? json_encode(['attachment' => $attachmentMeta]) : null;
+
     $stmt = $conn->prepare(
-        "INSERT INTO tasks (owner_user_id, created_by, assigned_to, lead_id, title, description, status, priority, due_at, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, NOW(), NOW())"
+        "INSERT INTO tasks (owner_user_id, created_by, assigned_to, lead_id, title, description, status, priority, due_at, meta, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, NOW(), NOW())"
     );
     if (!$stmt) {
         http_response_code(500);
@@ -115,7 +147,7 @@ if ($method === 'POST') {
         exit;
     }
 
-    $stmt->bind_param('iiiissss', $authId, $authId, $authId, $leadId, $title, $description, $priority, $dueAtValue);
+    $stmt->bind_param('iiiisssss', $authId, $authId, $authId, $leadId, $title, $description, $priority, $dueAtValue, $metaJson);
     $ok    = $stmt->execute();
     $newId = $conn->insert_id;
     $stmt->close();

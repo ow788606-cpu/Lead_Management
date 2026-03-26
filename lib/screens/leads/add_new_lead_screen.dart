@@ -1113,10 +1113,9 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
                                       .contains(textEditingValue.text.toLowerCase()));
                                 },
                                 onSelected: (value) {
-                                  final tag = _tags.firstWhere((t) => t.name == value);
                                   setState(() {
                                     _selectedTag = value;
-                                    _tagsController.text = tag.id.toString();
+                                    _tagsController.text = value;
                                   });
                                 },
                                 fieldViewBuilder: (context, controller, focusNode,

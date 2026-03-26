@@ -10,9 +10,11 @@ import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
 import '../../managers/auth_manager.dart';
 import '../../managers/task_manager.dart';
+import '../../models/task.dart';
 import '../../services/lead_activity_api.dart';
 import '../../widgets/app_drawer.dart';
 import '../main_screen.dart';
+import '../tasks/tasks_detail_screen.dart';
 import '../../services/notification_service.dart';
 
 class DetailLeadScreen extends StatefulWidget {
@@ -2818,11 +2820,14 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     return Column(
       children: [
         ListTile(
-          leading: Icon(
-            task['isCompleted']
-                ? Icons.check_circle
-                : Icons.radio_button_unchecked,
-            color: task['isCompleted'] ? Colors.green : Colors.grey,
+          leading: IconButton(
+            icon: Icon(
+              task['isCompleted']
+                  ? Icons.check_circle
+                  : Icons.radio_button_unchecked,
+              color: task['isCompleted'] ? Colors.green : Colors.grey,
+            ),
+            onPressed: () => _toggleTaskCompletion(task),
           ),
           title: Text(
             task['title'],
@@ -2890,34 +2895,14 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               ],
             ],
           ),
-          onTap: () async {
-            final oldStatus = task['isCompleted'];
-            setState(() {
-              task['isCompleted'] = !task['isCompleted'];
-            });
-            
-            // Try to update in database immediately
-            if (task['id'] != null && task['id'] is int) {
-              try {
-                await LeadActivityApi.updateTask(
-                  taskId: task['id'],
-                  isCompleted: task['isCompleted'],
-                );
-                print('Task status updated in database successfully');
-              } catch (e) {
-                print('Failed to update task in database: $e');
-                // Revert the change if database update fails
-                setState(() {
-                  task['isCompleted'] = oldStatus;
-                });
-              }
-            }
-            
-            // Save to local storage as backup
-            await _saveTasksToStorage();
-            
-            // Update notification monitoring when task status changes
-            await _updateNotificationMonitoring();
+          onTap: () {
+            final taskModel = _mapTaskToModel(task);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TaskDetailScreen(task: taskModel),
+              ),
+            );
           },
         ),
         Container(
@@ -2928,6 +2913,56 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         const SizedBox(height: 4),
       ],
     );
+  }
+
+  Task _mapTaskToModel(Map<String, dynamic> task) {
+    final rawDueDate = task['dueDate'];
+    DateTime dueDate;
+    if (rawDueDate is DateTime) {
+      dueDate = rawDueDate;
+    } else {
+      dueDate = DateTime.tryParse(rawDueDate?.toString() ?? '') ?? DateTime.now();
+    }
+
+    final dueTime = (task['dueTime'] ?? '12:00 PM').toString();
+
+    return Task(
+      id: (task['id'] ?? '').toString(),
+      leadId: widget.lead.id,
+      createdBy: task['user_id']?.toString(),
+      title: (task['title'] ?? '').toString(),
+      description: (task['description'] ?? '').toString(),
+      priority: (task['priority'] ?? 'Medium').toString(),
+      dueDate: DateTime(dueDate.year, dueDate.month, dueDate.day),
+      dueTime: dueTime,
+      isCompleted: task['isCompleted'] == true,
+      completedDate: task['completed_at'] != null
+          ? DateTime.tryParse(task['completed_at'].toString())
+          : null,
+    );
+  }
+
+  Future<void> _toggleTaskCompletion(Map<String, dynamic> task) async {
+    final oldStatus = task['isCompleted'];
+    setState(() {
+      task['isCompleted'] = !task['isCompleted'];
+    });
+
+    if (task['id'] != null && task['id'] is int) {
+      try {
+        await LeadActivityApi.updateTask(
+          taskId: task['id'],
+          isCompleted: task['isCompleted'],
+        );
+      } catch (e) {
+        setState(() {
+          task['isCompleted'] = oldStatus;
+        });
+      }
+    }
+
+    await _saveTasksToStorage();
+    await _updateNotificationMonitoring();
   }
 
   @override

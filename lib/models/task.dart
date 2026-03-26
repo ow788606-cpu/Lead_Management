@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 class Task {
   final String id;
   final String? leadId;
+  final String? createdBy;
+  final String? assignedTo;
   final String title;
   final String description;
   final String priority;
@@ -8,10 +12,15 @@ class Task {
   final String dueTime;
   bool isCompleted;
   DateTime? completedDate;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final Map<String, dynamic>? meta;
 
   Task({
     required this.id,
     this.leadId,
+    this.createdBy,
+    this.assignedTo,
     required this.title,
     required this.description,
     required this.priority,
@@ -19,6 +28,9 @@ class Task {
     required this.dueTime,
     this.isCompleted = false,
     this.completedDate,
+    this.createdAt,
+    this.updatedAt,
+    this.meta,
   });
 
   Map<String, dynamic> toJson() {
@@ -101,9 +113,24 @@ class Task {
       dueTimeString = json['dueTime'].toString();
     }
     
+    Map<String, dynamic>? metaMap;
+    final metaRaw = json['meta'];
+    if (metaRaw is Map<String, dynamic>) {
+      metaMap = metaRaw;
+    } else if (metaRaw is String && metaRaw.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(metaRaw);
+        if (decoded is Map<String, dynamic>) {
+          metaMap = decoded;
+        }
+      } catch (_) {}
+    }
+
     return Task(
       id: (json['id'] ?? '').toString(),
       leadId: json['lead_id']?.toString(),
+      createdBy: json['created_by']?.toString(),
+      assignedTo: json['assigned_to']?.toString(),
       title: (json['title'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
       priority: (json['priority'] ?? 'Medium').toString(),
@@ -117,6 +144,13 @@ class Task {
           : json['completed_at'] != null
               ? DateTime.parse(json['completed_at'].toString())
               : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'].toString())
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'].toString())
+          : null,
+      meta: metaMap,
     );
   }
 }

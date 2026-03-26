@@ -18,7 +18,12 @@ class TaskManager extends ChangeNotifier {
   List<Task> get completedTasks =>
       _tasks.where((task) => task.isCompleted).toList();
 
-  Future<void> addTask(Task task) async {
+  Future<void> addTask(
+    Task task, {
+    String? attachmentPath,
+    String? attachmentName,
+    Uint8List? attachmentBytes,
+  }) async {
     final userId = await AuthManager().getUserId() ?? 0;
     final taskData = task.toJson();
     taskData['user_id'] = userId;
@@ -29,6 +34,50 @@ class TaskManager extends ChangeNotifier {
     }
     
     final headers = await AuthManager().authHeaders();
+    final hasAttachment = attachmentPath != null || attachmentBytes != null;
+    if (hasAttachment) {
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('${ApiConfig.baseUrl}/tasks.php'),
+      );
+      final authHeaders = await AuthManager().authHeaders(includeContentType: false);
+      request.headers.addAll(authHeaders);
+      taskData.forEach((key, value) {
+        if (value != null) {
+          request.fields[key] = value.toString();
+        }
+      });
+
+      if (attachmentBytes != null) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'attachment',
+            attachmentBytes,
+            filename: attachmentName ?? 'attachment',
+          ),
+        );
+      } else if (attachmentPath != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'attachment',
+            attachmentPath,
+            filename: attachmentName,
+          ),
+        );
+      }
+
+      final streamed = await request.send();
+      final response = await http.Response.fromStream(streamed);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          await loadTasks(forceRefresh: true);
+          notifyListeners();
+        }
+      }
+      return;
+    }
+
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/tasks.php'),
       headers: headers,

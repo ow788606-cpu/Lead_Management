@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../../managers/contact_manager.dart';
 import '../../models/contact.dart';
+import '../../widgets/app_drawer.dart';
 
 class AddContactScreen extends StatefulWidget {
   const AddContactScreen({super.key});
@@ -65,9 +66,24 @@ class _AddContactScreenState extends State<AddContactScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      drawer: AppDrawer(
+        selectedIndex: 3,
+        onItemSelected: (_) => Navigator.pop(context),
+      ),
       appBar: AppBar(
-        title: const Text('Add New Contact'),
-        backgroundColor: const Color(0xFFF8F9FA),
+        toolbarHeight: 56,
+        centerTitle: true,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, size: 28),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        title: const Text('Add New Contact',
+            style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 14)),
         actions: [
           IconButton(
             icon: const HugeIcon(

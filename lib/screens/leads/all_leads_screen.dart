@@ -172,7 +172,7 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF5F5F5),
