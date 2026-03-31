@@ -3,6 +3,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../managers/contact_manager.dart';
 import '../../models/contact.dart';
 import '../../widgets/app_drawer.dart';
+import '../../utils/responsive_helper.dart';
 
 class AddContactScreen extends StatefulWidget {
   const AddContactScreen({super.key});
@@ -97,7 +98,8 @@ class _AddContactScreenState extends State<AddContactScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding:
+              EdgeInsets.all(ResponsiveHelper.getHorizontalSpacing(context)),
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(

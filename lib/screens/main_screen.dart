@@ -347,7 +347,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   void _checkPendingNotification() {
-    final pendingPayload = _pendingNavPayload ?? _notificationService.pendingPayload;
+    final pendingPayload =
+        _pendingNavPayload ?? _notificationService.pendingPayload;
     if (pendingPayload != null) {
       _pendingNavPayload = null;
       _notificationService.clearPendingPayload();

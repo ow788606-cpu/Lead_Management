@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../../widgets/app_drawer.dart';
+import '../../utils/responsive_helper.dart';
 
 class BillingScreen extends StatelessWidget {
   const BillingScreen({super.key});
@@ -37,16 +38,17 @@ class BillingScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(ResponsiveHelper.getPadding(context).left),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding:
+                  EdgeInsets.all(ResponsiveHelper.getPadding(context).left),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: ResponsiveHelper.getBorderRadius(context),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -237,4 +239,3 @@ class BillingScreen extends StatelessWidget {
     );
   }
 }
-

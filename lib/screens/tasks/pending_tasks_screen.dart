@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../../managers/task_manager.dart';
+import '../../utils/responsive_helper.dart';
 import 'edit_task_screen.dart';
 import 'new_task_screen.dart';
 import 'tasks_detail_screen.dart';
@@ -125,7 +126,7 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(ResponsiveHelper.getHorizontalSpacing(context)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -185,159 +186,172 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  // const Icon(Icons.task_alt_outlined,
-                                  //     size: 18, color: Color(0xFF131416)),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(task.title,
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Inter')),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: _getPriorityColor(task.priority)
-                                          .withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(4),
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    // const Icon(Icons.task_alt_outlined,
+                                    //     size: 18, color: Color(0xFF131416)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(task.title,
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'Inter')),
                                     ),
-                                    child: Text(task.priority,
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: _getPriorityColor(
-                                                task.priority),
-                                            fontFamily: 'Inter')),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  PopupMenuButton<String>(
-                                    color: Colors.white,
-                                    onSelected: (value) {
-                                      switch (value) {
-                                        case 'edit':
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EditTaskScreen(task: task),
-                                            ),
-                                          );
-                                          break;
-                                        case 'delete':
-                                          _deleteTask(task.id);
-                                          break;
-                                        case 'complete':
-                                          _markAsComplete(task.id);
-                                          break;
-                                      }
-                                    },
-                                    itemBuilder: (context) => [
-                                      const PopupMenuItem(
-                                        value: 'edit',
-                                        child: Row(
-                                          children: [
-                                            HugeIcon(
-                                              icon: HugeIcons.strokeRoundedPencilEdit02,
-                                              color: Colors.blue,
-                                              size: 18,
-                                            ),
-                                            SizedBox(width: 10),
-                                            Text('Edit', style: TextStyle(fontFamily: 'Inter', fontSize: 14)),
-                                          ],
-                                        ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: _getPriorityColor(task.priority)
+                                            .withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(4),
                                       ),
-                                      const PopupMenuItem(
-                                        value: 'complete',
-                                        child: Row(
-                                          children: [
-                                            HugeIcon(
-                                              icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-                                              color: Colors.green,
-                                              size: 18,
-                                            ),
-                                            SizedBox(width: 10),
-                                            Text('Mark as Complete', style: TextStyle(fontFamily: 'Inter', fontSize: 14)),
-                                          ],
+                                      child: Text(task.priority,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: _getPriorityColor(
+                                                  task.priority),
+                                              fontFamily: 'Inter')),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    PopupMenuButton<String>(
+                                      color: Colors.white,
+                                      onSelected: (value) {
+                                        switch (value) {
+                                          case 'edit':
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EditTaskScreen(task: task),
+                                              ),
+                                            );
+                                            break;
+                                          case 'delete':
+                                            _deleteTask(task.id);
+                                            break;
+                                          case 'complete':
+                                            _markAsComplete(task.id);
+                                            break;
+                                        }
+                                      },
+                                      itemBuilder: (context) => [
+                                        const PopupMenuItem(
+                                          value: 'edit',
+                                          child: Row(
+                                            children: [
+                                              HugeIcon(
+                                                icon: HugeIcons
+                                                    .strokeRoundedPencilEdit02,
+                                                color: Colors.blue,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 10),
+                                              Text('Edit',
+                                                  style: TextStyle(
+                                                      fontFamily: 'Inter',
+                                                      fontSize: 14)),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      const PopupMenuItem(
-                                        value: 'delete',
-                                        child: Row(
-                                          children: [
-                                            HugeIcon(
-                                              icon: HugeIcons.strokeRoundedDelete02,
-                                              color: Colors.red,
-                                              size: 18,
-                                            ),
-                                            SizedBox(width: 10),
-                                            Text('Delete', style: TextStyle(fontFamily: 'Inter', fontSize: 14)),
-                                          ],
+                                        const PopupMenuItem(
+                                          value: 'complete',
+                                          child: Row(
+                                            children: [
+                                              HugeIcon(
+                                                icon: HugeIcons
+                                                    .strokeRoundedCheckmarkCircle02,
+                                                color: Colors.green,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 10),
+                                              Text('Mark as Complete',
+                                                  style: TextStyle(
+                                                      fontFamily: 'Inter',
+                                                      fontSize: 14)),
+                                            ],
+                                          ),
                                         ),
+                                        const PopupMenuItem(
+                                          value: 'delete',
+                                          child: Row(
+                                            children: [
+                                              HugeIcon(
+                                                icon: HugeIcons
+                                                    .strokeRoundedDelete02,
+                                                color: Colors.red,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 10),
+                                              Text('Delete',
+                                                  style: TextStyle(
+                                                      fontFamily: 'Inter',
+                                                      fontSize: 14)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                      child: const HugeIcon(
+                                        icon:
+                                            HugeIcons.strokeRoundedMoreVertical,
+                                        color: Colors.grey,
+                                        size: 18.0,
                                       ),
-                                    ],
-                                    child: const HugeIcon(
-                                      icon: HugeIcons.strokeRoundedMoreVertical,
-                                      color: Colors.grey,
-                                      size: 18.0,
+                                    ),
+                                  ],
+                                ),
+                                if (task.description.isNotEmpty) ...[
+                                  const SizedBox(height: 10),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 12),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const HugeIcon(
+                                          icon: HugeIcons.strokeRoundedFileEdit,
+                                          color: Colors.grey,
+                                          size: 16.0,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(task.description,
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: 'Inter',
+                                                  color: Colors.grey)),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
-                              ),
-                              if (task.description.isNotEmpty) ...[
                                 const SizedBox(height: 10),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 12),
                                   child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
                                       const HugeIcon(
-                                        icon: HugeIcons.strokeRoundedFileEdit,
-                                        color: Colors.grey,
+                                        icon: HugeIcons.strokeRoundedClock01,
+                                        color: Color(0xFF131416),
                                         size: 16.0,
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
-                                        child: Text(task.description,
+                                        child: Text(
+                                            'Due: ${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year} ${task.dueTime}',
                                             style: const TextStyle(
                                                 fontSize: 14,
                                                 fontFamily: 'Inter',
-                                                color: Colors.grey)),
+                                                color: Color(0xFF131416))),
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
-                              const SizedBox(height: 10),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 12),
-                                child: Row(
-                                  children: [
-                                    const HugeIcon(
-                                      icon: HugeIcons.strokeRoundedClock01,
-                                      color: Color(0xFF131416),
-                                      size: 16.0,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                          'Due: ${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year} ${task.dueTime}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: 'Inter',
-                                              color: Color(0xFF131416))),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
                         );
                       },
                     ),
@@ -361,17 +375,19 @@ class _PendingTasksScreenState extends State<PendingTasksScreen> {
   }
 
   Color _getPriorityColor(String priority) {
-    switch (priority) {
-      case 'Urgent':
-        return Colors.red;
-      case 'High':
-        return Colors.orange;
-      case 'Medium':
-        return const Color(0xFF131416);
-      case 'Low':
-        return Colors.green;
+    switch (priority.toLowerCase()) {
+      case 'urgent':
+        return const Color(0xFFE11D48); // red
+      case 'high':
+        return const Color(0xFFF97316); // orange
+      case 'medium':
+        return const Color(0xFF2563EB); // blue
+      case 'low':
+        return const Color(0xFF16A34A); // green
+      case 'normal':
+        return const Color(0xFF6B7280); // gray
       default:
-        return Colors.grey;
+        return const Color(0xFF6B7280);
     }
   }
 }

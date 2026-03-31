@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../../managers/contact_manager.dart';
 import '../../widgets/app_drawer.dart';
+import '../../utils/responsive_helper.dart';
 import 'view_contact_screen.dart';
 import 'add_contact_screen.dart';
 
@@ -93,11 +94,12 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
         children: [
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.all(16),
+            padding:
+                EdgeInsets.all(ResponsiveHelper.getHorizontalSpacing(context)),
             child: Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: ResponsiveHelper.getBorderRadius(context),
               ),
               child: Row(
                 children: [
@@ -111,7 +113,8 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                   ),
                   Expanded(
                     child: TextField(
-                      onChanged: (value) => setState(() => _searchQuery = value),
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
                       decoration: const InputDecoration(
                         hintText: 'Search',
                         hintStyle: TextStyle(color: Colors.grey),
@@ -194,11 +197,13 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
                                       color: Colors.white,
-                                      border: Border.all(color: Colors.grey[300]!),
+                                      border:
+                                          Border.all(color: Colors.grey[300]!),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(contact.name,
                                             style: const TextStyle(
@@ -207,11 +212,13 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                                 fontFamily: 'Inter')),
                                         const SizedBox(height: 12),
                                         Padding(
-                                          padding: const EdgeInsets.only(left: 8),
+                                          padding:
+                                              const EdgeInsets.only(left: 8),
                                           child: Row(
                                             children: [
                                               const HugeIcon(
-                                                icon: HugeIcons.strokeRoundedCall,
+                                                icon:
+                                                    HugeIcons.strokeRoundedCall,
                                                 color: Colors.grey,
                                                 size: 16.0,
                                               ),
@@ -229,11 +236,13 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                         if (contact.phone2 != null) ...[
                                           const SizedBox(height: 8),
                                           Padding(
-                                            padding: const EdgeInsets.only(left: 8),
+                                            padding:
+                                                const EdgeInsets.only(left: 8),
                                             child: Row(
                                               children: [
                                                 const HugeIcon(
-                                                  icon: HugeIcons.strokeRoundedCall,
+                                                  icon: HugeIcons
+                                                      .strokeRoundedCall,
                                                   color: Colors.grey,
                                                   size: 16.0,
                                                 ),
@@ -243,7 +252,8 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           fontFamily: 'Inter',
-                                                          color: Colors.black87)),
+                                                          color:
+                                                              Colors.black87)),
                                                 ),
                                               ],
                                             ),
@@ -252,11 +262,13 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                         if (contact.email != null) ...[
                                           const SizedBox(height: 8),
                                           Padding(
-                                            padding: const EdgeInsets.only(left: 8),
+                                            padding:
+                                                const EdgeInsets.only(left: 8),
                                             child: Row(
                                               children: [
                                                 const HugeIcon(
-                                                  icon: HugeIcons.strokeRoundedMail01,
+                                                  icon: HugeIcons
+                                                      .strokeRoundedMail01,
                                                   color: Colors.grey,
                                                   size: 16.0,
                                                 ),
@@ -266,7 +278,8 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           fontFamily: 'Inter',
-                                                          color: Colors.black87)),
+                                                          color:
+                                                              Colors.black87)),
                                                 ),
                                               ],
                                             ),
@@ -276,11 +289,13 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                             contact.state != null) ...[
                                           const SizedBox(height: 8),
                                           Padding(
-                                            padding: const EdgeInsets.only(left: 8),
+                                            padding:
+                                                const EdgeInsets.only(left: 8),
                                             child: Row(
                                               children: [
                                                 const HugeIcon(
-                                                  icon: HugeIcons.strokeRoundedLocation01,
+                                                  icon: HugeIcons
+                                                      .strokeRoundedLocation01,
                                                   color: Colors.grey,
                                                   size: 16.0,
                                                 ),
@@ -291,7 +306,8 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           fontFamily: 'Inter',
-                                                          color: Colors.black87)),
+                                                          color:
+                                                              Colors.black87)),
                                                 ),
                                               ],
                                             ),

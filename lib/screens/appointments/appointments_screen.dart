@@ -5,6 +5,7 @@ import '../../models/lead.dart';
 import '../leads/detail_lead_screen.dart';
 import '../tags/tag_api.dart';
 
+
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
 
@@ -82,7 +83,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
     final query = _searchController.text.toLowerCase();
     if (query.isEmpty) return appointments;
-    
+
     return appointments
         .where((lead) =>
             lead.contactName.toLowerCase().contains(query) ||
@@ -169,12 +170,14 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                   : _error != null
                       ? Center(
                           child: Text(_error!,
-                              style: const TextStyle(color: Colors.red, fontSize: 14)),
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 14)),
                         )
                       : appointments.isEmpty
                           ? const Center(
                               child: Text('No appointments found.',
-                                  style: TextStyle(color: Colors.grey, fontSize: 14)),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 14)),
                             )
                           : ListView.builder(
                               padding: const EdgeInsets.all(16),
@@ -277,7 +280,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                     ),
                     const SizedBox(width: 6),
                     Text('${lead.service}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+                        style:
+                            TextStyle(fontSize: 14, color: Colors.grey[700])),
                   ],
                 ),
               if (lead.notes != null) ...[
@@ -292,7 +296,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text('${lead.notes}',
-                          style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                          style:
+                              TextStyle(fontSize: 13, color: Colors.grey[500]),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis),
                     ),
@@ -321,12 +326,18 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                       final matchingTag = _tags.firstWhere(
                         (t) => t.id.toString() == mappedTag,
                         orElse: () => TagItem(
-                            id: 0, name: mappedTag, description: '', colorHex: ''),
+                            id: 0,
+                            name: mappedTag,
+                            description: '',
+                            colorHex: ''),
                       );
-                      tagName = matchingTag.name.isNotEmpty ? matchingTag.name : mappedTag;
+                      tagName = matchingTag.name.isNotEmpty
+                          ? matchingTag.name
+                          : mappedTag;
                     } else {
                       for (final entry in _tagColors.entries) {
-                        if (entry.key.toLowerCase() == mappedTag.toLowerCase()) {
+                        if (entry.key.toLowerCase() ==
+                            mappedTag.toLowerCase()) {
                           tagColor = entry.value;
                           tagName = mappedTag;
                           break;
@@ -339,7 +350,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
                     if (tagColor == null) {
                       textColor = const Color(0xFF6B46C1);
-                      backgroundColor = const Color(0xFF6B46C1).withValues(alpha: 0.1);
+                      backgroundColor =
+                          const Color(0xFF6B46C1).withValues(alpha: 0.1);
                       tagName = trimmedTag;
                     } else {
                       textColor = tagColor;
@@ -347,7 +359,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                     }
 
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: backgroundColor,
                         borderRadius: BorderRadius.circular(16),
@@ -366,7 +379,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               ],
               if (lead.followUpDate != null) ...[
                 const SizedBox(height: 12),
-                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE5E7EB)),
+                const Divider(
+                    height: 1, thickness: 0.5, color: Color(0xFFE5E7EB)),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -376,7 +390,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.blue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),

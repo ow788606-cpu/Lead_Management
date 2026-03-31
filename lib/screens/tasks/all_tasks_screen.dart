@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../../managers/task_manager.dart';
 import '../../widgets/app_drawer.dart';
+
 import 'edit_task_screen.dart';
 import 'new_task_screen.dart';
 import 'tasks_detail_screen.dart';
@@ -536,17 +537,19 @@ class _AllTasksScreenState extends State<AllTasksScreen>
 
 
   Color _getPriorityColor(String priority) {
-    switch (priority) {
-      case 'Urgent':
-        return Colors.red;
-      case 'High':
-        return Colors.orange;
-      case 'Medium':
-        return const Color(0xFF131416);
-      case 'Low':
-        return Colors.green;
+    switch (priority.toLowerCase()) {
+      case 'urgent':
+        return const Color(0xFFE11D48); // red
+      case 'high':
+        return const Color(0xFFF97316); // orange
+      case 'medium':
+        return const Color(0xFF2563EB); // blue
+      case 'low':
+        return const Color(0xFF16A34A); // green
+      case 'normal':
+        return const Color(0xFF6B7280); // gray
       default:
-        return Colors.grey;
+        return const Color(0xFF6B7280);
     }
   }
 }

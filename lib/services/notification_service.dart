@@ -391,6 +391,13 @@ class NotificationService {
     autoCancel: true, ongoing: false, showWhen: true,
   );
 
+  static const _taskDetailChannel = AndroidNotificationDetails(
+    'task_detail_notifications', 'Task Detail Updates',
+    channelDescription: 'Notifications for task detail updates',
+    importance: Importance.max, priority: Priority.high,
+    autoCancel: true, ongoing: false, showWhen: true,
+  );
+
   static const _overdueTaskChannel = AndroidNotificationDetails(
     'overdue_task_notifications', 'Overdue Task Notifications',
     channelDescription: 'Notifications for tasks overdue by 24 hours',
@@ -603,6 +610,22 @@ class NotificationService {
         importance: Importance.max, priority: Priority.high,
         autoCancel: true, ongoing: false,
       ),
+    );
+  }
+
+  Future<void> showTaskDetailNotification({
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    if (!_isInitialized) return;
+    final id = DateTime.now().millisecondsSinceEpoch.remainder(1000000000);
+    await _showNotification(
+      id: id,
+      title: title,
+      body: body,
+      payload: payload ?? 'task_detail:update',
+      channel: _taskDetailChannel,
     );
   }
 

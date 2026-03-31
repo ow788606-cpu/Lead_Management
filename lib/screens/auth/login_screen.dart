@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../auth/forgot_password_screen.dart';
 import '../main_screen.dart';
 import '../../managers/auth_manager.dart';
+import '../../utils/responsive_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,13 +25,16 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(
+                ResponsiveHelper.getHorizontalSpacing(context) * 1.5),
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 400),
-              padding: const EdgeInsets.all(32),
+              constraints: BoxConstraints(
+                  maxWidth: ResponsiveHelper.getMaxContentWidth(context)),
+              padding:
+                  EdgeInsets.all(ResponsiveHelper.getPadding(context).left),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: ResponsiveHelper.getBorderRadius(context),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../managers/contact_manager.dart';
 import '../../models/contact.dart';
 import '../../widgets/app_drawer.dart';
+import '../../utils/responsive_helper.dart';
 
 class EditContactScreen extends StatefulWidget {
   final Contact contact;
@@ -100,7 +101,7 @@ class _EditContactScreenState extends State<EditContactScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(ResponsiveHelper.getHorizontalSpacing(context)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

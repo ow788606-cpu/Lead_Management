@@ -3,6 +3,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../managers/contact_manager.dart';
 import '../../models/contact.dart';
 import '../../widgets/app_drawer.dart';
+import '../../utils/responsive_helper.dart';
 
 class NewContactScreen extends StatefulWidget {
   const NewContactScreen({super.key});
@@ -101,15 +102,17 @@ class _NewContactScreenState extends State<NewContactScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding:
+              EdgeInsets.all(ResponsiveHelper.getHorizontalSpacing(context)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(24),
+                padding:
+                    EdgeInsets.all(ResponsiveHelper.getPadding(context).left),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: ResponsiveHelper.getBorderRadius(context),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.05),
@@ -147,17 +150,25 @@ class _NewContactScreenState extends State<NewContactScreen> {
                         hintText: 'Full Name',
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         prefixIcon: Icon(Icons.person_outline,
-                            size: 20, color: Colors.grey[400]),
+                            size: ResponsiveHelper.getIconSize(context,
+                                mobile: 20, tablet: 22, desktop: 24),
+                            color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius:
+                                ResponsiveHelper.getBorderRadius(context),
                             borderSide: BorderSide(color: Colors.grey[300]!)),
                         enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius:
+                                ResponsiveHelper.getBorderRadius(context),
                             borderSide: BorderSide(color: Colors.grey[300]!)),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal:
+                                ResponsiveHelper.getHorizontalSpacing(context),
+                            vertical:
+                                ResponsiveHelper.getVerticalSpacing(context) *
+                                    0.8),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -166,24 +177,34 @@ class _NewContactScreenState extends State<NewContactScreen> {
                             color: Colors.black,
                             fontSize: 14,
                             fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
+                    SizedBox(
+                        height: ResponsiveHelper.getVerticalSpacing(context) *
+                            1.25),
                     TextField(
                       controller: _emailController,
                       decoration: InputDecoration(
                         hintText: 'Email',
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         prefixIcon: Icon(Icons.email_outlined,
-                            size: 20, color: Colors.grey[400]),
+                            size: ResponsiveHelper.getIconSize(context,
+                                mobile: 20, tablet: 22, desktop: 24),
+                            color: Colors.grey[400]),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius:
+                                ResponsiveHelper.getBorderRadius(context),
                             borderSide: BorderSide(color: Colors.grey[300]!)),
                         enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius:
+                                ResponsiveHelper.getBorderRadius(context),
                             borderSide: BorderSide(color: Colors.grey[300]!)),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 14),
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal:
+                                ResponsiveHelper.getHorizontalSpacing(context),
+                            vertical:
+                                ResponsiveHelper.getVerticalSpacing(context) *
+                                    0.8),
                       ),
                     ),
                     const SizedBox(height: 20),

@@ -9,6 +9,7 @@ import 'leads/detail_lead_screen.dart';
 import '../screens/tags/tag_api.dart';
 import 'tasks/all_tasks_screen.dart';
 import 'main_screen.dart';
+import '../utils/responsive_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -57,25 +58,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       await _taskManager.loadTasks(forceRefresh: true);
       if (!mounted) return;
-      
+
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
-      
+
       _todaysTasks = _taskManager.pendingTasks.where((task) {
-        final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+        final taskDate =
+            DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
         return taskDate.isAtSameMomentAs(today);
       }).length;
-      
+
       _overdueTasks = _taskManager.pendingTasks.where((task) {
-        final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+        final taskDate =
+            DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
         return taskDate.isBefore(today);
       }).length;
-      
+
       _activeTasks = _taskManager.pendingTasks.where((task) {
-        final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+        final taskDate =
+            DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
         return taskDate.isAtSameMomentAs(today) || taskDate.isAfter(today);
       }).length;
-      
+
       setState(() {});
     } catch (e) {
       // Keep dashboard usable if task loading fails
@@ -111,8 +115,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         .where(
             (lead) => lead.tags?.toLowerCase().contains('converted') ?? false)
         .length;
+    final screenSize = ResponsiveHelper.getScreenSize(context);
+    final isDesktop = screenSize == ScreenSize.desktop;
+    final padding = ResponsiveHelper.getPadding(context);
+    final horizontalSpacing = ResponsiveHelper.getHorizontalSpacing(context);
+    final verticalSpacing = ResponsiveHelper.getVerticalSpacing(context);
+
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -120,91 +130,173 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(_getGreeting(),
-                  style: const TextStyle(
-                      fontSize: 28, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
+                  style: TextStyle(
+                      fontSize: ResponsiveHelper.getFontSize(context,
+                          mobile: 28, tablet: 32, desktop: 36),
+                      fontWeight: FontWeight.bold)),
+              SizedBox(height: verticalSpacing / 2),
               Text('Welcome${_username.isNotEmpty ? ', $_username' : ''}!',
-                  style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+                  style: TextStyle(
+                      fontSize: ResponsiveHelper.getFontSize(context,
+                          mobile: 18, tablet: 20, desktop: 22),
+                      color: Colors.grey[600])),
             ],
           ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                  child: _StatCard(
-                      freshLeads.toString(),
-                      'Fresh Leads',
-                      Icons.phone_in_talk_outlined,
-                      const Color(0xFF131416), onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 1)),
-                );
-              })),
-              const SizedBox(width: 16),
-              Expanded(
-                  child: _StatCard(
-                      scheduledAppointments.toString(),
-                      'Appointments',
-                      Icons.calendar_today_outlined,
-                      const Color(0xFF131416), onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 2)),
-                );
-              })),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                  child: _StatCard(
-                      followUpLeads.toString(),
-                      'Followup Leads',
-                      Icons.access_time_outlined,
-                      const Color(0xFF131416), onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 2)),
-                );
-              })),
-              const SizedBox(width: 16),
-              Expanded(
-                  child: _StatCard(
-                      overdueLeads.toString(),
-                      'Overdue Leads',
-                      Icons.warning_amber_outlined,
-                      const Color(0xFF131416), onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MainScreen(initialIndex: 1, initialLeadTabIndex: 3)),
-                );
-              })),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                  child: _StatCard(lostLeads.toString(), 'Lost Leads',
-                      Icons.person_off_outlined, const Color(0xFF131416))),
-              const SizedBox(width: 16),
-              Expanded(
-                  child: _StatCard(convertedLeads.toString(), 'Converted Leads',
-                      Icons.star_outline, const Color(0xFF131416))),
-            ],
-          ),
-          const SizedBox(height: 24),
+          SizedBox(height: verticalSpacing * 1.5),
+          isDesktop
+              ? Row(
+                  children: [
+                    Expanded(
+                        child: _StatCard(
+                            freshLeads.toString(),
+                            'Fresh Leads',
+                            Icons.phone_in_talk_outlined,
+                            const Color(0xFF131416), onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const MainScreen(
+                                initialIndex: 1, initialLeadTabIndex: 1)),
+                      );
+                    })),
+                    SizedBox(width: horizontalSpacing),
+                    Expanded(
+                        child: _StatCard(
+                            scheduledAppointments.toString(),
+                            'Appointments',
+                            Icons.calendar_today_outlined,
+                            const Color(0xFF131416), onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const MainScreen(initialIndex: 2)),
+                      );
+                    })),
+                    SizedBox(width: horizontalSpacing),
+                    Expanded(
+                        child: _StatCard(
+                            followUpLeads.toString(),
+                            'Followup Leads',
+                            Icons.access_time_outlined,
+                            const Color(0xFF131416), onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const MainScreen(
+                                initialIndex: 1, initialLeadTabIndex: 2)),
+                      );
+                    })),
+                    SizedBox(width: horizontalSpacing),
+                    Expanded(
+                        child: _StatCard(
+                            overdueLeads.toString(),
+                            'Overdue Leads',
+                            Icons.warning_amber_outlined,
+                            const Color(0xFF131416), onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const MainScreen(
+                                initialIndex: 1, initialLeadTabIndex: 3)),
+                      );
+                    })),
+                  ],
+                )
+              : Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                            child: _StatCard(
+                                freshLeads.toString(),
+                                'Fresh Leads',
+                                Icons.phone_in_talk_outlined,
+                                const Color(0xFF131416), onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const MainScreen(
+                                    initialIndex: 1, initialLeadTabIndex: 1)),
+                          );
+                        })),
+                        SizedBox(width: horizontalSpacing),
+                        Expanded(
+                            child: _StatCard(
+                                scheduledAppointments.toString(),
+                                'Appointments',
+                                Icons.calendar_today_outlined,
+                                const Color(0xFF131416), onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    const MainScreen(initialIndex: 2)),
+                          );
+                        })),
+                      ],
+                    ),
+                    SizedBox(height: verticalSpacing),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: _StatCard(
+                                followUpLeads.toString(),
+                                'Followup Leads',
+                                Icons.access_time_outlined,
+                                const Color(0xFF131416), onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const MainScreen(
+                                    initialIndex: 1, initialLeadTabIndex: 2)),
+                          );
+                        })),
+                        SizedBox(width: horizontalSpacing),
+                        Expanded(
+                            child: _StatCard(
+                                overdueLeads.toString(),
+                                'Overdue Leads',
+                                Icons.warning_amber_outlined,
+                                const Color(0xFF131416), onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const MainScreen(
+                                    initialIndex: 1, initialLeadTabIndex: 3)),
+                          );
+                        })),
+                      ],
+                    ),
+                    SizedBox(height: verticalSpacing),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: _StatCard(
+                                lostLeads.toString(),
+                                'Lost Leads',
+                                Icons.person_off_outlined,
+                                const Color(0xFF131416))),
+                        SizedBox(width: horizontalSpacing),
+                        Expanded(
+                            child: _StatCard(
+                                convertedLeads.toString(),
+                                'Converted Leads',
+                                Icons.star_outline,
+                                const Color(0xFF131416))),
+                      ],
+                    ),
+                  ],
+                ),
+          SizedBox(height: verticalSpacing * 1.5),
           _TaskManagementCard(
               todaysTasks: _todaysTasks,
               overdueTasks: _overdueTasks,
               activeTasks: _activeTasks),
-          const SizedBox(height: 16),
+          SizedBox(height: verticalSpacing),
           const _WeeklyReportCard(),
-          const SizedBox(height: 16),
+          SizedBox(height: verticalSpacing),
           _MonthlyReportCard(wonLeads: convertedLeads, lostLeads: lostLeads),
-          const SizedBox(height: 16),
+          SizedBox(height: verticalSpacing),
           _LeadsOverviewCard(leads: allLeads),
         ],
       ),
@@ -227,16 +319,25 @@ class _StatCard extends StatelessWidget {
     const brandBlue = Color(0xFF131416);
     final iconColor =
         bgColor.toARGB32() == brandBlue.toARGB32() ? Colors.white : brandBlue;
+    final padding = ResponsiveHelper.getPadding(context);
+    final borderRadius = ResponsiveHelper.getBorderRadius(context);
+    final fontSize = ResponsiveHelper.getFontSize(context,
+        mobile: 28, tablet: 32, desktop: 36);
+    final labelFontSize = ResponsiveHelper.getFontSize(context,
+        mobile: 11, tablet: 12, desktop: 13);
+    final iconSize = ResponsiveHelper.getIconSize(context,
+        mobile: 16, tablet: 18, desktop: 20);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: borderRadius,
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: padding * 0.8,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: borderRadius,
             boxShadow: [
               BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
@@ -252,20 +353,20 @@ class _StatCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(value,
-                        style: const TextStyle(
-                            fontSize: 28, fontWeight: FontWeight.bold)),
+                        style: TextStyle(
+                            fontSize: fontSize, fontWeight: FontWeight.bold)),
                   ),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                         color: bgColor, borderRadius: BorderRadius.circular(8)),
-                    child: Icon(icon, color: iconColor, size: 16),
+                    child: Icon(icon, color: iconColor, size: iconSize),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: labelFontSize / 2),
               Text(label,
-                  style: const TextStyle(color: Colors.grey, fontSize: 11),
+                  style: TextStyle(color: Colors.grey, fontSize: labelFontSize),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
             ],
@@ -332,11 +433,13 @@ class _TaskManagementCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AllTasksScreen(initialTabIndex: 0, filter: 'today'),
+                        builder: (context) => const AllTasksScreen(
+                            initialTabIndex: 0, filter: 'today'),
                       ),
                     );
                   },
-                  child: _buildTaskRow(todaysTasks.toString(), 'Today\'s Tasks'),
+                  child:
+                      _buildTaskRow(todaysTasks.toString(), 'Today\'s Tasks'),
                 ),
               ),
               const SizedBox(width: 16),
@@ -346,11 +449,13 @@ class _TaskManagementCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AllTasksScreen(initialTabIndex: 0, filter: 'overdue'),
+                        builder: (context) => const AllTasksScreen(
+                            initialTabIndex: 0, filter: 'overdue'),
                       ),
                     );
                   },
-                  child: _buildTaskRow(overdueTasks.toString(), 'Overdue Tasks'),
+                  child:
+                      _buildTaskRow(overdueTasks.toString(), 'Overdue Tasks'),
                 ),
               ),
               const SizedBox(width: 16),
@@ -360,7 +465,8 @@ class _TaskManagementCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AllTasksScreen(initialTabIndex: 0, filter: 'active'),
+                        builder: (context) => const AllTasksScreen(
+                            initialTabIndex: 0, filter: 'active'),
                       ),
                     );
                   },
@@ -381,7 +487,8 @@ class _TaskManagementCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(value,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              style:
+                  const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),
           Text(label, style: const TextStyle(color: Colors.grey, fontSize: 10)),
         ],
@@ -681,59 +788,62 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedTab = 'Fresh Leads';
-                    });
-                  },
-                  child:
-                      _TabButton('Fresh Leads', _selectedTab == 'Fresh Leads'),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedTab = 'Fresh Leads';
+                        });
+                      },
+                      child: _TabButton(
+                          'Fresh Leads', _selectedTab == 'Fresh Leads'),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedTab = 'Appointment Scheduled';
+                        });
+                      },
+                      child: _TabButton('Appointment Scheduled',
+                          _selectedTab == 'Appointment Scheduled'),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedTab = 'Follow-up';
+                        });
+                      },
+                      child:
+                          _TabButton('Follow-up', _selectedTab == 'Follow-up'),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedTab = 'Appointment Scheduled';
-                    });
-                  },
-                  child: _TabButton('Appointment Scheduled',
-                      _selectedTab == 'Appointment Scheduled'),
+              ),
+              const SizedBox(height: 20),
+              if (filteredLeads.isEmpty)
+                const Center(
+                    child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Text('No leads found.',
+                      style: TextStyle(color: Colors.grey, fontSize: 11)),
+                ))
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount:
+                      filteredLeads.length > 5 ? 5 : filteredLeads.length,
+                  itemBuilder: (context, index) =>
+                      _buildLeadCard(filteredLeads[index]),
                 ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedTab = 'Follow-up';
-                    });
-                  },
-                  child: _TabButton('Follow-up', _selectedTab == 'Follow-up'),
-                ),
-              ],
-            ),
+            ],
           ),
-          const SizedBox(height: 20),
-          if (filteredLeads.isEmpty)
-            const Center(
-                child: Padding(
-              padding: EdgeInsets.all(40),
-              child: Text('No leads found.',
-                  style: TextStyle(color: Colors.grey, fontSize: 11)),
-            ))
-          else
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filteredLeads.length > 5 ? 5 : filteredLeads.length,
-              itemBuilder: (context, index) => _buildLeadCard(filteredLeads[index]),
-            ),
-          ],
         ),
-      ),
       ],
     );
   }
@@ -849,7 +959,8 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text('${lead.notes}',
-                            style: const TextStyle(fontSize: 13, color: Color(0xFF131416)),
+                            style: const TextStyle(
+                                fontSize: 13, color: Color(0xFF131416)),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis),
                       ),
@@ -878,12 +989,18 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                         final matchingTag = _tags.firstWhere(
                           (t) => t.id.toString() == mappedTag,
                           orElse: () => TagItem(
-                              id: 0, name: mappedTag, description: '', colorHex: ''),
+                              id: 0,
+                              name: mappedTag,
+                              description: '',
+                              colorHex: ''),
                         );
-                        tagName = matchingTag.name.isNotEmpty ? matchingTag.name : mappedTag;
+                        tagName = matchingTag.name.isNotEmpty
+                            ? matchingTag.name
+                            : mappedTag;
                       } else {
                         for (final entry in _tagColors.entries) {
-                          if (entry.key.toLowerCase() == mappedTag.toLowerCase()) {
+                          if (entry.key.toLowerCase() ==
+                              mappedTag.toLowerCase()) {
                             tagColor = entry.value;
                             tagName = mappedTag;
                             break;
@@ -896,7 +1013,8 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
 
                       if (tagColor == null) {
                         textColor = const Color(0xFF6B46C1);
-                        backgroundColor = const Color(0xFF6B46C1).withValues(alpha: 0.1);
+                        backgroundColor =
+                            const Color(0xFF6B46C1).withValues(alpha: 0.1);
                         tagName = trimmedTag;
                       } else {
                         textColor = tagColor;
@@ -904,7 +1022,8 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                       }
 
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: backgroundColor,
                           borderRadius: BorderRadius.circular(16),
@@ -929,11 +1048,13 @@ class _LeadsOverviewCardState extends State<_LeadsOverviewCard> {
                       if (lead.followUpDate != null)
                         Text(
                           'Follow-up : ${lead.followUpDate!.day}/${lead.followUpDate!.month}/${lead.followUpDate!.year} ${lead.followUpTime ?? '10:00 AM'}',
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.grey[600]),
                         ),
                       if (statusTag.isNotEmpty)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: statusColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),

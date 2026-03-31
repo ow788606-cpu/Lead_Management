@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import '../utils/responsive_helper.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -8,7 +9,8 @@ class CameraScreen extends StatefulWidget {
   State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver {
+class _CameraScreenState extends State<CameraScreen>
+    with WidgetsBindingObserver {
   CameraController? _controller;
   List<CameraDescription> _cameras = [];
   bool _isReady = false;
@@ -51,7 +53,9 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   }
 
   Future<void> _takePicture() async {
-    if (_controller == null || !_controller!.value.isInitialized || _isTaking) return;
+    if (_controller == null || !_controller!.value.isInitialized || _isTaking) {
+      return;
+    }
     setState(() => _isTaking = true);
     try {
       final file = await _controller!.takePicture();
@@ -64,7 +68,8 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
   Future<void> _flipCamera() async {
     if (_cameras.length < 2) return;
     final current = _controller?.description;
-    final next = _cameras.firstWhere((c) => c != current, orElse: () => _cameras.first);
+    final next =
+        _cameras.firstWhere((c) => c != current, orElse: () => _cameras.first);
     await _controller?.dispose();
     setState(() => _isReady = false);
     await _startCamera(next);
@@ -97,7 +102,7 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
               children: [
                 CameraPreview(_controller!),
                 Positioned(
-                  bottom: 40,
+                  bottom: ResponsiveHelper.getVerticalSpacing(context) * 2,
                   left: 0,
                   right: 0,
                   child: Row(
@@ -105,7 +110,8 @@ class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver
                     children: [
                       IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close, color: Colors.white, size: 32),
+                        icon: const Icon(Icons.close,
+                            color: Colors.white, size: 32),
                       ),
                       GestureDetector(
                         onTap: _isTaking ? null : _takePicture,

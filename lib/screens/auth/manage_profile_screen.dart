@@ -7,6 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../widgets/app_drawer.dart';
 import '../../managers/auth_manager.dart';
 import '../../services/api_config.dart';
+import '../../utils/responsive_helper.dart';
 import '../camera_screen.dart';
 
 class ManageProfileScreen extends StatefulWidget {
@@ -105,7 +106,8 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
         return;
       }
 
-      final headers = await AuthManager().authHeaders(includeContentType: false);
+      final headers =
+          await AuthManager().authHeaders(includeContentType: false);
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/users.php?user_id=$userId'),
         headers: headers,
@@ -241,7 +243,8 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
         title: const Text('Manage Profile'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(
+            ResponsiveHelper.getHorizontalSpacing(context) * 1.5),
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : Form(
@@ -278,9 +281,11 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
                                             width: 100,
                                             height: 100,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) {
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
                                               return const Icon(Icons.person,
-                                                  size: 50, color: Colors.white);
+                                                  size: 50,
+                                                  color: Colors.white);
                                             },
                                           ),
                                         )

@@ -1,11 +1,16 @@
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../../managers/auth_manager.dart';
 import '../../managers/task_manager.dart';
 import '../../models/task.dart';
+import '../../services/notification_service.dart';
+import '../../services/task_detail_api.dart';
+import '../../services/task_notification_api.dart';
 import '../../widgets/app_drawer.dart';
+import 'notification_tasks.dart';
 
 
 class TaskDetailScreen extends StatefulWidget {
@@ -20,6 +25,7 @@ class TaskDetailScreen extends StatefulWidget {
 class _TaskDetailScreenState extends State<TaskDetailScreen> {
   final _commentController = TextEditingController();
   final _taskManager = TaskManager();
+  final _notificationService = NotificationService();
   final List<_TaskComment> _comments = [];
   final List<_TaskAttachment> _attachments = [];
   final List<_Collaborator> _collaborators = [];
@@ -35,6 +41,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   String _username = 'You';
   int? _userId;
   late Task _task;
+  late final String _taskSource;
 
   static const List<String> _collaboratorOptions = [
     'Andrea C',
@@ -58,8 +65,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   void initState() {
     super.initState();
     _task = widget.task;
+    _taskSource = _resolveTaskSource(_task);
     _seedFromTask();
     _loadUserInfo();
+    _initializeNotificationService();
+    _loadTaskDetail();
   }
 
   @override
@@ -76,6 +86,44 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       _username = (name == null || name.trim().isEmpty) ? 'You' : name.trim();
       _userId = id;
     });
+  }
+
+  Future<void> _initializeNotificationService() async {
+    try {
+      if (!_notificationService.isInitialized) {
+        await _notificationService.initialize();
+      }
+    } catch (e) {
+      debugPrint('Failed to initialize notification service in task detail: $e');
+    }
+  }
+
+  Future<void> _notifyTaskDetail({
+    required String title,
+    required String body,
+  }) async {
+    try {
+      if (!_notificationService.isInitialized) {
+        await _notificationService.initialize();
+      }
+      await _notificationService.showTaskDetailNotification(
+        title: title,
+        body: body,
+        payload: 'task_detail:${_task.id}',
+      );
+    } catch (e) {
+      debugPrint('Failed to show task detail notification: $e');
+    }
+    try {
+      await TaskNotificationApi.createNotification(
+        taskId: _task.id,
+        title: title,
+        message: body,
+        taskSource: _taskSource,
+      );
+    } catch (e) {
+      debugPrint('Failed to save task notification: $e');
+    }
   }
 
   void _seedFromTask() {
@@ -126,6 +174,318 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ),
       );
     }
+  }
+
+  String _storageKey() => 'task_detail_${_taskSource}_${_task.id}';
+
+  String _resolveTaskSource(Task task) {
+    final meta = task.meta;
+    if (meta is Map<String, dynamic>) {
+      final source = meta['source']?.toString();
+      if (source == 'lead_tasks') return 'lead_tasks';
+    }
+    return 'tasks';
+  }
+
+  Future<void> _loadTaskDetail() async {
+    await _loadPersistedTaskDetail();
+    await _loadTaskDetailFromApi();
+  }
+
+  Future<void> _loadPersistedTaskDetail() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_storageKey());
+      if (raw == null || raw.isEmpty) return;
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) return;
+      await _applyTaskDetail(decoded);
+    } catch (e) {
+      debugPrint('Failed to load task detail data: $e');
+    }
+  }
+
+  Future<void> _loadTaskDetailFromApi() async {
+    final data = await TaskDetailApi.fetchTaskDetail(
+      _task.id,
+      taskSource: _taskSource,
+    );
+    if (data == null) return;
+
+    final hasRemoteData = _hasAnyDetailData(data);
+    if (!hasRemoteData) {
+      if (_hasLocalDetailData()) {
+        await _saveTaskDetailToStorage();
+      }
+      return;
+    }
+
+    final localCounts = _detailCountsFromPayload(_buildTaskDetailPayload());
+    final remoteCounts = _detailCountsFromPayload(data);
+    final localHasMore = localCounts['total']! > remoteCounts['total']!;
+
+    if (_hasLocalDetailData() && localHasMore) {
+      await _saveTaskDetailToStorage();
+      return;
+    }
+
+    await _applyTaskDetail(data);
+    await _saveTaskDetailToStorage(skipRemote: true);
+  }
+
+  bool _hasLocalDetailData() {
+    return _comments.isNotEmpty ||
+        _attachments.isNotEmpty ||
+        _collaborators.isNotEmpty ||
+        _activities.isNotEmpty;
+  }
+
+  bool _hasAnyDetailData(Map<String, dynamic> data) {
+    List<dynamic> decode(dynamic raw) {
+      if (raw is List) return raw;
+      if (raw is String && raw.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(raw);
+          if (decoded is List) return decoded;
+        } catch (_) {}
+      }
+      return [];
+    }
+
+    return decode(data['comments']).isNotEmpty ||
+        decode(data['attachments']).isNotEmpty ||
+        decode(data['collaborators']).isNotEmpty ||
+        decode(data['activities']).isNotEmpty;
+  }
+
+  Map<String, int> _detailCountsFromPayload(Map<String, dynamic> data) {
+    List<dynamic> decode(dynamic raw) {
+      if (raw is List) return raw;
+      if (raw is String && raw.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(raw);
+          if (decoded is List) return decoded;
+        } catch (_) {}
+      }
+      return [];
+    }
+
+    final comments = decode(data['comments']).length;
+    final attachments = decode(data['attachments']).length;
+    final collaborators = decode(data['collaborators']).length;
+    final activities = decode(data['activities']).length;
+    return {
+      'comments': comments,
+      'attachments': attachments,
+      'collaborators': collaborators,
+      'activities': activities,
+      'total': comments + attachments + collaborators + activities,
+    };
+  }
+
+  Future<void> _applyTaskDetail(Map<String, dynamic> decoded) async {
+    List<dynamic> decodeList(dynamic raw) {
+      if (raw is List) return raw;
+      if (raw is String && raw.isNotEmpty) {
+        try {
+          final parsed = jsonDecode(raw);
+          if (parsed is List) return parsed;
+        } catch (_) {}
+      }
+      return [];
+    }
+
+    final commentsRaw = decodeList(decoded['comments']);
+    final attachmentsRaw = decodeList(decoded['attachments']);
+    final collaboratorsRaw = decodeList(decoded['collaborators']);
+    final activitiesRaw = decodeList(decoded['activities']);
+
+    if (commentsRaw.isEmpty &&
+        attachmentsRaw.isEmpty &&
+        collaboratorsRaw.isEmpty &&
+        activitiesRaw.isEmpty) {
+      return;
+    }
+
+    final loadedComments = <_TaskComment>[];
+    for (final item in commentsRaw) {
+      if (item is! Map<String, dynamic>) continue;
+      final attachmentRaw = item['attachment'];
+      _TaskAttachment? attachment;
+      if (attachmentRaw is Map<String, dynamic>) {
+        attachment = _TaskAttachment(
+          name: (attachmentRaw['name'] ?? 'Attachment').toString(),
+          size: attachmentRaw['size'] is int
+              ? attachmentRaw['size'] as int
+              : int.tryParse('${attachmentRaw['size'] ?? 0}') ?? 0,
+          path: attachmentRaw['path']?.toString(),
+        );
+      }
+      loadedComments.add(
+        _TaskComment(
+          author: (item['author'] ?? '').toString(),
+          text: (item['text'] ?? '').toString(),
+          createdAt: DateTime.tryParse('${item['createdAt'] ?? ''}') ??
+              DateTime.now(),
+          attachment: attachment,
+        ),
+      );
+    }
+
+    final loadedAttachments = <_TaskAttachment>[];
+    for (final item in attachmentsRaw) {
+      if (item is! Map<String, dynamic>) continue;
+      loadedAttachments.add(
+        _TaskAttachment(
+          name: (item['name'] ?? 'Attachment').toString(),
+          size: item['size'] is int
+              ? item['size'] as int
+              : int.tryParse('${item['size'] ?? 0}') ?? 0,
+          path: item['path']?.toString(),
+        ),
+      );
+    }
+
+    final loadedCollaborators = <_Collaborator>[];
+    for (final item in collaboratorsRaw) {
+      if (item is! Map<String, dynamic>) continue;
+      loadedCollaborators.add(
+        _Collaborator(
+          name: (item['name'] ?? '').toString(),
+          email: item['email']?.toString(),
+        ),
+      );
+    }
+
+    final loadedActivities = <_ActivityItem>[];
+    for (final item in activitiesRaw) {
+      if (item is! Map<String, dynamic>) continue;
+      final codePoint = item['iconCodePoint'];
+      final fontFamily = item['iconFamily']?.toString();
+      final fontPackage = item['iconPackage']?.toString();
+      final icon = (codePoint is int)
+          ? IconData(
+              codePoint,
+              fontFamily: fontFamily,
+              fontPackage: fontPackage,
+            )
+          : HugeIcons.strokeRoundedNotification03;
+      final colorValue = item['colorValue'];
+      loadedActivities.add(
+        _ActivityItem(
+          title: (item['title'] ?? '').toString(),
+          subtitle: (item['subtitle'] ?? '').toString(),
+          time: DateTime.tryParse('${item['time'] ?? ''}') ?? DateTime.now(),
+          icon: icon,
+          color: Color(colorValue is int ? colorValue : 0xFF131416),
+        ),
+      );
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _comments
+        ..clear()
+        ..addAll(loadedComments);
+      _attachments
+        ..clear()
+        ..addAll(loadedAttachments);
+      _collaborators
+        ..clear()
+        ..addAll(loadedCollaborators);
+      _activities
+        ..clear()
+        ..addAll(loadedActivities);
+    });
+  }
+
+  Map<String, dynamic> _buildTaskDetailPayload() {
+    return {
+      'comments': _comments
+          .map((c) => {
+                'author': c.author,
+                'text': c.text,
+                'createdAt': c.createdAt.toIso8601String(),
+                'attachment': c.attachment == null
+                    ? null
+                    : {
+                        'name': c.attachment!.name,
+                        'size': c.attachment!.size,
+                        'path': c.attachment!.path,
+                      },
+              })
+          .toList(),
+      'attachments': _attachments
+          .map((a) => {
+                'name': a.name,
+                'size': a.size,
+                'path': a.path,
+              })
+          .toList(),
+      'collaborators': _collaborators
+          .map((c) => {
+                'name': c.name,
+                'email': c.email,
+              })
+          .toList(),
+      'activities': _activities
+          .map((a) => {
+                'title': a.title,
+                'subtitle': a.subtitle,
+                'time': a.time.toIso8601String(),
+                'iconCodePoint': a.icon.codePoint,
+                'iconFamily': a.icon.fontFamily,
+                'iconPackage': a.icon.fontPackage,
+                // ignore: deprecated_member_use
+                'colorValue': a.color.value,
+              })
+          .toList(),
+    };
+  }
+
+  Future<void> _saveTaskDetailToStorage({bool skipRemote = false}) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final payload = _buildTaskDetailPayload();
+      await prefs.setString(_storageKey(), jsonEncode(payload));
+      if (!skipRemote) {
+        final error = await TaskDetailApi.saveTaskDetail(
+          taskId: _task.id,
+          payload: payload,
+          taskSource: _taskSource,
+        );
+        if (error != null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to save task detail data: $e');
+    }
+  }
+
+  Future<_TaskAttachment?> _uploadTaskDetailAttachment(PlatformFile file) async {
+    final path = file.path;
+    if (path == null || path.isEmpty) return null;
+    final meta = await TaskDetailApi.uploadAttachment(
+      taskId: _task.id,
+      taskSource: _taskSource,
+      filePath: path,
+      fileName: file.name,
+    );
+    if (meta == null) return null;
+    return _TaskAttachment(
+      name: (meta['name'] ?? file.name).toString(),
+      size: meta['size'] is int
+          ? meta['size'] as int
+          : int.tryParse('${meta['size'] ?? file.size}') ?? file.size,
+      path: meta['path']?.toString(),
+    );
   }
 
   String _displayUser(String? id) {
@@ -199,7 +559,19 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       return;
     }
 
-    final attachment = _pendingCommentAttachment;
+    final attachmentFile = _pendingCommentAttachment;
+    _TaskAttachment? uploadedAttachment;
+    if (attachmentFile != null) {
+      uploadedAttachment = await _uploadTaskDetailAttachment(attachmentFile);
+      if (uploadedAttachment == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to upload attachment.')),
+        );
+        return;
+      }
+    }
+
     final createdAt = DateTime.now();
     setState(() {
       _comments.insert(
@@ -208,13 +580,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           author: _username,
           text: text,
           createdAt: createdAt,
-          attachment: attachment == null
-              ? null
-              : _TaskAttachment(
-                  name: attachment.name,
-                  size: attachment.size,
-                  path: attachment.path,
-                ),
+          attachment: uploadedAttachment,
         ),
       );
       _activities.insert(
@@ -230,6 +596,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       _commentController.clear();
       _pendingCommentAttachment = null;
     });
+    await _saveTaskDetailToStorage();
+    await _notifyTaskDetail(
+      title: 'Comment added',
+      body: '$_username added a comment on "${_task.title}"',
+    );
   }
 
   Future<void> _pickCommentAttachment() async {
@@ -276,11 +647,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         );
         return;
       }
-      final attachment = _TaskAttachment(
-        name: file.name,
-        size: file.size,
-        path: file.path,
-      );
+      final attachment = await _uploadTaskDetailAttachment(file);
+      if (attachment == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to upload attachment.')),
+        );
+        return;
+      }
       final createdAt = DateTime.now();
       setState(() {
         _attachments.insert(0, attachment);
@@ -295,6 +669,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
         );
       });
+      await _saveTaskDetailToStorage();
+      await _notifyTaskDetail(
+        title: 'Activity update',
+        body: 'Attachment "${attachment.name}" added to "${_task.title}"',
+      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -312,7 +691,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     });
   }
 
-  void _confirmAddCollaborator() {
+  Future<void> _confirmAddCollaborator() async {
     final name = _selectedCollaboratorName?.trim();
     if (name == null || name.isEmpty) return;
 
@@ -332,6 +711,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       _selectedCollaboratorName = null;
       _showCollaboratorPicker = false;
     });
+    await _saveTaskDetailToStorage();
+    await _notifyTaskDetail(
+      title: 'Collaborator added',
+      body: '$name was added to "${_task.title}"',
+    );
   }
 
   void _openDueEdit() {
@@ -348,8 +732,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       _showAssignedEdit = true;
       _showDueEdit = false;
       final current = _task.assignedTo;
-      if (current != null &&
-          _collaboratorOptions.contains(current.trim())) {
+      if (current != null && _collaboratorOptions.contains(current.trim())) {
         _selectedAssigneeName = current.trim();
       } else {
         _selectedAssigneeName = null;
@@ -454,6 +837,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       ),
     );
   }
+
   Widget _buildHeaderCard() {
     final description = _task.description.trim();
     String subtitle = '';
@@ -528,6 +912,210 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               ),
             ),
           ],
+          const SizedBox(height: 14),
+          Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+          const SizedBox(height: 6),
+          _buildInfoRow(
+            icon: HugeIcons.strokeRoundedFlag01,
+            label: 'Priority',
+            value: _task.priority,
+            pillColor: _priorityColor(_task.priority),
+          ),
+          _buildInfoRow(
+            icon: HugeIcons.strokeRoundedUser,
+            label: 'Created by',
+            value: _displayUser(_task.createdBy),
+          ),
+          _buildInfoRow(
+            icon: HugeIcons.strokeRoundedUserMultiple,
+            label: 'Assigned to',
+            value: _displayUser(_task.assignedTo),
+            trailing: _compactEditIcon(_openAssignedEdit),
+          ),
+          if (_showAssignedEdit) ...[
+            const SizedBox(height: 8),
+            Builder(
+              builder: (context) {
+                final current = _task.assignedTo?.trim();
+                final options = <String>{
+                  if (current != null && current.isNotEmpty) current,
+                  ..._collaboratorOptions,
+                }.toList();
+                return DropdownButtonFormField<String>(
+                  initialValue: _selectedAssigneeName,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Select User',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  items: options
+                      .map((name) =>
+                          DropdownMenuItem(value: name, child: Text(name)))
+                      .toList(),
+                  onChanged: (value) =>
+                      setState(() => _selectedAssigneeName = value),
+                );
+              },
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: _updateAssignedTo,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF131416),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  child: const Text('Update',
+                      style: TextStyle(fontSize: 12, color: Colors.white)),
+                ),
+                const SizedBox(width: 10),
+                OutlinedButton(
+                  onPressed: _cancelAssignedEdit,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    side: BorderSide(color: Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  child: const Text('Cancel',
+                      style: TextStyle(fontSize: 12, color: Colors.black87)),
+                ),
+              ],
+            ),
+          ],
+          _buildInfoRow(
+            icon: HugeIcons.strokeRoundedCalendar03,
+            label: 'Created on',
+            value: _task.createdAt != null
+                ? _formatDateTime(_task.createdAt!)
+                : _formatDateTime(DateTime.now()),
+          ),
+          _buildInfoRow(
+            icon: HugeIcons.strokeRoundedClock01,
+            label: 'Due date',
+            value: _formatDueDate(),
+            trailing: _compactEditIcon(_openDueEdit),
+          ),
+          if (_showDueEdit) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: _editDueDate ?? _task.dueDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null) {
+                        setState(() => _editDueDate = date);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _editDueDate != null
+                                ? '${_editDueDate!.day.toString().padLeft(2, '0')}-${_editDueDate!.month.toString().padLeft(2, '0')}-${_editDueDate!.year}'
+                                : 'Select date',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          const Icon(Icons.calendar_today,
+                              size: 16, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: _editDueTime ?? TimeOfDay.now(),
+                      );
+                      if (time != null) {
+                        setState(() => _editDueTime = time);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _editDueTime != null
+                                ? _formatTimeOfDay(_editDueTime!)
+                                : 'Select time',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          const Icon(Icons.access_time,
+                              size: 16, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: _updateDueDateTime,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF131416),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  child: const Text('Update',
+                      style: TextStyle(fontSize: 12, color: Colors.white)),
+                ),
+                const SizedBox(width: 10),
+                OutlinedButton(
+                  onPressed: _cancelDueEdit,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    side: BorderSide(color: Colors.grey.shade300),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                  child: const Text('Cancel',
+                      style: TextStyle(fontSize: 12, color: Colors.black87)),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -579,6 +1167,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             Column(
               children: _comments.map(_buildCommentItem).toList(),
             ),
+          const SizedBox(height: 12),
+          Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
           const SizedBox(height: 12),
           const Text('Add Comment',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
@@ -722,6 +1312,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       ),
     );
   }
+
   Widget _buildAttachmentsCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -932,239 +1523,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-  Widget _buildTaskInfoCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            children: [
-              Icon(Icons.info_outline,
-                  color: Color(0xFF6B7280), size: 18),
-              SizedBox(width: 8),
-              Text('Task Info',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            icon: HugeIcons.strokeRoundedFlag01,
-            label: 'Priority',
-            value: _task.priority,
-            pillColor: _priorityColor(_task.priority),
-          ),
-          _buildInfoRow(
-            icon: HugeIcons.strokeRoundedUser,
-            label: 'Created by',
-            value: _displayUser(_task.createdBy),
-          ),
-          _buildInfoRow(
-            icon: HugeIcons.strokeRoundedUserMultiple,
-            label: 'Assigned to',
-            value: _displayUser(_task.assignedTo),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit, size: 14, color: Colors.grey),
-              onPressed: _openAssignedEdit,
-            ),
-          ),
-          if (_showAssignedEdit) ...[
-            const SizedBox(height: 8),
-            Builder(
-              builder: (context) {
-                final current = _task.assignedTo?.trim();
-                final options = <String>{
-                  if (current != null && current.isNotEmpty) current,
-                  ..._collaboratorOptions,
-                }.toList();
-                return DropdownButtonFormField<String>(
-                  initialValue: _selectedAssigneeName,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Select User',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  items: options
-                      .map((name) =>
-                          DropdownMenuItem(value: name, child: Text(name)))
-                      .toList(),
-                  onChanged: (value) =>
-                      setState(() => _selectedAssigneeName = value),
-                );
-              },
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: _updateAssignedTo,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF131416),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  child: const Text('Update',
-                      style: TextStyle(fontSize: 12, color: Colors.white)),
-                ),
-                const SizedBox(width: 10),
-                OutlinedButton(
-                  onPressed: _cancelAssignedEdit,
-                  style: OutlinedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    side: BorderSide(color: Colors.grey.shade300),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  child: const Text('Cancel',
-                      style: TextStyle(fontSize: 12, color: Colors.black87)),
-                ),
-              ],
-            ),
-          ],
-          _buildInfoRow(
-            icon: HugeIcons.strokeRoundedCalendar03,
-            label: 'Created on',
-            value: _task.createdAt != null
-                ? _formatDateTime(_task.createdAt!)
-                : _formatDateTime(DateTime.now()),
-          ),
-          _buildInfoRow(
-            icon: HugeIcons.strokeRoundedClock01,
-            label: 'Due date',
-            value: _formatDueDate(),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit, size: 14, color: Colors.grey),
-              onPressed: _openDueEdit,
-            ),
-          ),
-          if (_showDueEdit) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate: _editDueDate ?? _task.dueDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-                      if (date != null) {
-                        setState(() => _editDueDate = date);
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _editDueDate != null
-                                ? '${_editDueDate!.day.toString().padLeft(2, '0')}-${_editDueDate!.month.toString().padLeft(2, '0')}-${_editDueDate!.year}'
-                                : 'Select date',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          const Icon(Icons.calendar_today,
-                              size: 16, color: Colors.grey),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: InkWell(
-                    onTap: () async {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: _editDueTime ?? TimeOfDay.now(),
-                      );
-                      if (time != null) {
-                        setState(() => _editDueTime = time);
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _editDueTime != null
-                                ? _formatTimeOfDay(_editDueTime!)
-                                : 'Select time',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          const Icon(Icons.access_time,
-                              size: 16, color: Colors.grey),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: _updateDueDateTime,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF131416),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  child: const Text('Update',
-                      style: TextStyle(fontSize: 12, color: Colors.white)),
-                ),
-                const SizedBox(width: 10),
-                OutlinedButton(
-                  onPressed: _cancelDueEdit,
-                  style: OutlinedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    side: BorderSide(color: Colors.grey.shade300),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  child: const Text('Cancel',
-                      style: TextStyle(fontSize: 12, color: Colors.black87)),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
   Widget _buildInfoRow({
     required IconData icon,
     required String label,
@@ -1189,7 +1547,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           );
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1202,8 +1560,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 SizedBox(
                   width: 90,
                   child: Text(label,
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.grey)),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
                 ),
                 Expanded(
                   child: Align(
@@ -1222,6 +1579,20 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       ),
     );
   }
+
+  Widget _compactEditIcon(VoidCallback onPressed) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 28,
+        height: 28,
+        alignment: Alignment.center,
+        child: const Icon(Icons.edit, size: 14, color: Colors.grey),
+      ),
+    );
+  }
+
   Widget _buildCollaboratorsCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1334,8 +1705,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           ),
                         ),
                         child: const Text('Cancel',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.black87)),
+                            style:
+                                TextStyle(fontSize: 12, color: Colors.black87)),
                       ),
                     ],
                   ),
@@ -1375,8 +1746,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           children: [
                             Text(collaborator.name,
                                 style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600)),
+                                    fontSize: 12, fontWeight: FontWeight.w600)),
                             if (collaborator.email != null)
                               Text(collaborator.email!,
                                   style: const TextStyle(
@@ -1385,7 +1755,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () {
+                        onPressed: () async {
                           final removed = _collaborators[idx];
                           final createdAt = DateTime.now();
                           setState(() {
@@ -1401,6 +1771,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                               ),
                             );
                           });
+                          await _saveTaskDetailToStorage();
+                          await _notifyTaskDetail(
+                            title: 'Collaborator removed',
+                            body: '${removed.name} was removed from "${_task.title}"',
+                          );
                         },
                         icon: const Icon(Icons.close,
                             size: 16, color: Colors.red),
@@ -1428,8 +1803,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         children: [
           const Row(
             children: [
-              Icon(Icons.history,
-                  color: Color(0xFF6B7280), size: 18),
+              Icon(Icons.history, color: Color(0xFF6B7280), size: 18),
               SizedBox(width: 8),
               Text('Activity History',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
@@ -1477,8 +1851,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         fontSize: 12, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
                 Text(activity.subtitle,
-                    style: const TextStyle(
-                        fontSize: 12, color: Colors.black87)),
+                    style:
+                        const TextStyle(fontSize: 12, color: Colors.black87)),
                 const SizedBox(height: 2),
                 Text(_formatDateTime(activity.time),
                     style: const TextStyle(fontSize: 10, color: Colors.grey)),
@@ -1493,15 +1867,17 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   Color _priorityColor(String priority) {
     switch (priority.toLowerCase()) {
       case 'urgent':
-        return Colors.red;
+        return const Color(0xFFE11D48); // red
       case 'high':
-        return Colors.orange;
+        return const Color(0xFFF97316); // orange
       case 'medium':
-        return const Color(0xFF131416);
+        return const Color(0xFF2563EB); // blue
       case 'low':
-        return Colors.green;
+        return const Color(0xFF16A34A); // green
+      case 'normal':
+        return const Color(0xFF6B7280); // gray
       default:
-        return const Color(0xFF131416);
+        return const Color(0xFF6B7280);
     }
   }
 
@@ -1542,7 +1918,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               color: Colors.black,
               size: 24.0,
             ),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TaskNotificationsScreen(),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -1558,8 +1941,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             _buildCommentsCard(),
             const SizedBox(height: 12),
             _buildAttachmentsCard(),
-            const SizedBox(height: 12),
-            _buildTaskInfoCard(),
             const SizedBox(height: 12),
             _buildCollaboratorsCard(),
             const SizedBox(height: 12),

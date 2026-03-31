@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'tag_api.dart';
+import '../../utils/responsive_helper.dart';
 
 class TagsScreen extends StatefulWidget {
   const TagsScreen({super.key});
@@ -73,11 +74,15 @@ class _TagsScreenState extends State<TagsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: EdgeInsets.fromLTRB(
+              ResponsiveHelper.getHorizontalSpacing(context),
+              ResponsiveHelper.getHorizontalSpacing(context),
+              ResponsiveHelper.getHorizontalSpacing(context),
+              ResponsiveHelper.getVerticalSpacing(context) * 0.5),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: ResponsiveHelper.getBorderRadius(context),
               ),
               child: Row(
                 children: [

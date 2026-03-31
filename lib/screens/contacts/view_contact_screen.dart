@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hugeicons/hugeicons.dart';
+import '../../utils/responsive_helper.dart';
 import '../camera_screen.dart';
 import '../../managers/lead_manager.dart';
 import '../../models/contact.dart';
@@ -30,19 +31,21 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const HugeIcon(
+              leading: HugeIcon(
                 icon: HugeIcons.strokeRoundedCamera01,
-                color: Color(0xFF131416),
-                size: 24,
+                color: const Color(0xFF131416),
+                size: ResponsiveHelper.getIconSize(context,
+                    mobile: 24, tablet: 26, desktop: 28),
               ),
               title: const Text('Camera'),
               onTap: () => Navigator.pop(context, 'camera'),
             ),
             ListTile(
-              leading: const HugeIcon(
+              leading: HugeIcon(
                 icon: HugeIcons.strokeRoundedImage02,
-                color: Color(0xFF131416),
-                size: 24,
+                color: const Color(0xFF131416),
+                size: ResponsiveHelper.getIconSize(context,
+                    mobile: 24, tablet: 26, desktop: 28),
               ),
               title: const Text('Gallery'),
               onTap: () => Navigator.pop(context, 'gallery'),
@@ -85,10 +88,12 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
   Widget build(BuildContext context) {
     final leadManager = LeadManager();
     final activeLeads = leadManager.allLeads
-        .where((lead) => lead.contactName == widget.contact.name && !lead.isCompleted)
+        .where((lead) =>
+            lead.contactName == widget.contact.name && !lead.isCompleted)
         .toList();
     final closedLeads = leadManager.allLeads
-        .where((lead) => lead.contactName == widget.contact.name && lead.isCompleted)
+        .where((lead) =>
+            lead.contactName == widget.contact.name && lead.isCompleted)
         .toList();
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -155,9 +160,11 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                                         width: 80,
                                         height: 80,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
                                           return Text(
-                                            widget.contact.name[0].toUpperCase(),
+                                            widget.contact.name[0]
+                                                .toUpperCase(),
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 28,
@@ -249,12 +256,14 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Inter')),
                     const SizedBox(height: 16),
-                    _buildDetailRow(
-                        HugeIcons.strokeRoundedLocation01, widget.contact.address),
+                    _buildDetailRow(HugeIcons.strokeRoundedLocation01,
+                        widget.contact.address),
                     const SizedBox(height: 12),
                     if (widget.contact.email != null)
-                      _buildDetailRow(HugeIcons.strokeRoundedMail01, widget.contact.email!),
-                    if (widget.contact.email != null) const SizedBox(height: 12),
+                      _buildDetailRow(
+                          HugeIcons.strokeRoundedMail01, widget.contact.email!),
+                    if (widget.contact.email != null)
+                      const SizedBox(height: 12),
                     _buildDetailRow(HugeIcons.strokeRoundedCall,
                         '${widget.contact.phone}${widget.contact.phone2 != null ? ' , ${widget.contact.phone2}' : ''}'),
                     const SizedBox(height: 12),
@@ -305,88 +314,89 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                         final index = entry.key;
                         final lead = entry.value;
                         return InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailLeadScreen(
-                                    lead: lead,
-                                    startInEditMode: false,
-                                    initialTabIndex: 0,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailLeadScreen(
+                                  lead: lead,
+                                  startInEditMode: false,
+                                  initialTabIndex: 0,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (index > 0)
+                                const Divider(height: 24, thickness: 0.5),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                        'New Lead Created at ${_formatDate(lead.createdAt)}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Inter')),
                                   ),
-                                ),
-                              );
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (index > 0) const Divider(height: 24, thickness: 0.5),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                          'New Lead Created at ${_formatDate(lead.createdAt)}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Inter')),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF131416),
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF131416),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: const Text('New Lead',
-                                          style: TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.white,
-                                              fontFamily: 'Inter')),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                const Text('Services',
-                                    style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 4),
-                                Text(lead.service ?? 'N/A',
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.black,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 12),
-                                const Text('Remark',
-                                    style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 4),
-                                Text(lead.notes ?? 'N/A',
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.black,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 12),
-                                const Text('Last Updated',
-                                    style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 4),
-                                Text(_formatDateTime(lead.createdAt),
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.black,
-                                        fontFamily: 'Inter')),
-                              ],
-                            ),
-                          );
+                                    child: const Text('New Lead',
+                                        style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.white,
+                                            fontFamily: 'Inter')),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              const Text('Services',
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 4),
+                              Text(lead.service ?? 'N/A',
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.black,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 12),
+                              const Text('Remark',
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 4),
+                              Text(lead.notes ?? 'N/A',
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.black,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 12),
+                              const Text('Last Updated',
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 4),
+                              Text(_formatDateTime(lead.createdAt),
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.black,
+                                      fontFamily: 'Inter')),
+                            ],
+                          ),
+                        );
                       }),
                   ],
                 ),
@@ -433,88 +443,89 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                         final index = entry.key;
                         final lead = entry.value;
                         return InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailLeadScreen(
-                                    lead: lead,
-                                    startInEditMode: false,
-                                    initialTabIndex: 0,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailLeadScreen(
+                                  lead: lead,
+                                  startInEditMode: false,
+                                  initialTabIndex: 0,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (index > 0)
+                                const Divider(height: 24, thickness: 0.5),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                        'Lead Created at ${_formatDate(lead.createdAt)}',
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Inter')),
                                   ),
-                                ),
-                              );
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (index > 0) const Divider(height: 24, thickness: 0.5),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                          'Lead Created at ${_formatDate(lead.createdAt)}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: 'Inter')),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: const Text('Completed',
-                                          style: TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.white,
-                                              fontFamily: 'Inter')),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                const Text('Services',
-                                    style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 4),
-                                Text(lead.service ?? 'N/A',
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.black,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 12),
-                                const Text('Remark',
-                                    style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 4),
-                                Text(lead.notes ?? 'N/A',
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.black,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 12),
-                                const Text('Last Updated',
-                                    style: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                        fontFamily: 'Inter')),
-                                const SizedBox(height: 4),
-                                Text(_formatDateTime(lead.createdAt),
-                                    style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.black,
-                                        fontFamily: 'Inter')),
-                              ],
-                            ),
-                          );
+                                    child: const Text('Completed',
+                                        style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.white,
+                                            fontFamily: 'Inter')),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              const Text('Services',
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 4),
+                              Text(lead.service ?? 'N/A',
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.black,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 12),
+                              const Text('Remark',
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 4),
+                              Text(lead.notes ?? 'N/A',
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.black,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 12),
+                              const Text('Last Updated',
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 4),
+                              Text(_formatDateTime(lead.createdAt),
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.black,
+                                      fontFamily: 'Inter')),
+                            ],
+                          ),
+                        );
                       }),
                   ],
                 ),

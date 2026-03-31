@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/task.dart';
 import '../../managers/task_manager.dart';
+import '../../utils/responsive_helper.dart';
 
 class EditTaskScreen extends StatefulWidget {
   final Task task;
@@ -84,7 +85,8 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       body: Form(
         key: _formKey,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding:
+              EdgeInsets.all(ResponsiveHelper.getHorizontalSpacing(context)),
           child: Column(
             children: [
               TextFormField(

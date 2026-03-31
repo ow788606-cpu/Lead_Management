@@ -2037,6 +2037,23 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     return '$dateStr, $timeStr';
   }
 
+  Color _priorityColor(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'urgent':
+        return const Color(0xFFE11D48); // red
+      case 'high':
+        return const Color(0xFFF97316); // orange
+      case 'medium':
+        return const Color(0xFF2563EB); // blue
+      case 'low':
+        return const Color(0xFF16A34A); // green
+      case 'normal':
+        return const Color(0xFF6B7280); // gray
+      default:
+        return const Color(0xFF6B7280);
+    }
+  }
+
   String _formatDateTime(dynamic date) {
     if (date == null) return 'No date';
     DateTime parsedDate = date is String ? DateTime.parse(date) : date;
@@ -2735,22 +2752,17 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: task['priority'] == 'High'
-                          ? Colors.red.withValues(alpha: 0.1)
-                          : task['priority'] == 'Medium'
-                              ? Colors.orange.withValues(alpha: 0.1)
-                              : Colors.green.withValues(alpha: 0.1),
+                      color: _priorityColor(
+                              (task['priority'] ?? '').toString())
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       task['priority'],
                       style: TextStyle(
                         fontSize: 10,
-                        color: task['priority'] == 'High'
-                            ? Colors.red
-                            : task['priority'] == 'Medium'
-                                ? Colors.orange
-                                : Colors.green,
+                        color: _priorityColor(
+                            (task['priority'] ?? '').toString()),
                       ),
                     ),
                   ),
@@ -2861,6 +2873,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       completedDate: task['completed_at'] != null
           ? DateTime.tryParse(task['completed_at'].toString())
           : null,
+      meta: const {'source': 'lead_tasks'},
     );
   }
 

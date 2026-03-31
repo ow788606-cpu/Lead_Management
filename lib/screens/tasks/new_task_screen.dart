@@ -4,6 +4,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../models/task.dart';
 import '../../managers/task_manager.dart';
 import '../../widgets/app_drawer.dart';
+import '../../utils/responsive_helper.dart';
 
 class NewTaskScreen extends StatefulWidget {
   const NewTaskScreen({super.key});
@@ -58,15 +59,16 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(ResponsiveHelper.getPadding(context).left),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(24),
+                padding:
+                    EdgeInsets.all(ResponsiveHelper.getPadding(context).left),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: ResponsiveHelper.getBorderRadius(context),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.08),
