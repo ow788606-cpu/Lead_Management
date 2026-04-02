@@ -718,6 +718,30 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
+  Future<void> _removeCollaboratorAt(int index) async {
+    if (index < 0 || index >= _collaborators.length) return;
+    final removed = _collaborators[index];
+    final createdAt = DateTime.now();
+    setState(() {
+      _collaborators.removeAt(index);
+      _activities.insert(
+        0,
+        _ActivityItem(
+          title: 'Removed collaborator',
+          subtitle: removed.name,
+          time: createdAt,
+          icon: HugeIcons.strokeRoundedUserRemove01,
+          color: Colors.red,
+        ),
+      );
+    });
+    await _saveTaskDetailToStorage();
+    await _notifyTaskDetail(
+      title: 'Collaborator removed',
+      body: '${removed.name} was removed from "${_task.title}"',
+    );
+  }
+
   void _openDueEdit() {
     setState(() {
       _showDueEdit = true;
@@ -930,7 +954,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             icon: HugeIcons.strokeRoundedUserMultiple,
             label: 'Assigned to',
             value: _displayUser(_task.assignedTo),
-            trailing: _compactEditIcon(_openAssignedEdit),
+            onValueTap: _openAssignedEdit,
           ),
           if (_showAssignedEdit) ...[
             const SizedBox(height: 8),
@@ -1002,7 +1026,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             icon: HugeIcons.strokeRoundedClock01,
             label: 'Due date',
             value: _formatDueDate(),
-            trailing: _compactEditIcon(_openDueEdit),
+            onValueTap: _openDueEdit,
           ),
           if (_showDueEdit) ...[
             const SizedBox(height: 8),
@@ -1528,6 +1552,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     required String label,
     required String value,
     Widget? trailing,
+    VoidCallback? onValueTap,
     Color? pillColor,
   }) {
     final valueWidget = pillColor == null
@@ -1546,28 +1571,45 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     color: pillColor)),
           );
 
+    final valueSlot = Align(
+      alignment: Alignment.centerLeft,
+      child: valueWidget,
+    );
+    final interactiveValue = onValueTap == null
+        ? valueSlot
+        : GestureDetector(
+            onTap: onValueTap,
+            behavior: HitTestBehavior.opaque,
+            child: valueSlot,
+          );
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          HugeIcon(icon: icon, color: const Color(0xFF6B7280), size: 16),
-          const SizedBox(width: 8),
+          SizedBox(
+            width: 20,
+            child: Center(
+              child: HugeIcon(
+                  icon: icon, color: const Color(0xFF6B7280), size: 16),
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 90,
-                  child: Text(label,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                ),
-                Expanded(
+                  width: 92,
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: valueWidget,
+                    child: Text(label,
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey)),
                   ),
                 ),
+                Expanded(child: interactiveValue),
                 if (trailing != null) ...[
                   const SizedBox(width: 6),
                   trailing,
@@ -1576,19 +1618,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _compactEditIcon(VoidCallback onPressed) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: 28,
-        height: 28,
-        alignment: Alignment.center,
-        child: const Icon(Icons.edit, size: 14, color: Colors.grey),
       ),
     );
   }
@@ -1723,64 +1752,46 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 final collaborator = entry.value;
                 return Container(
                   margin: const EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: const Color(0xFFE5E7EB),
-                        child: Text(
-                          collaborator.name.isNotEmpty
-                              ? collaborator.name[0].toUpperCase()
-                              : 'U',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF131416),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(collaborator.name,
-                                style: const TextStyle(
-                                    fontSize: 12, fontWeight: FontWeight.w600)),
-                            if (collaborator.email != null)
-                              Text(collaborator.email!,
-                                  style: const TextStyle(
-                                      fontSize: 11, color: Colors.grey)),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () async {
-                          final removed = _collaborators[idx];
-                          final createdAt = DateTime.now();
-                          setState(() {
-                            _collaborators.removeAt(idx);
-                            _activities.insert(
-                              0,
-                              _ActivityItem(
-                                title: 'Removed collaborator',
-                                subtitle: removed.name,
-                                time: createdAt,
-                                icon: HugeIcons.strokeRoundedUserRemove01,
-                                color: Colors.red,
+                  child: InkWell(
+                    onTap: () => _removeCollaboratorAt(idx),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: const Color(0xFFE5E7EB),
+                            child: Text(
+                              collaborator.name.isNotEmpty
+                                  ? collaborator.name[0].toUpperCase()
+                                  : 'U',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF131416),
                               ),
-                            );
-                          });
-                          await _saveTaskDetailToStorage();
-                          await _notifyTaskDetail(
-                            title: 'Collaborator removed',
-                            body: '${removed.name} was removed from "${_task.title}"',
-                          );
-                        },
-                        icon: const Icon(Icons.close,
-                            size: 16, color: Colors.red),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(collaborator.name,
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600)),
+                                if (collaborator.email != null)
+                                  Text(collaborator.email!,
+                                      style: const TextStyle(
+                                          fontSize: 11, color: Colors.grey)),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 );
               }).toList(),

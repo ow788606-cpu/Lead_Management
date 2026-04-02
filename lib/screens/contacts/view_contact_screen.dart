@@ -102,13 +102,10 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
         onItemSelected: (_) => Navigator.pop(context),
       ),
       appBar: AppBar(
+        toolbarHeight: 58,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const HugeIcon(
-              icon: HugeIcons.strokeRoundedMenu01,
-              color: Colors.black,
-              size: 24.0,
-            ),
+            icon: const Icon(Icons.menu, size: 28),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -209,11 +206,23 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Text(widget.contact.name,
-                                      style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Inter')),
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          widget.contact.name,
+                                          maxLines: 1,
+                                          style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: 'Inter'),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                   const SizedBox(width: 8),
                                   const Icon(Icons.verified,
                                       color: Colors.green, size: 20),
@@ -264,8 +273,12 @@ class _ViewContactScreenState extends State<ViewContactScreen> {
                           HugeIcons.strokeRoundedMail01, widget.contact.email!),
                     if (widget.contact.email != null)
                       const SizedBox(height: 12),
-                    _buildDetailRow(HugeIcons.strokeRoundedCall,
-                        '${widget.contact.phone}${widget.contact.phone2 != null ? ' , ${widget.contact.phone2}' : ''}'),
+                    _buildDetailRow(
+                      HugeIcons.strokeRoundedCall,
+                      widget.contact.phone2 != null
+                          ? '${widget.contact.phone}\n${widget.contact.phone2}'
+                          : widget.contact.phone,
+                    ),
                     const SizedBox(height: 12),
                     _buildDetailRow(HugeIcons.strokeRoundedClock01,
                         'Joined on ${_formatDate(widget.contact.createdAt)}'),

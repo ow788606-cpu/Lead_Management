@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../managers/contact_manager.dart';
 import '../../models/contact.dart';
 import '../../widgets/app_drawer.dart';
-import '../../utils/responsive_helper.dart';
 
 class EditContactScreen extends StatefulWidget {
   final Contact contact;
@@ -78,6 +77,13 @@ class _EditContactScreenState extends State<EditContactScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final screenWidth = media.size.width;
+    final isSmall = screenWidth < 360;
+    final isWide = screenWidth >= 900;
+    final horizontalPadding = isWide ? 48.0 : (isSmall ? 16.0 : 24.0);
+    final cardPadding = isSmall ? 16.0 : 24.0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       drawer: AppDrawer(
@@ -101,26 +107,34 @@ class _EditContactScreenState extends State<EditContactScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(ResponsiveHelper.getHorizontalSpacing(context)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: 16,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isWide ? 720 : double.infinity,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(cardPadding),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                 RichText(
                   text: const TextSpan(
                     text: 'Name ',
@@ -418,10 +432,12 @@ class _EditContactScreenState extends State<EditContactScreen> {
                             color: Colors.white)),
                   ),
                 ),
-                  ],
-                ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -443,4 +459,3 @@ class _EditContactScreenState extends State<EditContactScreen> {
     super.dispose();
   }
 }
-

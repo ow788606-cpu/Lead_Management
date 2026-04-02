@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 import '../../widgets/app_drawer.dart';
 import '../../utils/responsive_helper.dart';
 
@@ -33,13 +32,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         onItemSelected: (_) => Navigator.pop(context),
       ),
       appBar: AppBar(
+        toolbarHeight: 58,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const HugeIcon(
-              icon: HugeIcons.strokeRoundedMenu01,
-              color: Colors.black,
-              size: 24.0,
-            ),
+            icon: const Icon(Icons.menu, size: 28),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -50,6 +46,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 12),
             Container(
               width: double.infinity,
               padding:

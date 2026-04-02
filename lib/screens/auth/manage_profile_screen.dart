@@ -7,7 +7,6 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../widgets/app_drawer.dart';
 import '../../managers/auth_manager.dart';
 import '../../services/api_config.dart';
-import '../../utils/responsive_helper.dart';
 import '../camera_screen.dart';
 
 class ManageProfileScreen extends StatefulWidget {
@@ -223,6 +222,14 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final screenWidth = media.size.width;
+    final isSmall = screenWidth < 360;
+    final isWide = screenWidth >= 900;
+    final horizontalPadding = isWide ? 48.0 : (isSmall ? 16.0 : 24.0);
+    final cardPadding = isSmall ? 16.0 : 24.0;
+    final avatarRadius = isSmall ? 42.0 : 50.0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       drawer: AppDrawer(
@@ -230,151 +237,159 @@ class _ManageProfileScreenState extends State<ManageProfileScreen> {
         onItemSelected: (_) => Navigator.pop(context),
       ),
       appBar: AppBar(
+        toolbarHeight: 58,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const HugeIcon(
-              icon: HugeIcons.strokeRoundedMenu01,
-              color: Colors.black,
-              size: 24.0,
-            ),
+            icon: const Icon(Icons.menu, size: 28),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         title: const Text('Manage Profile'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(
-            ResponsiveHelper.getHorizontalSpacing(context) * 1.5),
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: 16,
+        ),
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
-            : Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
+            : Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isWide ? 720 : double.infinity,
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(cardPadding),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Stack(
-                              children: [
-                                CircleAvatar(
-                                  radius: 50,
-                                  backgroundColor: const Color(0xFF131416),
-                                  child: _profileImagePath != null
-                                      ? ClipOval(
-                                          child: Image.file(
-                                            File(_profileImagePath!),
-                                            width: 100,
-                                            height: 100,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return const Icon(Icons.person,
-                                                  size: 50,
-                                                  color: Colors.white);
-                                            },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(
+                                child: Stack(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: avatarRadius,
+                                      backgroundColor: const Color(0xFF131416),
+                                      child: _profileImagePath != null
+                                          ? ClipOval(
+                                              child: Image.file(
+                                                File(_profileImagePath!),
+                                                width: avatarRadius * 2,
+                                                height: avatarRadius * 2,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return const Icon(Icons.person,
+                                                      size: 50,
+                                                      color: Colors.white);
+                                                },
+                                              ),
+                                            )
+                                          : const Icon(Icons.person,
+                                              size: 50, color: Colors.white),
+                                    ),
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: _pickImage,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
                                           ),
-                                        )
-                                      : const Icon(Icons.person,
-                                          size: 50, color: Colors.white),
-                                ),
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: _pickImage,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const HugeIcon(
-                                        icon: HugeIcons.strokeRoundedCamera01,
-                                        color: Color(0xFF131416),
-                                        size: 16,
+                                          child: const HugeIcon(
+                                            icon:
+                                                HugeIcons.strokeRoundedCamera01,
+                                            color: Color(0xFF131416),
+                                            size: 16,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          const Text('Personal Details',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Inter')),
-                          const SizedBox(height: 16),
-                          _buildTextField(
-                              'Name', _nameController, Icons.person_outline),
-                          const SizedBox(height: 16),
-                          _buildTextField('Location', _locationController,
-                              Icons.location_on_outlined),
-                          const SizedBox(height: 16),
-                          _buildTextField(
-                              'Email', _emailController, Icons.email_outlined),
-                          const SizedBox(height: 16),
-                          _buildTextField(
-                              'Phone', _phoneController, Icons.phone_outlined),
-                          const SizedBox(height: 16),
-                          _buildTextField('Address', _addressController,
-                              Icons.home_outlined),
-                          const SizedBox(height: 16),
-                          _buildTextField('City', _cityController,
-                              Icons.location_city_outlined),
-                          const SizedBox(height: 16),
-                          _buildTextField('Zip Code', _zipController,
-                              Icons.markunread_mailbox_outlined),
-                          const SizedBox(height: 16),
-                          _buildTextField('Country', _countryController,
-                              Icons.flag_outlined),
-                          const SizedBox(height: 24),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isSaving ? null : _saveProfile,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF131416),
-                                foregroundColor: Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6)),
                               ),
-                              child: _isSaving
-                                  ? const SizedBox(
-                                      height: 18,
-                                      width: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text('Update Profile',
-                                      style: TextStyle(
-                                          fontSize: 14, fontFamily: 'Inter')),
-                            ),
+                              SizedBox(height: isSmall ? 24 : 32),
+                              const Text('Personal Details',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Inter')),
+                              const SizedBox(height: 16),
+                              _buildTextField('Name', _nameController,
+                                  Icons.person_outline),
+                              const SizedBox(height: 16),
+                              _buildTextField('Location', _locationController,
+                                  Icons.location_on_outlined),
+                              const SizedBox(height: 16),
+                              _buildTextField('Email', _emailController,
+                                  Icons.email_outlined),
+                              const SizedBox(height: 16),
+                              _buildTextField('Phone', _phoneController,
+                                  Icons.phone_outlined),
+                              const SizedBox(height: 16),
+                              _buildTextField('Address', _addressController,
+                                  Icons.home_outlined),
+                              const SizedBox(height: 16),
+                              _buildTextField('City', _cityController,
+                                  Icons.location_city_outlined),
+                              const SizedBox(height: 16),
+                              _buildTextField('Zip Code', _zipController,
+                                  Icons.markunread_mailbox_outlined),
+                              const SizedBox(height: 16),
+                              _buildTextField('Country', _countryController,
+                                  Icons.flag_outlined),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _isSaving ? null : _saveProfile,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF131416),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6)),
+                                  ),
+                                  child: _isSaving
+                                      ? const SizedBox(
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text('Update Profile',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontFamily: 'Inter')),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
       ),
