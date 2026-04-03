@@ -80,17 +80,15 @@ class AppDrawer extends StatelessWidget {
                       fontSize: 10,
                       fontWeight: FontWeight.w600)),
             ),
-            _ExpandableDrawerItem(HugeIcons.strokeRoundedCall, 'Leads', 1,
-                selectedIndex, () => onItemSelected(1), _activeBgColor, [
-              _SubItem('All Leads', () {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (context) => const MainScreen(
-                          initialIndex: 1, initialLeadTabIndex: 0)),
-                  (route) => false,
-                );
-              }),
-            ]),
+            _DrawerItem(HugeIcons.strokeRoundedCall, 'Leads', 1, selectedIndex,
+                () {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => const MainScreen(
+                        initialIndex: 1, initialLeadTabIndex: 0)),
+                (route) => false,
+              );
+            }, const Color(0xFF131416), _activeBgColor),
             _DrawerItem(
                 HugeIcons.strokeRoundedCalendar03,
                 'Appointments',
@@ -99,35 +97,20 @@ class AppDrawer extends StatelessWidget {
                 () => openMainTab(2),
                 const Color(0xFF131416),
                 _activeBgColor),
-            _ExpandableDrawerItem(
-                HugeIcons.strokeRoundedUserMultiple,
-                'Contacts',
-                3,
-                selectedIndex,
-                () => onItemSelected(3),
-                _activeBgColor, [
-              _SubItem('All Contacts', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AllContactsScreen()));
-              }),
-              // _SubItem('Bulk Upload', () {
-              //   Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //           builder: (context) => const BulkUploadScreen()));
-              // }),
-            ]),
-            _ExpandableDrawerItem(HugeIcons.strokeRoundedTask01, 'Tasks', 4,
-                selectedIndex, () => onItemSelected(4), _activeBgColor, [
-              _SubItem('All Tasks', () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AllTasksScreen()));
-              }),
-            ]),
+            _DrawerItem(HugeIcons.strokeRoundedUserMultiple, 'Contacts', 3,
+                selectedIndex, () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AllContactsScreen()));
+            }, const Color(0xFF131416), _activeBgColor),
+            _DrawerItem(
+                HugeIcons.strokeRoundedTask01, 'Tasks', 4, selectedIndex, () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AllTasksScreen()));
+            }, const Color(0xFF131416), _activeBgColor),
             _DrawerItem(
                 HugeIcons.strokeRoundedCustomerService,
                 'Services',

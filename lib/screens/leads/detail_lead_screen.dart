@@ -5,6 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
@@ -39,18 +42,41 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   final _leadManager = LeadManager();
   final _notificationService = NotificationService();
   static const double _dialogWidth = 320;
-  static const double _dialogHeight = 320;
+  static const double _dialogHeight = 352;
+  static const double _dialogListPadding = 8;
+  static const double _dialogLeadingWidth = 40;
+  static const double _dialogTitleGap = 16;
 
   List<Map<String, dynamic>> _activities = [];
   List<Map<String, dynamic>> _notes = [];
   List<Map<String, dynamic>> _tasks = [];
+  final List<Map<String, dynamic>> _quotes = [
+    {
+      'id': 'Q-0001',
+      'title': 'Website Development',
+      'amount': 'Rs. 45,000',
+      'date': DateTime(2026, 3, 28),
+      'status': 'Sent',
+      'pdfUrl':
+          'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    },
+    {
+      'id': 'Q-0002',
+      'title': 'Maintenance Package',
+      'amount': 'Rs. 12,000',
+      'date': DateTime(2026, 4, 1),
+      'status': 'Draft',
+      'pdfUrl':
+          'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    },
+  ];
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _tabController = TabController(length: 3, vsync: this, initialIndex: widget.initialTabIndex);
+    _tabController = TabController(length: 4, vsync: this, initialIndex: widget.initialTabIndex);
     _tabController.addListener(() {
       setState(() {}); // Rebuild to update floating action button
     });
@@ -214,6 +240,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
 
   void _showAddActivityDialog() {
     final remarksController = TextEditingController();
+    IconData activityIconFor(String activity) {
+      switch (activity) {
+        case 'Called':
+          return HugeIcons.strokeRoundedCall;
+        case 'SMS Sent':
+          return HugeIcons.strokeRoundedComment01;
+        case 'Email Sent':
+          return HugeIcons.strokeRoundedMail01;
+        case 'Lead Lost':
+          return HugeIcons.strokeRoundedCancel01;
+        case 'Lead Converted':
+          return HugeIcons.strokeRoundedCheckmarkCircle02;
+        default:
+          return HugeIcons.strokeRoundedCalendar03;
+      }
+    }
 
     showDialog(
       context: context,
@@ -240,7 +282,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               // Activity Options
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: _dialogListPadding),
                   children: [
                     'Called',
                     'SMS Sent',
@@ -249,6 +292,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     'Lead Converted'
                   ]
                       .map((activity) => ListTile(
+                            leading: HugeIcon(
+                              icon: activityIconFor(activity),
+                              color: const Color(0xFF6B7280),
+                              size: 18.0,
+                            ),
                             title: Text(activity,
                                 style: const TextStyle(fontSize: 14)),
                             onTap: () {
@@ -262,6 +310,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                               }
                             },
                             contentPadding: EdgeInsets.zero,
+                            minLeadingWidth: _dialogLeadingWidth,
+                            horizontalTitleGap: _dialogTitleGap,
                             dense: true,
                           ))
                       .toList(),
@@ -274,10 +324,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(fontSize: 14)),
-            ),
+            child: _buildCancelButton(() => Navigator.pop(context)),
           ),
         ],
       ),
@@ -427,6 +474,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       style: const TextStyle(fontSize: 14, color: Colors.black),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFD1D5DB)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFD1D5DB)),
+                        ),
                         contentPadding: EdgeInsets.all(12),
                       ),
                       isExpanded: true,
@@ -464,6 +517,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       style: const TextStyle(fontSize: 14),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFD1D5DB)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFD1D5DB)),
+                        ),
                         hintText: 'Enter Amount',
                         contentPadding: EdgeInsets.all(12),
                         prefixText: 'â‚¹ ',
@@ -497,6 +556,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       style: const TextStyle(fontSize: 14),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFD1D5DB)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFD1D5DB)),
+                        ),
                         hintText: 'Enter remarks...',
                         contentPadding: EdgeInsets.all(12),
                       ),
@@ -643,6 +708,25 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   }
 
   void _showCallOutcomeDialog(TextEditingController remarksController) {
+    IconData outcomeIconFor(String outcome) {
+      switch (outcome) {
+        case 'Appointment Scheduled':
+          return HugeIcons.strokeRoundedCalendar03;
+        case 'Call Later':
+          return HugeIcons.strokeRoundedClock01;
+        case 'Ringing – No Response':
+          return HugeIcons.strokeRoundedNotification03;
+        case 'Busy':
+          return HugeIcons.strokeRoundedChatting01;
+        case 'Switched Off / Unavailable':
+          return HugeIcons.strokeRoundedCancel01;
+        case 'Invalid Number':
+          return HugeIcons.strokeRoundedDelete02;
+        default:
+          return HugeIcons.strokeRoundedCall;
+      }
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -668,6 +752,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 8),
                 // Call Outcome Options
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -681,14 +766,23 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       'Invalid Number'
                     ]
                         .map((outcome) => ListTile(
+                              leading: HugeIcon(
+                                icon: outcomeIconFor(outcome),
+                                color: const Color(0xFF6B7280),
+                                size: 18.0,
+                              ),
                               title: Text(outcome,
                                   style: const TextStyle(fontSize: 14)),
                               onTap: () {
                                 Navigator.pop(context);
                                 _showOutcomeDetailsDialog(
-                                    outcome, remarksController);
+                                    outcome,
+                                    outcomeIconFor(outcome),
+                                    remarksController);
                               },
                               contentPadding: EdgeInsets.zero,
+                              minLeadingWidth: _dialogLeadingWidth,
+                              horizontalTitleGap: _dialogTitleGap,
                               dense: true,
                             ))
                         .toList(),
@@ -698,12 +792,19 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             ),
           ),
         ),
+        actions: [
+          Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: _buildCancelButton(() => Navigator.pop(context)),
+          ),
+        ],
       ),
     );
   }
 
   void _showOutcomeDetailsDialog(
-      String outcome, TextEditingController remarksController) {
+      String outcome, IconData outcomeIcon, TextEditingController remarksController) {
     DateTime? selectedDate;
     TimeOfDay? selectedTime;
 
@@ -845,6 +946,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         style: const TextStyle(fontSize: 14),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFD1D5DB)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFFD1D5DB)),
+                          ),
                           hintText: 'Enter remarks...',
                           contentPadding: EdgeInsets.all(12),
                         ),
@@ -1049,18 +1156,26 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
+        builder: (context, setDialogState) {
+          final isKeyboardOpen =
+              MediaQuery.of(dialogContext).viewInsets.bottom > 0;
+          final fieldHeight = isKeyboardOpen ? 34.0 : 36.0;
+          final topPadding = isKeyboardOpen ? 4.0 : 12.0;
+          return AlertDialog(
           backgroundColor: Colors.white,
-          contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          contentPadding: EdgeInsets.fromLTRB(16, topPadding, 16, 0),
           titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          actionsPadding: EdgeInsets.zero,
           title: _buildDialogTitle('Create Task', dialogContext),
           content: SizedBox(
             width: _dialogWidth,
             height: _dialogHeight,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                   const Text(
                     'Task Title *',
                     style: TextStyle(
@@ -1068,9 +1183,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         fontWeight: FontWeight.w500,
                         color: Colors.black87),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   SizedBox(
-                    height: 40,
+                    height: fieldHeight,
                     child: TextField(
                       controller: titleController,
                       style: const TextStyle(fontSize: 14),
@@ -1090,7 +1205,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   const Text(
                     'Priority',
                     style: TextStyle(
@@ -1098,9 +1213,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         fontWeight: FontWeight.w500,
                         color: Colors.black87),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   SizedBox(
-                    height: 40,
+                    height: fieldHeight,
                     child: DropdownButtonFormField<String>(
                       initialValue: priority,
                       style: const TextStyle(fontSize: 14, color: Colors.black),
@@ -1124,7 +1239,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           setDialogState(() => priority = value!),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Expanded(
@@ -1138,9 +1253,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black87),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 4),
                             SizedBox(
-                              height: 40,
+                              height: fieldHeight,
                               child: GestureDetector(
                                 onTap: () async {
                                   final date = await showDatePicker(
@@ -1157,7 +1272,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 8),
+                                      horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
                                     border:
                                         Border.all(color: Colors.grey.shade300),
@@ -1183,7 +1298,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           ],
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1195,9 +1310,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black87),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: 4),
                             SizedBox(
-                              height: 40,
+                              height: fieldHeight,
                               child: GestureDetector(
                                 onTap: () async {
                                   final time = await showTimePicker(
@@ -1210,7 +1325,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 8),
+                                      horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
                                     border:
                                         Border.all(color: Colors.grey.shade300),
@@ -1239,7 +1354,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 0),
                   const Text(
                     'Description',
                     style: TextStyle(
@@ -1247,12 +1362,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         fontWeight: FontWeight.w500,
                         color: Colors.black87),
                   ),
-                  const SizedBox(height: 6),
-                  SizedBox(
-                    height: 80,
+                  const SizedBox(height: 2),
+                  Expanded(
                     child: TextField(
                       controller: descriptionController,
-                      maxLines: 3,
+                      maxLines: null,
+                      expands: true,
                       style: const TextStyle(fontSize: 14),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
@@ -1271,113 +1386,136 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   ),
                 ],
               ),
-            ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel', style: TextStyle(fontSize: 14)),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (titleController.text.isNotEmpty) {
-                  try {
-                    DateTime dueDate = selectedDate ??
-                        DateTime.now().add(const Duration(days: 1));
-                    if (selectedTime != null) {
-                      dueDate = DateTime(
-                        dueDate.year,
-                        dueDate.month,
-                        dueDate.day,
-                        selectedTime!.hour,
-                        selectedTime!.minute,
-                      );
-                    }
+            Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _buildCancelButton(() => Navigator.pop(dialogContext),
+                      borderRadius: 0),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (titleController.text.isNotEmpty) {
+                        try {
+                          DateTime dueDate = selectedDate ??
+                              DateTime.now().add(const Duration(days: 1));
+                          if (selectedTime != null) {
+                            dueDate = DateTime(
+                              dueDate.year,
+                              dueDate.month,
+                              dueDate.day,
+                              selectedTime!.hour,
+                              selectedTime!.minute,
+                            );
+                          }
 
-                    // Check for duplicates before creating the task
-                    final isDuplicate = _tasks.any((t) => 
-                      t['title']?.toString().trim() == titleController.text.trim() && 
-                      t['description']?.toString().trim() == descriptionController.text.trim() &&
-                      t['dueDate']?.toString() == dueDate.toString() &&
-                      t['dueTime']?.toString().trim() == (selectedTime?.format(dialogContext) ?? '12:00 PM').trim() &&
-                      t['priority']?.toString().trim() == priority.trim()
-                    );
-                    
-                    if (isDuplicate) {
-                      debugPrint('âŒ Duplicate task not created: ${titleController.text}');
-                      if (!mounted) return;
-                      Navigator.pop(dialogContext);
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Task already exists')),
-                      );
-                      return;
-                    }
+                          // Check for duplicates before creating the task
+                          final isDuplicate = _tasks.any((t) =>
+                              t['title']?.toString().trim() ==
+                                  titleController.text.trim() &&
+                              t['description']?.toString().trim() ==
+                                  descriptionController.text.trim() &&
+                              t['dueDate']?.toString() == dueDate.toString() &&
+                              t['dueTime']?.toString().trim() ==
+                                  (selectedTime?.format(dialogContext) ??
+                                          '12:00 PM')
+                                      .trim() &&
+                              t['priority']?.toString().trim() ==
+                                  priority.trim());
 
-                    final newTask = {
-                      'id': DateTime.now().millisecondsSinceEpoch, // Generate local ID
-                      'title': titleController.text.trim(),
-                      'description': descriptionController.text.trim(),
-                      'priority': priority.trim(),
-                      'dueDate': dueDate,
-                      'dueTime': (selectedTime?.format(dialogContext) ?? '12:00 PM').trim(),
-                      'isCompleted': false,
-                      'user_id': await AuthManager().getUserId(),
-                    };
+                          if (isDuplicate) {
+                            debugPrint(
+                                'âŒ Duplicate task not created: ${titleController.text}');
+                            if (!mounted) return;
+                            Navigator.pop(dialogContext);
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Task already exists')),
+                            );
+                            return;
+                          }
 
-                    // Save to database first
-                    final userId = await AuthManager().getUserId() ?? 0;
-                    try {
-                      await LeadActivityApi.saveTask(
-                        leadId: widget.lead.id,
-                        title: titleController.text,
-                        description: descriptionController.text,
-                        priority: priority,
-                        dueDate: dueDate,
-                        userId: userId,
-                        dueTime: selectedTime?.format(dialogContext) ?? '12:00 PM',
-                      );
-                      debugPrint('âœ… Task saved to database: ${titleController.text}');
-                    } catch (e) {
-                      debugPrint('âŒ Database save failed: $e');
-                    }
-                    
-                    // Reload tasks from database to get the latest data
-                    await _loadData();
-                    debugPrint('âœ… Task created and data reloaded: ${titleController.text}');
-                    
-                    // Update notification monitoring with new task data
-                    await _updateNotificationMonitoring();
-                    
-                    if (!mounted) return;
-                    Navigator.pop(dialogContext);
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Task created successfully')),
-                    );
-                  } catch (e) {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error creating task: $e')),
-                    );
-                  }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter task title')),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF131416),
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          final newTask = {
+                            'id': DateTime.now().millisecondsSinceEpoch, // Generate local ID
+                            'title': titleController.text.trim(),
+                            'description': descriptionController.text.trim(),
+                            'priority': priority.trim(),
+                            'dueDate': dueDate,
+                            'dueTime': (selectedTime?.format(dialogContext) ??
+                                    '12:00 PM')
+                                .trim(),
+                            'isCompleted': false,
+                            'user_id': await AuthManager().getUserId(),
+                          };
+
+                          // Save to database first
+                          final userId = await AuthManager().getUserId() ?? 0;
+                          try {
+                            await LeadActivityApi.saveTask(
+                              leadId: widget.lead.id,
+                              title: titleController.text,
+                              description: descriptionController.text,
+                              priority: priority,
+                              dueDate: dueDate,
+                              userId: userId,
+                              dueTime: selectedTime?.format(dialogContext) ??
+                                  '12:00 PM',
+                            );
+                            debugPrint(
+                                'âœ… Task saved to database: ${titleController.text}');
+                          } catch (e) {
+                            debugPrint('âŒ Database save failed: $e');
+                          }
+
+                          // Reload tasks from database to get the latest data
+                          await _loadData();
+                          debugPrint(
+                              'âœ… Task created and data reloaded: ${titleController.text}');
+
+                          // Update notification monitoring with new task data
+                          await _updateNotificationMonitoring();
+
+                          if (!mounted) return;
+                          Navigator.pop(dialogContext);
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Task created successfully')),
+                          );
+                        } catch (e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error creating task: $e')),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter task title')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF131416),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child: const Text('Create',
+                        style: TextStyle(fontSize: 14)),
+                  ),
+                ],
               ),
-              child: const Text('Create', style: TextStyle(fontSize: 14)),
             ),
           ],
-        ),
+        );
+        },
       ),
     );
   }
@@ -1394,6 +1532,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           backgroundColor: Colors.white,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
           contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
           titlePadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           title: _buildDialogTitle('Add Notes', dialogContext),
@@ -1570,7 +1711,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                 // Note Content Field
                 Expanded(
                   child: TextField(
@@ -1613,72 +1754,88 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel', style: TextStyle(fontSize: 14)),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (noteController.text.isNotEmpty) {
-                  try {
-                    final userId = await AuthManager().getUserId() ?? 0;
-                    final userName = await AuthManager().getUsername() ?? 'Current User';
-                    
-                    final newNote = {
-                      'id': null, // Will be assigned by database
-                      'content': noteController.text,
-                      'date': DateTime.now(),
-                      'user_id': userId,
-                      'user_name': userName,
-                    };
+            Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _buildCancelButton(() => Navigator.pop(dialogContext),
+                      borderRadius: 0),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (noteController.text.isNotEmpty) {
+                        try {
+                          final userId = await AuthManager().getUserId() ?? 0;
+                          final userName =
+                              await AuthManager().getUsername() ??
+                                  'Current User';
 
-                    // Save to database immediately and automatically
-                    try {
-                      await LeadActivityApi.saveNote(
-                        leadId: widget.lead.id,
-                        content: noteController.text,
-                        userId: userId,
-                      );
-                      
-                      // Update note with database confirmation
-                      newNote['id'] = DateTime.now().millisecondsSinceEpoch;
-                    } catch (e) {
-                      print('Database save failed: $e');
-                      // Continue silently with local storage as backup
-                    }
-                    
-                    // Add to UI immediately
-                    setState(() {
-                      _notes.add(newNote);
-                    });
-                    
-                    // Save to local storage as backup
-                    await _saveNotesToStorage();
-                    
-                    // Update notification monitoring with new note data
-                    await _updateNotificationMonitoring();
-                    
-                    if (!mounted) return;
-                    Navigator.pop(dialogContext);
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Note added successfully')),
-                    );
-                  } catch (e) {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error saving note: $e')),
-                    );
-                  }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF131416),
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          final newNote = {
+                            'id': null, // Will be assigned by database
+                            'content': noteController.text,
+                            'date': DateTime.now(),
+                            'user_id': userId,
+                            'user_name': userName,
+                          };
+
+                          // Save to database immediately and automatically
+                          try {
+                            await LeadActivityApi.saveNote(
+                              leadId: widget.lead.id,
+                              content: noteController.text,
+                              userId: userId,
+                            );
+
+                            // Update note with database confirmation
+                            newNote['id'] =
+                                DateTime.now().millisecondsSinceEpoch;
+                          } catch (e) {
+                            print('Database save failed: $e');
+                            // Continue silently with local storage as backup
+                          }
+
+                          // Add to UI immediately
+                          setState(() {
+                            _notes.add(newNote);
+                          });
+
+                          // Save to local storage as backup
+                          await _saveNotesToStorage();
+
+                          // Update notification monitoring with new note data
+                          await _updateNotificationMonitoring();
+
+                          if (!mounted) return;
+                          Navigator.pop(dialogContext);
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Note added successfully')),
+                          );
+                        } catch (e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error saving note: $e')),
+                          );
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF131416),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    child:
+                        const Text('Add', style: TextStyle(fontSize: 14)),
+                  ),
+                ],
               ),
-              child: const Text('Add', style: TextStyle(fontSize: 14)),
             ),
           ],
         ),
@@ -2054,6 +2211,158 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     }
   }
 
+  String _formatShortDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  Future<void> _downloadQuotePdf(String url, String fileName) async {
+    try {
+      final uri = Uri.parse(url);
+      final response = await http.get(uri);
+      if (response.statusCode != 200) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to download PDF')),
+        );
+        return;
+      }
+
+      final dir = await getApplicationDocumentsDirectory();
+      final filePath = '${dir.path}/$fileName.pdf';
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('PDF saved to $filePath')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Download failed: $e')),
+      );
+    }
+  }
+
+  Widget _buildQuoteCard(Map<String, dynamic> quote) {
+    final title = (quote['title'] ?? 'Quote').toString();
+    final id = (quote['id'] ?? '').toString();
+    final amount = (quote['amount'] ?? '').toString();
+    final status = (quote['status'] ?? 'Draft').toString();
+    final date = quote['date'] is DateTime
+        ? quote['date'] as DateTime
+        : DateTime.tryParse(quote['date']?.toString() ?? '') ?? DateTime.now();
+    final pdfUrl = (quote['pdfUrl'] ?? '').toString();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedFile01,
+                  color: Color(0xFF6B7280),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w600),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Quote $id • ${_formatShortDate(date)}',
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: status == 'Sent'
+                      ? const Color(0xFFE8F5E9)
+                      : const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  status,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: status == 'Sent'
+                        ? const Color(0xFF2E7D32)
+                        : const Color(0xFF4B5563),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                amount,
+                style: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+              TextButton.icon(
+                onPressed: pdfUrl.isEmpty
+                    ? null
+                    : () => _downloadQuotePdf(pdfUrl, id.isEmpty ? 'quote' : id),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF131416),
+                  backgroundColor: const Color(0xFFE5E7EB),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
+                icon: const Icon(Icons.download, size: 16, color: Color(0xFF131416)),
+                label: const Text('Download PDF',
+                    style: TextStyle(fontSize: 12)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   String _formatDateTime(dynamic date) {
     if (date == null) return 'No date';
     DateTime parsedDate = date is String ? DateTime.parse(date) : date;
@@ -2130,10 +2439,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          _buildCancelButton(() => Navigator.pop(context)),
           ElevatedButton(
             onPressed: () {
               // Here you would typically update the lead in the database
@@ -2824,13 +3130,21 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
       children: [
         Row(
           children: [
-            IconButton(
-              onPressed: onBack ?? () => Navigator.pop(dialogContext),
-              icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
+            const SizedBox(width: _dialogListPadding),
+            SizedBox(
+              width: _dialogLeadingWidth,
+              child: Align(
+                alignment: Alignment.center,
+                child: IconButton(
+                  onPressed: onBack ?? () => Navigator.pop(dialogContext),
+                  icon:
+                      const Icon(Icons.arrow_back, size: 20, color: Colors.black),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: _dialogTitleGap),
             Expanded(
               child: Text(
                 title,
@@ -2846,6 +3160,22 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
           Divider(height: 1, thickness: 1, color: Colors.grey.shade200),
         ],
       ],
+    );
+  }
+
+  Widget _buildCancelButton(VoidCallback onPressed, {double borderRadius = 6}) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        backgroundColor: const Color(0xFFE5E7EB),
+        foregroundColor: const Color(0xFF111827),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+      ),
+      child: const Text('Cancel'),
     );
   }
 
@@ -2952,10 +3282,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       content: const Text(
                           'Are you sure you want to mark this lead as completed?'),
                       actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(dialogContext, false),
-                          child: const Text('Cancel'),
-                        ),
+                        _buildCancelButton(
+                            () => Navigator.pop(dialogContext, false)),
                         TextButton(
                           onPressed: () => Navigator.pop(dialogContext, true),
                           child: const Text('Mark as Completed',
@@ -2992,10 +3320,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       content: const Text(
                           'Are you sure you want to delete this lead?'),
                       actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(dialogContext, false),
-                          child: const Text('Cancel'),
-                        ),
+                        _buildCancelButton(
+                            () => Navigator.pop(dialogContext, false)),
                         TextButton(
                           onPressed: () => Navigator.pop(dialogContext, true),
                           child: const Text('Delete',
@@ -3185,7 +3511,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   // Row 3: Notes
                   if (widget.lead.notes != null &&
                       widget.lead.notes!.isNotEmpty) ...[
-                    const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                     Row(
                       children: [
                         const HugeIcon(
@@ -3211,7 +3537,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   // Tags
                   if (widget.lead.tags != null &&
                       widget.lead.tags!.isNotEmpty) ...[
-                    const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 6,
@@ -3291,6 +3617,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                   Tab(text: 'Activity'),
                   Tab(text: 'Notes'),
                   Tab(text: 'Tasks'),
+                  Tab(text: 'Quotes'),
                 ],
               ),
             ),
@@ -3343,6 +3670,17 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                                 itemBuilder: (context, index) =>
                                     _buildTaskItem(_tasks[index]),
                               ),
+                    // Quotes Tab
+                    _quotes.isEmpty
+                        ? const Center(
+                            child: Text('No quotes available'),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(12),
+                            itemCount: _quotes.length,
+                            itemBuilder: (context, index) =>
+                                _buildQuoteCard(_quotes[index]),
+                          ),
                   ],
                 ),
               ),
@@ -3457,6 +3795,12 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                           break;
                         case 2:
                           _showAddTaskDialog();
+                          break;
+                        case 3:
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Quotes are generated automatically')),
+                          );
                           break;
                       }
                     },
