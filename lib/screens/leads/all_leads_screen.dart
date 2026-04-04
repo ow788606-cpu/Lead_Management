@@ -4,11 +4,8 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../managers/lead_manager.dart';
 import '../../models/lead.dart';
 import '../tags/tag_api.dart';
-import '../../widgets/app_drawer.dart';
 import '../../services/notification_service.dart';
-import '../main_screen.dart';
 import 'detail_lead_screen.dart';
-import 'add_new_lead_screen.dart';
 
 class AllLeadsScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -318,8 +315,8 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   ),
                   Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
                     ),
                     child: const HugeIcon(
@@ -331,8 +328,8 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
                     ),
                     child: const HugeIcon(
@@ -344,8 +341,8 @@ class _AllLeadsScreenState extends State<AllLeadsScreen>
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF5F5F5),
                       shape: BoxShape.circle,
                     ),
                     child: const HugeIcon(

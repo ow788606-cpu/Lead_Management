@@ -34,7 +34,6 @@ class _AddNewLeadScreenState extends State<AddNewLeadScreen> {
   String? _selectedContact;
   String? _selectedService;
   String? _selectedTag;
-  String? _selectedCountry;
   DateTime? _followUpDate;
   TimeOfDay? _followUpTime;
   bool _showContactForm = false;

@@ -1,13 +1,9 @@
 ﻿// ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 import 'package:hugeicons/hugeicons.dart';
 import '../../models/lead.dart';
 import '../../managers/lead_manager.dart';
@@ -16,7 +12,6 @@ import '../../managers/task_manager.dart';
 import '../../models/task.dart';
 import '../../services/lead_activity_api.dart';
 import '../../widgets/app_drawer.dart';
-import '../main_screen.dart';
 import '../tasks/tasks_detail_screen.dart';
 import '../../services/notification_service.dart';
 
@@ -1129,8 +1124,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         return Icons.phone;
       case 0xe0be: // Icons.sms
         return Icons.sms;
-      case 0xe0be: // Icons.email
-        return Icons.email;
       case 0xe5c9: // Icons.cancel
         return Icons.cancel;
       case 0xe5ca: // Icons.check_circle
@@ -1139,8 +1132,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
         return Icons.person_add;
       case 0xe8b5: // Icons.schedule
         return Icons.schedule;
-      case 0xe878: // Icons.event
-        return Icons.event;
       default:
         return Icons.event; // Default fallback icon
     }
@@ -1439,18 +1430,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                             return;
                           }
 
-                          final newTask = {
-                            'id': DateTime.now().millisecondsSinceEpoch, // Generate local ID
-                            'title': titleController.text.trim(),
-                            'description': descriptionController.text.trim(),
-                            'priority': priority.trim(),
-                            'dueDate': dueDate,
-                            'dueTime': (selectedTime?.format(dialogContext) ??
-                                    '12:00 PM')
-                                .trim(),
-                            'isCompleted': false,
-                            'user_id': await AuthManager().getUserId(),
-                          };
 
                           // Save to database first
                           final userId = await AuthManager().getUserId() ?? 0;
@@ -2144,22 +2123,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     return description;
   }
 
-  String _formatTime(DateTime dateTime) {
-    int hour = dateTime.hour;
-    int minute = dateTime.minute;
-    String period = 'AM';
-    
-    if (hour == 0) {
-      hour = 12;
-    } else if (hour > 12) {
-      hour = hour - 12;
-      period = 'PM';
-    } else if (hour == 12) {
-      period = 'PM';
-    }
-    
-    return '${hour.toString()}:${minute.toString().padLeft(2, '0')} $period';
-  }
 
   String _formatDate(DateTime date) {
     const months = [
@@ -2218,28 +2181,11 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
   Future<void> _downloadQuotePdf(String url, String fileName) async {
     try {
       final uri = Uri.parse(url);
-      final response = await http.get(uri);
-      if (response.statusCode != 200) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to download PDF')),
-        );
-        return;
-      }
-
-      final dir = await getApplicationDocumentsDirectory();
-      final filePath = '${dir.path}/$fileName.pdf';
-      final file = File(filePath);
-      await file.writeAsBytes(response.bodyBytes);
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('PDF saved to $filePath')),
-      );
+      await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Download failed: $e')),
+        SnackBar(content: Text('Failed to open PDF: $e')),
       );
     }
   }
@@ -2587,9 +2533,9 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
               ),
               const SizedBox(height: 12),
               // Action row
-              Row(
+              const Row(
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     width: 60,
                     child: Text(
                       'Action',
@@ -2599,8 +2545,8 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  const Text(
+                  SizedBox(width: 16),
+                  Text(
                     'Notes Added',
                     style: TextStyle(
                       fontSize: 14,
@@ -2876,6 +2822,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     }
   }
 
+  // ignore: unused_element
   void _clearTaskDuplicates() {
     final Map<String, Map<String, dynamic>> uniqueTasksMap = {};
     
@@ -2895,32 +2842,10 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     _tasks = uniqueTasksMap.values.toList();
     
     if (originalCount != _tasks.length) {
-      debugPrint('ðŸ“‹ Aggressive deduplication: ${originalCount} â†’ ${_tasks.length} tasks');
+      debugPrint('ðŸ“‹ Aggressive deduplication: $originalCount â†’ ${_tasks.length} tasks');
     }
   }
 
-  void _removeDuplicateTasks() {
-    final uniqueTasks = <Map<String, dynamic>>[];
-    final seenTasks = <String>{};
-    
-    for (final task in _tasks) {
-      // Create a comprehensive key for duplicate detection
-      final taskKey = '${task['title']?.toString().trim()}_${task['description']?.toString().trim()}_${task['dueDate']?.toString()}_${task['dueTime']?.toString().trim()}_${task['priority']?.toString().trim()}';
-      if (!seenTasks.contains(taskKey)) {
-        seenTasks.add(taskKey);
-        uniqueTasks.add(task);
-      } else {
-        debugPrint('ðŸ—‘ï¸ Removed duplicate task: ${task['title']}');
-      }
-    }
-    
-    final originalCount = _tasks.length;
-    _tasks = uniqueTasks;
-    
-    if (originalCount != _tasks.length) {
-      debugPrint('ðŸ“‹ Task deduplication: ${originalCount} â†’ ${_tasks.length} tasks');
-    }
-  }
 
   Future<void> _updateNotificationMonitoring() async {
     if (!mounted) return;
@@ -3341,7 +3266,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                 }
               },
               itemBuilder: (context) => [
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'edit',
                   child: Row(
                     children: [
@@ -3355,7 +3280,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     ],
                   ),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'personal',
                   child: Row(
                     children: [
@@ -3369,7 +3294,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     ],
                   ),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'mark_completed',
                   child: Row(
                     children: [
@@ -3384,7 +3309,7 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                     ],
                   ),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'delete',
                   child: Row(
                     children: [
@@ -3721,14 +3646,14 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.message, size: 18),
-                        const SizedBox(width: 6),
+                        Icon(Icons.message, size: 18),
+                        SizedBox(width: 6),
                         Flexible(
-                          child: const Text(
+                          child: Text(
                             'Message',
                             style: TextStyle(fontSize: 13),
                             overflow: TextOverflow.ellipsis,
@@ -3757,14 +3682,14 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
                         borderRadius: BorderRadius.zero,
                       ),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.call, size: 18),
-                        const SizedBox(width: 6),
+                        Icon(Icons.call, size: 18),
+                        SizedBox(width: 6),
                         Flexible(
-                          child: const Text(
+                          child: Text(
                             'Call',
                             style: TextStyle(fontSize: 13),
                             overflow: TextOverflow.ellipsis,
@@ -3817,30 +3742,6 @@ class _DetailLeadScreenState extends State<DetailLeadScreen>
     );
   }
 
-  Widget? _buildFloatingActionButton() {
-    switch (_tabController.index) {
-      case 0: // Activity tab
-        return FloatingActionButton(
-          onPressed: _showAddActivityDialog,
-          backgroundColor: const Color(0xFF131416),
-          child: const Icon(Icons.add, color: Colors.white),
-        );
-      case 1: // Notes tab
-        return FloatingActionButton(
-          onPressed: _showAddNoteDialog,
-          backgroundColor: const Color(0xFF131416),
-          child: const Icon(Icons.note_add, color: Colors.white),
-        );
-      case 2: // Tasks tab
-        return FloatingActionButton(
-          onPressed: _showAddTaskDialog,
-          backgroundColor: const Color(0xFF131416),
-          child: const Icon(Icons.task_alt, color: Colors.white),
-        );
-      default:
-        return null;
-    }
-  }
 }
 
 class NewWidget extends StatelessWidget {
